@@ -1,53 +1,357 @@
 body {
-  font-family: system-ui, Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding: 16px;
-  background: #f5f7fb;
+  padding: 24px;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255, 204, 102, 0.18),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #120d08 0%, #22150d 45%, #0e1a1f 100%);
+  color: #f7e4b1;
 }
-.container {
-  max-width: 920px;
-  margin: 0 auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+
+#root {
+  min-height: 100vh;
 }
+
 .row {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
+
 .item {
-  border: 1px solid #e3e7ee;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  border: 1px solid rgba(245, 193, 73, 0.28);
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
+
 input,
 select {
-  padding: 6px 8px;
-  border: 1px solid #dde2ee;
-  border-radius: 6px;
+  padding: 8px 10px;
+  border: 1px solid rgba(245, 193, 73, 0.35);
+  border-radius: 10px;
+  background: rgba(13, 18, 24, 0.72);
+  color: #fff7db;
+  outline: none;
 }
+
+input:focus,
+select:focus {
+  border-color: #f7b84b;
+  box-shadow: 0 0 0 2px rgba(247, 184, 75, 0.18);
+}
+
 button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  background: #2563eb;
-  color: white;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 184, 75, 0.45);
+  background: linear-gradient(135deg, #9a5b1b 0%, #d59d2a 100%);
+  color: #fff8e3;
   cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
+
+button:hover {
+  transform: translateY(-1px);
+}
+
 button.secondary {
-  background: #6b7280;
+  background: linear-gradient(135deg, #243a49 0%, #31526b 100%);
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 12px;
+  overflow: hidden;
+  border-radius: 12px;
 }
+
 th,
 td {
-  border: 1px solid #e6e9ef;
-  padding: 8px;
+  border: 1px solid rgba(245, 193, 73, 0.2);
+  padding: 9px 10px;
   text-align: left;
+}
+
+th {
+  background: rgba(245, 193, 73, 0.16);
+}
+
+tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.fantasy-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(
+    135deg,
+    rgba(17, 24, 39, 0.95) 0%,
+    rgba(27, 20, 11, 0.95) 100%
+  );
+  border: 1px solid rgba(247, 184, 75, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.fantasy-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.fantasy-card {
+  position: relative;
+  z-index: 1;
+}
+
+.fantasy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(247, 184, 75, 0.25);
+}
+
+.fantasy-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fantasy-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: linear-gradient(135deg, #7a3a10 0%, #d59d2a 100%);
+  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.18);
+}
+
+.fantasy-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #ffe7a8;
+}
+
+.fantasy-subtitle {
+  margin: 4px 0 0;
+  color: #c6b07b;
+  font-size: 0.95rem;
+}
+
+.fantasy-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fantasy-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.fantasy-control-group.wide {
+  min-width: 280px;
+  flex: 1;
+}
+
+.fantasy-control-group label {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #d4b162;
+}
+
+.fantasy-intro {
+  margin: 0 0 16px;
+  color: #e9d9a9;
+  line-height: 1.6;
+}
+
+.fantasy-section {
+  display: grid;
+  gap: 10px;
+}
+
+.fantasy-ingredient-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(247, 184, 75, 0.2);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.fantasy-ingredient-name-row {
+  margin-bottom: 10px;
+}
+
+.fantasy-ingredient-name {
+  font-weight: 700;
+  color: #ffe7a8;
+  font-size: 1rem;
+}
+
+.fantasy-ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fantasy-ingredient-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fantasy-ingredient-field label {
+  font-size: 0.75rem;
+  color: #d4b162;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fantasy-ingredient-value {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(13, 18, 24, 0.72);
+  border: 1px solid rgba(245, 193, 73, 0.25);
+  color: #fff7db;
+  display: flex;
+  align-items: center;
+}
+
+.fantasy-divider {
+  margin: 18px 0;
+  border-top: 1px solid rgba(247, 184, 75, 0.2);
+}
+
+.fantasy-controls-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.fantasy-input-wrap {
+  position: relative;
+  display: flex;
+}
+
+.fantasy-input-wrap input {
+  flex: 1;
+  width: auto;
+}
+
+.fantasy-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fantasy-suggestions {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 220px;
+  overflow: auto;
+  background: rgba(16, 21, 28, 0.97);
+  border: 1px solid rgba(247, 184, 75, 0.24);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+.fantasy-suggestion {
+  padding: 8px 10px;
+  cursor: pointer;
+  color: #fbe7aa;
+}
+
+.fantasy-suggestion:hover {
+  background: rgba(247, 184, 75, 0.14);
+}
+
+.fantasy-summary {
+  margin-top: 18px;
+}
+
+.fantasy-summary-card {
+  border: 1px solid rgba(247, 184, 75, 0.22);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.fantasy-summary-card h3,
+.fantasy-summary-card h4 {
+  margin: 0 0 10px;
+  color: #ffe7a8;
+}
+
+.fantasy-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fantasy-stat {
+  padding: 10px 12px;
+  background: rgba(247, 184, 75, 0.12);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fantasy-state {
+  color: #e7cf8d;
+  margin: 8px 0 0;
+}
+
+.fantasy-state.error {
+  color: #ff8e8e;
+}
+
+.fantasy-table-wrap {
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .fantasy-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fantasy-controls-grid {
+    grid-template-columns: 1fr;
+  }
 }

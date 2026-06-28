@@ -614,217 +614,223 @@ export default function RecipeSimulator() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <div
-        className="row"
-        style={{
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
-        <h2 style={{ margin: 0 }}>{getUiText("title", language)}</h2>
-        <div
-          className="row"
-          style={{ gap: 8, alignItems: "center", flexWrap: "wrap" }}
-        >
-          <div className="row" style={{ gap: 6, alignItems: "center" }}>
-            <label style={{ width: 70 }}>
-              {getUiText("language", language)}
-            </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              {supportedLanguages.map((locale) => (
-                <option key={locale} value={locale}>
-                  {locale}
-                </option>
-              ))}
-            </select>
+    <div className="fantasy-shell">
+      <div className="fantasy-card">
+        <div className="fantasy-header">
+          <div className="fantasy-title-wrap">
+            <div className="fantasy-badge">⚔️</div>
+            <div>
+              <h2>{getUiText("title", language)}</h2>
+              <p className="fantasy-subtitle">
+                Craft, calculate, and optimize your next profit
+              </p>
+            </div>
           </div>
-          <div className="row" style={{ gap: 6, alignItems: "center" }}>
-            <label style={{ width: 70 }}>{getUiText("region", language)}</label>
-            <select value={region} onChange={(e) => setRegion(e.target.value)}>
-              <option value="europe">{getUiText("europe", language)}</option>
-              <option value="west">{getUiText("west", language)}</option>
-              <option value="east">{getUiText("east", language)}</option>
-            </select>
+
+          <div className="fantasy-toolbar">
+            <div className="fantasy-control-group">
+              <label>{getUiText("language", language)}</label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+              >
+                {supportedLanguages.map((locale) => (
+                  <option key={locale} value={locale}>
+                    {locale}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="fantasy-control-group">
+              <label>{getUiText("region", language)}</label>
+              <select
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+              >
+                <option value="europe">{getUiText("europe", language)}</option>
+                <option value="west">{getUiText("west", language)}</option>
+                <option value="east">{getUiText("east", language)}</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <p>{getUiText("intro", language)}</p>
 
-      {ingredients.map((it, idx) => (
-        <div key={idx} className="item">
-          <div className="row">
-            <label style={{ width: 120 }}>{getUiText("item", language)}</label>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>
-                {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
+        <p className="fantasy-intro">{getUiText("intro", language)}</p>
+
+        <div className="fantasy-section">
+          {ingredients.map((it, idx) => (
+            <div key={idx} className="fantasy-ingredient-card">
+              <div className="fantasy-ingredient-name-row">
+                <div className="fantasy-ingredient-name">
+                  {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
+                </div>
+              </div>
+
+              <div className="fantasy-ingredient-grid">
+                <div className="fantasy-ingredient-field">
+                  <label>{getUiText("requiredPerCraft", language)}</label>
+                  <div className="fantasy-ingredient-value">{it.required}</div>
+                </div>
+
+                <div className="fantasy-ingredient-field">
+                  <label>{getUiText("available", language)}</label>
+                  <input
+                    type="number"
+                    value={it.available}
+                    onChange={(e) =>
+                      updateIngredient(idx, {
+                        available: Number(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="fantasy-ingredient-field">
+                  <label>{getUiText("buyPrice", language)}</label>
+                  <input
+                    type="number"
+                    value={it.buyPrice}
+                    onChange={(e) =>
+                      updateIngredient(idx, {
+                        buyPrice: Number(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="fantasy-ingredient-field">
+                  <label>{getUiText("buyCity", language)}</label>
+                  <select
+                    value={it.buyCity}
+                    onChange={(e) => updateIngredientCity(idx, e.target.value)}
+                  >
+                    {buyCities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-            <label style={{ width: 140, marginLeft: 8 }}>
-              {getUiText("requiredPerCraft", language)}
-            </label>
+          ))}
+        </div>
+
+        <div className="fantasy-divider" />
+
+        <div className="fantasy-controls-grid">
+          <div className="fantasy-control-group wide">
+            <label>{getUiText("outputItem", language)}</label>
+            <div className="fantasy-input-wrap">
+              <input
+                value={outputItem}
+                onChange={(e) => onOutputSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const nextId = resolveOutputItemId(outputItem);
+                    if (nextId) {
+                      setSelectedOutputId(nextId);
+                      setOutputSuggestions([]);
+                    }
+                  }
+                }}
+                style={{ flex: 1 }}
+              />
+              {outputSuggestions && outputSuggestions.length > 0 && (
+                <div className="fantasy-suggestions">
+                  {outputSuggestions.map((s, si) => (
+                    <div
+                      key={si}
+                      className="fantasy-suggestion"
+                      onMouseDown={() => selectOutputSuggestion(s)}
+                    >
+                      {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="fantasy-control-group">
+            <label>{getUiText("percentReturn", language)}</label>
             <input
               type="number"
-              value={it.required}
-              disabled
-              style={{ width: 80, opacity: 0.7, cursor: "not-allowed" }}
+              value={returnPercent}
+              onChange={(e) => setReturnPercent(Number(e.target.value))}
+              style={{ width: 90 }}
             />
-            <label style={{ width: 120, marginLeft: 8 }}>
-              {getUiText("available", language)}
-            </label>
-            <input
-              type="number"
-              value={it.available}
-              onChange={(e) =>
-                updateIngredient(idx, { available: Number(e.target.value) })
-              }
-              style={{ width: 100 }}
-            />
-            <label style={{ width: 120, marginLeft: 8 }}>
-              {getUiText("buyPrice", language)}
-            </label>
-            <input
-              type="number"
-              value={it.buyPrice}
-              onChange={(e) =>
-                updateIngredient(idx, { buyPrice: Number(e.target.value) })
-              }
-              style={{ width: 120 }}
-            />
-            <label style={{ width: 100, marginLeft: 8 }}>
-              {getUiText("buyCity", language)}
-            </label>
-            <select
-              value={it.buyCity}
-              onChange={(e) => updateIngredientCity(idx, e.target.value)}
-              style={{ width: 140 }}
+          </div>
+
+          <div className="fantasy-actions">
+            <button className="fantasy-btn primary" onClick={simulate}>
+              {getUiText("simulate", language)}
+            </button>
+            <button
+              className="fantasy-btn secondary"
+              onClick={refreshAllPrices}
+              disabled={refreshingPrices}
             >
-              {buyCities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+              {refreshingPrices
+                ? getUiText("refreshing", language)
+                : getUiText("refreshPrices", language)}
+            </button>
           </div>
         </div>
-      ))}
 
-      <hr />
-
-      <div className="row" style={{ gap: 10 }}>
-        <label style={{ width: 120 }}>
-          {getUiText("outputItem", language)}
-        </label>
-        <div style={{ position: "relative", flex: 1 }}>
-          <input
-            value={outputItem}
-            onChange={(e) => onOutputSearchChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const nextId = resolveOutputItemId(outputItem);
-                if (nextId) {
-                  setSelectedOutputId(nextId);
-                  setOutputSuggestions([]);
-                }
-              }
-            }}
-            style={{ width: 220 }}
-          />
-          {outputSuggestions && outputSuggestions.length > 0 && (
-            <div
-              style={{
-                position: "absolute",
-                zIndex: 40,
-                background: "white",
-                border: "1px solid #e6e9ef",
-                width: 220,
-                maxHeight: 220,
-                overflow: "auto",
-              }}
-            >
-              {outputSuggestions.map((s, si) => (
-                <div
-                  key={si}
-                  style={{ padding: 6, cursor: "pointer" }}
-                  onMouseDown={() => selectOutputSuggestion(s)}
-                >
-                  {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
+        <div className="fantasy-summary">
+          {results && (
+            <div className="fantasy-summary-card">
+              <h3>{getUiText("simulation", language)}</h3>
+              <div className="fantasy-stats-grid">
+                <div className="fantasy-stat">
+                  <span>{getUiText("estimatedOutputs", language)}</span>
+                  <strong>{results.crafts}</strong>
                 </div>
-              ))}
+                <div className="fantasy-stat">
+                  <span>{getUiText("totalCost", language)}</span>
+                  <strong>{Math.round(results.totalCost)}</strong>
+                </div>
+              </div>
+
+              {results.loading && (
+                <p className="fantasy-state">
+                  {getUiText("loadingPrices", language)}
+                </p>
+              )}
+              {results.error && (
+                <p className="fantasy-state error">
+                  {getUiText("errorFetchingPrices", language)}: {results.error}
+                </p>
+              )}
+              {results.rows && (
+                <div className="fantasy-table-wrap">
+                  <h4>{getUiText("pricesProfit", language)}</h4>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>{getUiText("city", language)}</th>
+                        <th>{getUiText("price", language)}</th>
+                        <th>{getUiText("revenue", language)}</th>
+                        <th>{getUiText("profit", language)}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.rows.map((r, idx) => (
+                        <tr key={idx}>
+                          <td>{r.city}</td>
+                          <td>{Math.round(r.price)}</td>
+                          <td>{Math.round(r.revenue)}</td>
+                          <td>{Math.round(r.profit)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
         </div>
-        <label style={{ width: 160 }}>
-          {getUiText("percentReturn", language)}
-        </label>
-        <input
-          type="number"
-          value={returnPercent}
-          onChange={(e) => setReturnPercent(Number(e.target.value))}
-          style={{ width: 80 }}
-        />
-        <button onClick={simulate}>{getUiText("simulate", language)}</button>
-        <button
-          onClick={refreshAllPrices}
-          disabled={refreshingPrices}
-          style={{ marginLeft: 8 }}
-        >
-          {refreshingPrices
-            ? getUiText("refreshing", language)
-            : getUiText("refreshPrices", language)}
-        </button>
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        {results && (
-          <div>
-            <h3>{getUiText("simulation", language)}</h3>
-            <p>
-              {getUiText("estimatedOutputs", language)}:{" "}
-              <strong>{results.crafts}</strong>
-            </p>
-            <p>
-              {getUiText("totalCost", language)}:{" "}
-              <strong>{Math.round(results.totalCost)}</strong>
-            </p>
-
-            {results.loading && <p>{getUiText("loadingPrices", language)}</p>}
-            {results.error && (
-              <p style={{ color: "red" }}>
-                {getUiText("errorFetchingPrices", language)}: {results.error}
-              </p>
-            )}
-            {results.rows && (
-              <div>
-                <h4>{getUiText("pricesProfit", language)}</h4>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{getUiText("city", language)}</th>
-                      <th>{getUiText("price", language)}</th>
-                      <th>{getUiText("revenue", language)}</th>
-                      <th>{getUiText("profit", language)}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.rows.map((r, idx) => (
-                      <tr key={idx}>
-                        <td>{r.city}</td>
-                        <td>{Math.round(r.price)}</td>
-                        <td>{Math.round(r.revenue)}</td>
-                        <td>{Math.round(r.profit)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
