@@ -16,6 +16,15 @@ function formatPrice(value) {
   return value > 0 ? Math.round(value).toLocaleString() : "—";
 }
 
+const historyCityColors = [
+  "#f7b84b",
+  "#7dd3fc",
+  "#34d399",
+  "#f472b6",
+  "#f59e0b",
+  "#a78bfa",
+];
+
 export default function PriceChecker({ language, region }) {
   const { itemNameLookup, itemsIndex } = useItemsData(language);
   const [searchValue, setSearchValue] = useState("");
@@ -153,14 +162,15 @@ export default function PriceChecker({ language, region }) {
     return points.reduce((sum, p) => sum + (p.item_count || 0), 0);
   };
 
+  const getCityColor = (city) =>
+    historyCityColors[buyCities.indexOf(city) % historyCityColors.length];
+
   const selectedHistorySeries = selectedHistoryCities
     .map((city) => ({
       label: city,
       city,
       data: getCityHistoryPoints(city),
-      color: ["#f7b84b", "#7dd3fc", "#34d399", "#f472b6", "#f59e0b", "#a78bfa"][
-        buyCities.indexOf(city) % 6
-      ],
+      color: getCityColor(city),
     }))
     .filter((series) => series.data && series.data.length > 0);
 
@@ -332,8 +342,42 @@ export default function PriceChecker({ language, region }) {
                         days={historyDays}
                         language={language}
                         timeScale={getHistoryTimeScale(historyDays)}
-                        showLegend
                       />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          padding: "8px 10px",
+                          border: "1px solid rgba(247, 184, 75, 0.2)",
+                          borderRadius: "8px",
+                          background: "rgba(255, 255, 255, 0.02)",
+                        }}
+                      >
+                        {selectedHistoryCities.map((city) => (
+                          <div
+                            key={`legend-${city}`}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              fontSize: "11px",
+                              color: "#e7cf8d",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: "10px",
+                                height: "3px",
+                                borderRadius: "2px",
+                                background: getCityColor(city),
+                                display: "inline-block",
+                              }}
+                            />
+                            <span>{city}</span>
+                          </div>
+                        ))}
+                      </div>
                       <div
                         style={{
                           display: "grid",

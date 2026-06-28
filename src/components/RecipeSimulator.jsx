@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
 import namesData from "../data/items_names.json";
 import { getUiText } from "../features/recipeSimulator/translations";
+import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
 import {
+  fetchItemPriceHistory,
   fetchItemMarketPrice as fetchMarketPrice,
   getHostForRegion,
-  fetchItemPriceHistory,
 } from "../shared/marketApi";
-import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
 
 const buyCities = [
   "Bridgewatch",
@@ -525,183 +525,183 @@ export default function RecipeSimulator({ language, region }) {
         </div>
       </div>
 
-        <p className="fantasy-intro">{getUiText("intro", language)}</p>
+      <p className="fantasy-intro">{getUiText("intro", language)}</p>
 
-        <div className="fantasy-section">
-          {ingredients.map((it, idx) => (
-            <div key={idx} className="fantasy-ingredient-card">
-              <div className="fantasy-ingredient-name-row">
-                <div className="fantasy-ingredient-name">
-                  {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
-                </div>
-              </div>
-
-              <div className="fantasy-ingredient-grid">
-                <div className="fantasy-ingredient-field">
-                  <label>{getUiText("requiredPerCraft", language)}</label>
-                  <div className="fantasy-ingredient-value">{it.required}</div>
-                </div>
-
-                <div className="fantasy-ingredient-field">
-                  <label>{getUiText("available", language)}</label>
-                  <input
-                    type="number"
-                    value={it.available}
-                    onChange={(e) =>
-                      updateIngredient(idx, {
-                        available: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="fantasy-ingredient-field">
-                  <label>{getUiText("buyPrice", language)}</label>
-                  <input
-                    type="number"
-                    value={it.buyPrice}
-                    onChange={(e) =>
-                      updateIngredient(idx, {
-                        buyPrice: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="fantasy-ingredient-field">
-                  <label>{getUiText("buyCity", language)}</label>
-                  <select
-                    value={it.buyCity}
-                    onChange={(e) => updateIngredientCity(idx, e.target.value)}
-                  >
-                    {buyCities.map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+      <div className="fantasy-section">
+        {ingredients.map((it, idx) => (
+          <div key={idx} className="fantasy-ingredient-card">
+            <div className="fantasy-ingredient-name-row">
+              <div className="fantasy-ingredient-name">
+                {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="fantasy-divider" />
+            <div className="fantasy-ingredient-grid">
+              <div className="fantasy-ingredient-field">
+                <label>{getUiText("requiredPerCraft", language)}</label>
+                <div className="fantasy-ingredient-value">{it.required}</div>
+              </div>
 
-        <div className="fantasy-controls-grid">
-          <div className="fantasy-control-group wide">
-            <label>{getUiText("outputItem", language)}</label>
-            <div className="fantasy-output-search">
-              <div className="fantasy-input-wrap">
+              <div className="fantasy-ingredient-field">
+                <label>{getUiText("available", language)}</label>
                 <input
-                  value={outputItem}
-                  onChange={(e) => onOutputSearchChange(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      const nextId = resolveOutputItemId(outputItem, itemsIndex);
-                      if (nextId) {
-                        setSelectedOutputId(nextId);
-                        setOutputSuggestions([]);
-                      }
-                    }
-                  }}
-                  style={{ flex: 1 }}
+                  type="number"
+                  value={it.available}
+                  onChange={(e) =>
+                    updateIngredient(idx, {
+                      available: Number(e.target.value),
+                    })
+                  }
                 />
               </div>
-              {outputSuggestions && outputSuggestions.length > 0 && (
-                <div className="fantasy-suggestions">
-                  {outputSuggestions.map((s, si) => (
-                    <div
-                      key={si}
-                      className="fantasy-suggestion"
-                      onMouseDown={() => selectOutputSuggestion(s)}
-                    >
-                      {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
-                    </div>
+
+              <div className="fantasy-ingredient-field">
+                <label>{getUiText("buyPrice", language)}</label>
+                <input
+                  type="number"
+                  value={it.buyPrice}
+                  onChange={(e) =>
+                    updateIngredient(idx, {
+                      buyPrice: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+
+              <div className="fantasy-ingredient-field">
+                <label>{getUiText("buyCity", language)}</label>
+                <select
+                  value={it.buyCity}
+                  onChange={(e) => updateIngredientCity(idx, e.target.value)}
+                >
+                  {buyCities.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
                   ))}
-                </div>
-              )}
+                </select>
+              </div>
             </div>
           </div>
+        ))}
+      </div>
 
-          <div className="fantasy-control-group">
-            <label>{getUiText("percentReturn", language)}</label>
-            <input
-              type="number"
-              value={returnPercent}
-              onChange={(e) => setReturnPercent(Number(e.target.value))}
-              style={{ width: 90 }}
-            />
-          </div>
+      <div className="fantasy-divider" />
 
-          <div className="fantasy-actions">
-            <button className="fantasy-btn primary" onClick={simulate}>
-              {getUiText("simulate", language)}
-            </button>
-            <button
-              className="fantasy-btn secondary"
-              onClick={refreshAllPrices}
-              disabled={refreshingPrices}
-            >
-              {refreshingPrices
-                ? getUiText("refreshing", language)
-                : getUiText("refreshPrices", language)}
-            </button>
+      <div className="fantasy-controls-grid">
+        <div className="fantasy-control-group wide">
+          <label>{getUiText("outputItem", language)}</label>
+          <div className="fantasy-output-search">
+            <div className="fantasy-input-wrap">
+              <input
+                value={outputItem}
+                onChange={(e) => onOutputSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const nextId = resolveOutputItemId(outputItem, itemsIndex);
+                    if (nextId) {
+                      setSelectedOutputId(nextId);
+                      setOutputSuggestions([]);
+                    }
+                  }
+                }}
+                style={{ flex: 1 }}
+              />
+            </div>
+            {outputSuggestions && outputSuggestions.length > 0 && (
+              <div className="fantasy-suggestions">
+                {outputSuggestions.map((s, si) => (
+                  <div
+                    key={si}
+                    className="fantasy-suggestion"
+                    onMouseDown={() => selectOutputSuggestion(s)}
+                  >
+                    {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="fantasy-summary">
-          {results && (
-            <div className="fantasy-summary-card">
-              <h3>{getUiText("simulation", language)}</h3>
-              <div className="fantasy-stats-grid">
-                <div className="fantasy-stat">
-                  <span>{getUiText("estimatedOutputs", language)}</span>
-                  <strong>{results.crafts}</strong>
-                </div>
-                <div className="fantasy-stat">
-                  <span>{getUiText("totalCost", language)}</span>
-                  <strong>{Math.round(results.totalCost)}</strong>
-                </div>
+        <div className="fantasy-control-group">
+          <label>{getUiText("percentReturn", language)}</label>
+          <input
+            type="number"
+            value={returnPercent}
+            onChange={(e) => setReturnPercent(Number(e.target.value))}
+            style={{ width: 90 }}
+          />
+        </div>
+
+        <div className="fantasy-actions">
+          <button className="fantasy-btn primary" onClick={simulate}>
+            {getUiText("simulate", language)}
+          </button>
+          <button
+            className="fantasy-btn secondary"
+            onClick={refreshAllPrices}
+            disabled={refreshingPrices}
+          >
+            {refreshingPrices
+              ? getUiText("refreshing", language)
+              : getUiText("refreshPrices", language)}
+          </button>
+        </div>
+      </div>
+
+      <div className="fantasy-summary">
+        {results && (
+          <div className="fantasy-summary-card">
+            <h3>{getUiText("simulation", language)}</h3>
+            <div className="fantasy-stats-grid">
+              <div className="fantasy-stat">
+                <span>{getUiText("estimatedOutputs", language)}</span>
+                <strong>{results.crafts}</strong>
               </div>
+              <div className="fantasy-stat">
+                <span>{getUiText("totalCost", language)}</span>
+                <strong>{Math.round(results.totalCost)}</strong>
+              </div>
+            </div>
 
-              {results.loading && (
-                <p className="fantasy-state">
-                  {getUiText("loadingPrices", language)}
-                </p>
-              )}
-              {results.error && (
-                <p className="fantasy-state error">
-                  {getUiText("errorFetchingPrices", language)}: {results.error}
-                </p>
-              )}
-              {results.rows && (
-                <div className="fantasy-table-wrap">
-                  <h4>{getUiText("pricesProfit", language)}</h4>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{getUiText("city", language)}</th>
-                        <th>{getUiText("price", language)}</th>
-                        <th>{getUiText("revenue", language)}</th>
-                        <th>{getUiText("profit", language)}</th>
-                        <th>{getUiText("profitPercent", language)}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.rows.map((r, idx) => {
-                        const profitPct = formatProfitPercent(
-                          r.profit,
-                          results.totalCost,
-                        );
-                        const profitClass =
-                          r.profit > 0
-                            ? "profit-positive"
-                            : r.profit < 0
-                              ? "profit-negative"
-                              : "";
+            {results.loading && (
+              <p className="fantasy-state">
+                {getUiText("loadingPrices", language)}
+              </p>
+            )}
+            {results.error && (
+              <p className="fantasy-state error">
+                {getUiText("errorFetchingPrices", language)}: {results.error}
+              </p>
+            )}
+            {results.rows && (
+              <div className="fantasy-table-wrap">
+                <h4>{getUiText("pricesProfit", language)}</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{getUiText("city", language)}</th>
+                      <th>{getUiText("price", language)}</th>
+                      <th>{getUiText("revenue", language)}</th>
+                      <th>{getUiText("profit", language)}</th>
+                      <th>{getUiText("profitPercent", language)}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.rows.map((r, idx) => {
+                      const profitPct = formatProfitPercent(
+                        r.profit,
+                        results.totalCost,
+                      );
+                      const profitClass =
+                        r.profit > 0
+                          ? "profit-positive"
+                          : r.profit < 0
+                            ? "profit-negative"
+                            : "";
 
-                        return (
+                      return (
                         <tr key={idx}>
                           <td>{r.city}</td>
                           <td>
@@ -713,20 +713,20 @@ export default function RecipeSimulator({ language, region }) {
                             {Math.round(r.price).toLocaleString()}
                           </td>
                           <td>{Math.round(r.revenue).toLocaleString()}</td>
-                          <td className={profitClass}>{Math.round(r.profit).toLocaleString()}</td>
                           <td className={profitClass}>
-                            {profitPct ?? "—"}
+                            {Math.round(r.profit).toLocaleString()}
                           </td>
+                          <td className={profitClass}>{profitPct ?? "—"}</td>
                         </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
