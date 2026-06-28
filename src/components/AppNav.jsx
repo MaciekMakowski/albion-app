@@ -17,6 +17,13 @@ export default function AppNav({ activeModule, onModuleChange, language }) {
       >
         {getUiText("navPriceChecker", language)}
       </button>
+      <button
+        type="button"
+        className={`fantasy-nav-btn${activeModule === "top" ? " active" : ""}`}
+        onClick={() => onModuleChange("top")}
+      >
+        {getUiText("navTopProducts", language)}
+      </button>
     </nav>
   );
 }

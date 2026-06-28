@@ -72,7 +72,12 @@ export async function fetchItemMarketPrice(itemId, city, region) {
   }
 }
 
-export async function fetchItemPriceHistory(itemId, region, locations = [], timeScale = 24) {
+export async function fetchItemPriceHistory(
+  itemId,
+  region,
+  locations = [],
+  timeScale = 24,
+) {
   const host = getHostForRegion(region);
   let url = `${host}/api/v2/stats/history/${encodeURIComponent(itemId)}.json?time-scale=${timeScale}`;
   if (locations && locations.length > 0) {
@@ -85,3 +90,25 @@ export async function fetchItemPriceHistory(itemId, region, locations = [], time
   return await response.json();
 }
 
+export async function fetchItemsPriceHistoryBatch(
+  itemIds,
+  region,
+  timeScale = 24,
+  locations = [],
+) {
+  const validIds = (itemIds || []).filter(Boolean);
+  if (validIds.length === 0) return [];
+
+  const host = getHostForRegion(region);
+  const encodedPath = validIds.map((id) => encodeURIComponent(id)).join(",");
+  let url = `${host}/api/v2/stats/history/${encodedPath}.json?time-scale=${timeScale}`;
+  if (locations && locations.length > 0) {
+    url += `&locations=${encodeURIComponent(locations.join(","))}`;
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return await response.json();
+}

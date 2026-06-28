@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AppNav from "./components/AppNav";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
+import TopProducts from "./components/TopProducts";
 import {
   getDefaultLanguage,
   supportedLanguages,
@@ -14,7 +15,12 @@ export default function App() {
   const [region, setRegion] = useState("europe");
 
   useEffect(() => {
-    const titleKey = activeModule === "price" ? "priceCheckerTitle" : "title";
+    const titleKey =
+      activeModule === "price"
+        ? "priceCheckerTitle"
+        : activeModule === "top"
+          ? "topProductsTitle"
+          : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -56,10 +62,14 @@ export default function App() {
           </div>
         </div>
 
-        {activeModule === "recipe" ? (
+        {activeModule === "recipe" && (
           <RecipeSimulator language={language} region={region} />
-        ) : (
+        )}
+        {activeModule === "price" && (
           <PriceChecker language={language} region={region} />
+        )}
+        {activeModule === "top" && (
+          <TopProducts language={language} region={region} />
         )}
       </div>
     </div>
