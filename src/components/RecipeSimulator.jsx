@@ -75,7 +75,180 @@ function getItemDisplayName(itemId, lookup) {
   return lookup[itemId] || itemId;
 }
 
+function getItemTier(itemId) {
+  if (!itemId) return null;
+  const match = String(itemId).match(/(^|[_-])(t\d+)(?=_|$)/i);
+  if (!match) return null;
+  return match[2].toUpperCase();
+}
+
+function getItemDisplayLabel(itemId, lookup) {
+  const name = getItemDisplayName(itemId, lookup);
+  const tier = getItemTier(itemId);
+  if (!name) return "";
+  return tier ? `${name} (${tier})` : name;
+}
+
 const supportedLanguages = buildLanguageOptions(namesData);
+
+const uiTranslations = {
+  "EN-US": {
+    title: "Albion Recipe Simulator",
+    language: "Language",
+    region: "Region",
+    item: "Item",
+    requiredPerCraft: "Required per craft",
+    available: "Available",
+    buyPrice: "Buy price/unit",
+    buyCity: "Buy city",
+    outputItem: "Output item",
+    percentReturn: "Percent return (salvage)",
+    simulate: "Simulate",
+    refreshPrices: "Refresh all ingredient prices",
+    refreshing: "Refreshing...",
+    intro:
+      "Ingredients are populated from the selected output's crafting requirements. Item names are shown in the selected language and you can set available material quantity, buy price, and buy city.",
+    simulation: "Simulation",
+    estimatedOutputs: "Estimated processed outputs",
+    totalCost: "Total cost of consumed materials",
+    loadingPrices: "Loading prices...",
+    errorFetchingPrices: "Error fetching prices",
+    pricesProfit: "Prices & profit per city (selling produced output)",
+    city: "City",
+    price: "Price",
+    revenue: "Revenue",
+    profit: "Profit",
+    europe: "Europe",
+    west: "Americas (West)",
+    east: "Asia (East)",
+  },
+  "PL-PL": {
+    title: "Symulator receptur Albion",
+    language: "Język",
+    region: "Region",
+    item: "Przedmiot",
+    requiredPerCraft: "Wymagane na rzemiosło",
+    available: "Dostępne",
+    buyPrice: "Cena zakupu/jednostka",
+    buyCity: "Miasto zakupu",
+    outputItem: "Przedmiot wyjściowy",
+    percentReturn: "Zwrot procentowy (salvage)",
+    simulate: "Symuluj",
+    refreshPrices: "Odśwież ceny wszystkich składników",
+    refreshing: "Odświeżanie...",
+    intro:
+      "Składniki są uzupełniane na podstawie wymagań rzemieślniczych dla wybranego przedmiotu wyjściowego. Nazwy przedmiotów są wyświetlane w wybranym języku, a możesz ustawić dostępne ilości, cenę zakupu i miasto zakupu.",
+    simulation: "Symulacja",
+    estimatedOutputs: "Szacowana liczba przetworzonych wyjść",
+    totalCost: "Całkowity koszt zużytych materiałów",
+    loadingPrices: "Pobieranie cen...",
+    errorFetchingPrices: "Błąd pobierania cen",
+    pricesProfit: "Ceny i zysk według miasta (sprzedaż wytworzonego wyjścia)",
+    city: "Miasto",
+    price: "Cena",
+    revenue: "Przychód",
+    profit: "Zysk",
+    europe: "Europa",
+    west: "Ameryki (Zachód)",
+    east: "Azja (Wschód)",
+  },
+  "DE-DE": {
+    title: "Albion-Rezept-Simulator",
+    language: "Sprache",
+    region: "Region",
+    item: "Gegenstand",
+    requiredPerCraft: "Benötigt pro Handwerk",
+    available: "Verfügbar",
+    buyPrice: "Kaufpreis/Einheit",
+    buyCity: "Kaufstadt",
+    outputItem: "Ausgangsgegenstand",
+    percentReturn: "Rückzahlungsprozentsatz (Salvage)",
+    simulate: "Simulieren",
+    refreshPrices: "Preise aller Zutaten aktualisieren",
+    refreshing: "Aktualisieren...",
+    intro:
+      "Die Zutaten werden aus den Handwerksanforderungen des ausgewählten Ausgabegegenstands übernommen. Die Gegenstandsnamen werden in der ausgewählten Sprache angezeigt und Sie können verfügbare Mengen, Kaufpreis und Kaufstadt festlegen.",
+    simulation: "Simulation",
+    estimatedOutputs: "Geschätzte verarbeitete Ausgaben",
+    totalCost: "Gesamtkosten der verbrauchten Materialien",
+    loadingPrices: "Preise werden geladen...",
+    errorFetchingPrices: "Fehler beim Laden der Preise",
+    pricesProfit:
+      "Preise und Gewinn pro Stadt (Verkauf des erzeugten Ausgangs)",
+    city: "Stadt",
+    price: "Preis",
+    revenue: "Umsatz",
+    profit: "Gewinn",
+    europe: "Europa",
+    west: "Amerika (West)",
+    east: "Asien (Ost)",
+  },
+  "FR-FR": {
+    title: "Simulateur de recettes Albion",
+    language: "Langue",
+    region: "Région",
+    item: "Objet",
+    requiredPerCraft: "Requis par artisanat",
+    available: "Disponible",
+    buyPrice: "Prix d'achat/unité",
+    buyCity: "Ville d'achat",
+    outputItem: "Objet de sortie",
+    percentReturn: "Pourcentage de retour (salvage)",
+    simulate: "Simuler",
+    refreshPrices: "Actualiser les prix de tous les ingrédients",
+    refreshing: "Actualisation...",
+    intro:
+      "Les ingrédients sont remplis à partir des exigences de fabrication de l'objet de sortie sélectionné. Les noms d'objets sont affichés dans la langue sélectionnée et vous pouvez définir les quantités disponibles, le prix d'achat et la ville d'achat.",
+    simulation: "Simulation",
+    estimatedOutputs: "Sorties traitées estimées",
+    totalCost: "Coût total des matériaux consommés",
+    loadingPrices: "Chargement des prix...",
+    errorFetchingPrices: "Erreur lors du chargement des prix",
+    pricesProfit: "Prix et bénéfice par ville (vente de la sortie produite)",
+    city: "Ville",
+    price: "Prix",
+    revenue: "Revenu",
+    profit: "Bénéfice",
+    europe: "Europe",
+    west: "Amériques (Ouest)",
+    east: "Asie (Est)",
+  },
+  "RU-RU": {
+    title: "Симулятор рецептов Albion",
+    language: "Язык",
+    region: "Регион",
+    item: "Предмет",
+    requiredPerCraft: "Требуется на крафт",
+    available: "Доступно",
+    buyPrice: "Цена покупки/единица",
+    buyCity: "Город покупки",
+    outputItem: "Выходной предмет",
+    percentReturn: "Процент возврата (salvage)",
+    simulate: "Симулировать",
+    refreshPrices: "Обновить цены всех ингредиентов",
+    refreshing: "Обновление...",
+    intro:
+      "Ингредиенты заполняются на основе требований к крафту выбранного выходного предмета. Названия предметов отображаются на выбранном языке, и вы можете задать доступное количество, цену покупки и город покупки.",
+    simulation: "Симуляция",
+    estimatedOutputs: "Оценочное количество обработанных выходов",
+    totalCost: "Общая стоимость израсходованных материалов",
+    loadingPrices: "Загрузка цен...",
+    errorFetchingPrices: "Ошибка загрузки цен",
+    pricesProfit: "Цены и прибыль по городам (продажа полученного предмета)",
+    city: "Город",
+    price: "Цена",
+    revenue: "Выручка",
+    profit: "Прибыль",
+    europe: "Европа",
+    west: "Америка (Запад)",
+    east: "Азия (Восток)",
+  },
+};
+
+function getUiText(key, language) {
+  const locale = uiTranslations[language] || uiTranslations["EN-US"];
+  return locale[key] || uiTranslations["EN-US"][key] || key;
+}
 
 export default function RecipeSimulator() {
   const [ingredients, setIngredients] = useState([]);
@@ -450,13 +623,15 @@ export default function RecipeSimulator() {
           marginBottom: 12,
         }}
       >
-        <h2 style={{ margin: 0 }}>Albion Recipe Simulator</h2>
+        <h2 style={{ margin: 0 }}>{getUiText("title", language)}</h2>
         <div
           className="row"
           style={{ gap: 8, alignItems: "center", flexWrap: "wrap" }}
         >
           <div className="row" style={{ gap: 6, alignItems: "center" }}>
-            <label style={{ width: 70 }}>Język</label>
+            <label style={{ width: 70 }}>
+              {getUiText("language", language)}
+            </label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
@@ -469,32 +644,28 @@ export default function RecipeSimulator() {
             </select>
           </div>
           <div className="row" style={{ gap: 6, alignItems: "center" }}>
-            <label style={{ width: 70 }}>Region</label>
+            <label style={{ width: 70 }}>{getUiText("region", language)}</label>
             <select value={region} onChange={(e) => setRegion(e.target.value)}>
-              <option value="europe">Europe</option>
-              <option value="west">Americas (West)</option>
-              <option value="east">Asia (East)</option>
+              <option value="europe">{getUiText("europe", language)}</option>
+              <option value="west">{getUiText("west", language)}</option>
+              <option value="east">{getUiText("east", language)}</option>
             </select>
           </div>
         </div>
       </div>
-      <p>
-        Ingredients are populated from the selected output's crafting
-        requirements. Item names are shown in the selected language and you can
-        set available material quantity, buy price, and buy city.
-      </p>
+      <p>{getUiText("intro", language)}</p>
 
       {ingredients.map((it, idx) => (
         <div key={idx} className="item">
           <div className="row">
-            <label style={{ width: 120 }}>Item</label>
+            <label style={{ width: 120 }}>{getUiText("item", language)}</label>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600 }}>
-                {itemsMap[it.name] || it.name}
+                {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
               </div>
             </div>
             <label style={{ width: 140, marginLeft: 8 }}>
-              Required per craft
+              {getUiText("requiredPerCraft", language)}
             </label>
             <input
               type="number"
@@ -502,7 +673,9 @@ export default function RecipeSimulator() {
               disabled
               style={{ width: 80, opacity: 0.7, cursor: "not-allowed" }}
             />
-            <label style={{ width: 120, marginLeft: 8 }}>Available</label>
+            <label style={{ width: 120, marginLeft: 8 }}>
+              {getUiText("available", language)}
+            </label>
             <input
               type="number"
               value={it.available}
@@ -511,7 +684,9 @@ export default function RecipeSimulator() {
               }
               style={{ width: 100 }}
             />
-            <label style={{ width: 120, marginLeft: 8 }}>Buy price/unit</label>
+            <label style={{ width: 120, marginLeft: 8 }}>
+              {getUiText("buyPrice", language)}
+            </label>
             <input
               type="number"
               value={it.buyPrice}
@@ -520,7 +695,9 @@ export default function RecipeSimulator() {
               }
               style={{ width: 120 }}
             />
-            <label style={{ width: 100, marginLeft: 8 }}>Buy city</label>
+            <label style={{ width: 100, marginLeft: 8 }}>
+              {getUiText("buyCity", language)}
+            </label>
             <select
               value={it.buyCity}
               onChange={(e) => updateIngredientCity(idx, e.target.value)}
@@ -539,7 +716,9 @@ export default function RecipeSimulator() {
       <hr />
 
       <div className="row" style={{ gap: 10 }}>
-        <label style={{ width: 120 }}>Output item</label>
+        <label style={{ width: 120 }}>
+          {getUiText("outputItem", language)}
+        </label>
         <div style={{ position: "relative", flex: 1 }}>
           <input
             value={outputItem}
@@ -573,57 +752,62 @@ export default function RecipeSimulator() {
                   style={{ padding: 6, cursor: "pointer" }}
                   onMouseDown={() => selectOutputSuggestion(s)}
                 >
-                  {s.name}
+                  {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
                 </div>
               ))}
             </div>
           )}
         </div>
-        <label style={{ width: 160 }}>Percent return (salvage)</label>
+        <label style={{ width: 160 }}>
+          {getUiText("percentReturn", language)}
+        </label>
         <input
           type="number"
           value={returnPercent}
           onChange={(e) => setReturnPercent(Number(e.target.value))}
           style={{ width: 80 }}
         />
-        <button onClick={simulate}>Simulate</button>
+        <button onClick={simulate}>{getUiText("simulate", language)}</button>
         <button
           onClick={refreshAllPrices}
           disabled={refreshingPrices}
           style={{ marginLeft: 8 }}
         >
-          {refreshingPrices ? "Refreshing..." : "Refresh all ingredient prices"}
+          {refreshingPrices
+            ? getUiText("refreshing", language)
+            : getUiText("refreshPrices", language)}
         </button>
       </div>
 
       <div style={{ marginTop: 16 }}>
         {results && (
           <div>
-            <h3>Simulation</h3>
+            <h3>{getUiText("simulation", language)}</h3>
             <p>
-              Estimated processed outputs: <strong>{results.crafts}</strong>
+              {getUiText("estimatedOutputs", language)}:{" "}
+              <strong>{results.crafts}</strong>
             </p>
             <p>
-              Total cost of consumed materials:{" "}
+              {getUiText("totalCost", language)}:{" "}
               <strong>{Math.round(results.totalCost)}</strong>
             </p>
 
-            {results.loading && <p>Loading prices...</p>}
+            {results.loading && <p>{getUiText("loadingPrices", language)}</p>}
             {results.error && (
               <p style={{ color: "red" }}>
-                Error fetching prices: {results.error}
+                {getUiText("errorFetchingPrices", language)}: {results.error}
               </p>
             )}
             {results.rows && (
               <div>
-                <h4>Prices & profit per city (selling produced output)</h4>
+                <h4>{getUiText("pricesProfit", language)}</h4>
                 <table>
                   <thead>
                     <tr>
-                      <th>City</th>
-                      <th>Price</th>
-                      <th>Revenue</th>
-                      <th>Profit</th>
+                      <th>{getUiText("city", language)}</th>
+                      <th>{getUiText("price", language)}</th>
+                      <th>{getUiText("revenue", language)}</th>
+                      <th>{getUiText("profit", language)}</th>
                     </tr>
                   </thead>
                   <tbody>
