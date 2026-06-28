@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export default function RecipeSimulatorView({
   t,
   language,
@@ -22,6 +24,10 @@ export default function RecipeSimulatorView({
   results,
   getItemLabel,
 }) {
+  useEffect(() => {
+    document.title = t("title");
+  }, [language, t]);
+
   return (
     <div className="max-w-3xl mx-auto p-4">
       <div

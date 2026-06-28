@@ -374,6 +374,10 @@ export default function RecipeSimulator() {
   }, [language]);
 
   useEffect(() => {
+    document.title = getUiText("title", language);
+  }, [language]);
+
+  useEffect(() => {
     if (selectedOutputId) {
       setOutputItem(getItemDisplayName(selectedOutputId, itemNameLookup));
     }
