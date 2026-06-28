@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
 import namesData from "../data/items_names.json";
+import { getUiText } from "../features/recipeSimulator/translations";
+import {
+  fetchItemMarketPrice as fetchMarketPrice,
+  getHostForRegion,
+  fetchItemPriceHistory,
+} from "../shared/marketApi";
+import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
 
 const buyCities = [
   "Bridgewatch",
@@ -45,19 +52,6 @@ function collectItemEntries(source) {
   return { entries, defs };
 }
 
-function buildLanguageOptions(source) {
-  const locales = new Set();
-  (source || []).forEach((entry) => {
-    if (entry?.LocalizedNames && typeof entry.LocalizedNames === "object") {
-      Object.keys(entry.LocalizedNames).forEach((locale) =>
-        locales.add(locale),
-      );
-    }
-  });
-  const ordered = Array.from(locales).sort();
-  return ordered.length > 0 ? ordered : ["EN-US", "PL-PL"];
-}
-
 function buildNameLookup(source, language) {
   const lookup = {};
   (source || []).forEach((entry) => {
@@ -89,184 +83,154 @@ function getItemDisplayLabel(itemId, lookup) {
   return tier ? `${name} (${tier})` : name;
 }
 
-const supportedLanguages = buildLanguageOptions(namesData);
-
-const uiTranslations = {
-  "EN-US": {
-    title: "Albion Recipe Simulator",
-    subtitle: "Craft, calculate, and optimize your next profit",
-    language: "Language",
-    region: "Region",
-    item: "Item",
-    requiredPerCraft: "Required per craft",
-    available: "Available",
-    buyPrice: "Buy price/unit",
-    buyCity: "Buy city",
-    outputItem: "Output item",
-    percentReturn: "Percent return (salvage)",
-    simulate: "Simulate",
-    refreshPrices: "Refresh all ingredient prices",
-    refreshing: "Refreshing...",
-    intro:
-      "Ingredients are populated from the selected output's crafting requirements. Item names are shown in the selected language and you can set available material quantity, buy price, and buy city.",
-    simulation: "Simulation",
-    estimatedOutputs: "Estimated processed outputs",
-    totalCost: "Total cost of consumed materials",
-    loadingPrices: "Loading prices...",
-    errorFetchingPrices: "Error fetching prices",
-    pricesProfit: "Prices & profit per city (selling produced output)",
-    city: "City",
-    price: "Price",
-    revenue: "Revenue",
-    profit: "Profit",
-    profitPercent: "Profit %",
-    europe: "Europe",
-    west: "Americas (West)",
-    east: "Asia (East)",
-  },
-  "PL-PL": {
-    title: "Symulator receptur Albion",
-    subtitle: "Twórz, kalkuluj i optymalizuj swój następny zysk",
-    language: "Język",
-    region: "Region",
-    item: "Przedmiot",
-    requiredPerCraft: "Wymagane na rzemiosło",
-    available: "Dostępne",
-    buyPrice: "Cena zakupu/jednostka",
-    buyCity: "Miasto zakupu",
-    outputItem: "Przedmiot wyjściowy",
-    percentReturn: "Zwrot procentowy (salvage)",
-    simulate: "Symuluj",
-    refreshPrices: "Odśwież ceny wszystkich składników",
-    refreshing: "Odświeżanie...",
-    intro:
-      "Składniki są uzupełniane na podstawie wymagań rzemieślniczych dla wybranego przedmiotu wyjściowego. Nazwy przedmiotów są wyświetlane w wybranym języku, a możesz ustawić dostępne ilości, cenę zakupu i miasto zakupu.",
-    simulation: "Symulacja",
-    estimatedOutputs: "Szacowana liczba przetworzonych wyjść",
-    totalCost: "Całkowity koszt zużytych materiałów",
-    loadingPrices: "Pobieranie cen...",
-    errorFetchingPrices: "Błąd pobierania cen",
-    pricesProfit: "Ceny i zysk według miasta (sprzedaż wytworzonego wyjścia)",
-    city: "Miasto",
-    price: "Cena",
-    revenue: "Przychód",
-    profit: "Zysk",
-    profitPercent: "Zysk %",
-    europe: "Europa",
-    west: "Ameryki (Zachód)",
-    east: "Azja (Wschód)",
-  },
-  "DE-DE": {
-    title: "Albion-Rezept-Simulator",
-    subtitle: "Herstellen, kalkulieren und den nächsten Gewinn optimieren",
-    language: "Sprache",
-    region: "Region",
-    item: "Gegenstand",
-    requiredPerCraft: "Benötigt pro Handwerk",
-    available: "Verfügbar",
-    buyPrice: "Kaufpreis/Einheit",
-    buyCity: "Kaufstadt",
-    outputItem: "Ausgangsgegenstand",
-    percentReturn: "Rückzahlungsprozentsatz (Salvage)",
-    simulate: "Simulieren",
-    refreshPrices: "Preise aller Zutaten aktualisieren",
-    refreshing: "Aktualisieren...",
-    intro:
-      "Die Zutaten werden aus den Handwerksanforderungen des ausgewählten Ausgabegegenstands übernommen. Die Gegenstandsnamen werden in der ausgewählten Sprache angezeigt und Sie können verfügbare Mengen, Kaufpreis und Kaufstadt festlegen.",
-    simulation: "Simulation",
-    estimatedOutputs: "Geschätzte verarbeitete Ausgaben",
-    totalCost: "Gesamtkosten der verbrauchten Materialien",
-    loadingPrices: "Preise werden geladen...",
-    errorFetchingPrices: "Fehler beim Laden der Preise",
-    pricesProfit:
-      "Preise und Gewinn pro Stadt (Verkauf des erzeugten Ausgangs)",
-    city: "Stadt",
-    price: "Preis",
-    revenue: "Umsatz",
-    profit: "Gewinn",
-    profitPercent: "Gewinn %",
-    europe: "Europa",
-    west: "Amerika (West)",
-    east: "Asien (Ost)",
-  },
-  "FR-FR": {
-    title: "Simulateur de recettes Albion",
-    subtitle: "Fabriquez, calculez et optimisez votre prochain profit",
-    language: "Langue",
-    region: "Région",
-    item: "Objet",
-    requiredPerCraft: "Requis par artisanat",
-    available: "Disponible",
-    buyPrice: "Prix d'achat/unité",
-    buyCity: "Ville d'achat",
-    outputItem: "Objet de sortie",
-    percentReturn: "Pourcentage de retour (salvage)",
-    simulate: "Simuler",
-    refreshPrices: "Actualiser les prix de tous les ingrédients",
-    refreshing: "Actualisation...",
-    intro:
-      "Les ingrédients sont remplis à partir des exigences de fabrication de l'objet de sortie sélectionné. Les noms d'objets sont affichés dans la langue sélectionnée et vous pouvez définir les quantités disponibles, le prix d'achat et la ville d'achat.",
-    simulation: "Simulation",
-    estimatedOutputs: "Sorties traitées estimées",
-    totalCost: "Coût total des matériaux consommés",
-    loadingPrices: "Chargement des prix...",
-    errorFetchingPrices: "Erreur lors du chargement des prix",
-    pricesProfit: "Prix et bénéfice par ville (vente de la sortie produite)",
-    city: "Ville",
-    price: "Prix",
-    revenue: "Revenu",
-    profit: "Bénéfice",
-    profitPercent: "Bénéfice %",
-    europe: "Europe",
-    west: "Amériques (Ouest)",
-    east: "Asie (Est)",
-  },
-  "RU-RU": {
-    title: "Симулятор рецептов Albion",
-    subtitle: "Создавайте, рассчитывайте и оптимизируйте следующую прибыль",
-    language: "Язык",
-    region: "Регион",
-    item: "Предмет",
-    requiredPerCraft: "Требуется на крафт",
-    available: "Доступно",
-    buyPrice: "Цена покупки/единица",
-    buyCity: "Город покупки",
-    outputItem: "Выходной предмет",
-    percentReturn: "Процент возврата (salvage)",
-    simulate: "Симулировать",
-    refreshPrices: "Обновить цены всех ингредиентов",
-    refreshing: "Обновление...",
-    intro:
-      "Ингредиенты заполняются на основе требований к крафту выбранного выходного предмета. Названия предметов отображаются на выбранном языке, и вы можете задать доступное количество, цену покупки и город покупки.",
-    simulation: "Симуляция",
-    estimatedOutputs: "Оценочное количество обработанных выходов",
-    totalCost: "Общая стоимость израсходованных материалов",
-    loadingPrices: "Загрузка цен...",
-    errorFetchingPrices: "Ошибка загрузки цен",
-    pricesProfit: "Цены и прибыль по городам (продажа полученного предмета)",
-    city: "Город",
-    price: "Цена",
-    revenue: "Выручка",
-    profit: "Прибыль",
-    profitPercent: "Прибыль %",
-    europe: "Европа",
-    west: "Америка (Запад)",
-    east: "Азия (Восток)",
-  },
-};
-
-function getUiText(key, language) {
-  const locale = uiTranslations[language] || uiTranslations["EN-US"];
-  return locale[key] || uiTranslations["EN-US"][key] || key;
-}
-
 function formatProfitPercent(profit, totalCost) {
   if (!totalCost) return null;
   const pct = Math.round((profit / totalCost) * 100);
   return `${pct >= 0 ? "+" : ""}${pct}%`;
 }
 
-export default function RecipeSimulator() {
+function Sparkline({ data, city, language }) {
+  const renderFlatLine = () => (
+    <svg
+      width="45"
+      height="12"
+      style={{
+        verticalAlign: "middle",
+        marginRight: "8px",
+        display: "inline-block",
+      }}
+      aria-label="sparkline-placeholder"
+    >
+      <title>No history data (flat line)</title>
+      <line
+        x1="0"
+        y1="6"
+        x2="45"
+        y2="6"
+        stroke="rgba(247, 184, 75, 0.3)"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+
+  if (!data || !city) return renderFlatLine();
+
+  const cityLower = city.toLowerCase();
+  const cityEntries = data.filter(
+    (entry) => entry.location && entry.location.toLowerCase() === cityLower,
+  );
+  const selectedEntry =
+    cityEntries.find((entry) => entry.quality === 1) || cityEntries[0];
+  const points = selectedEntry ? selectedEntry.data : [];
+
+  if (points.length === 0) return renderFlatLine();
+
+  // Filter 14 days
+  let referenceDate = new Date();
+  const timestamps = points
+    .map((d) => (d.timestamp ? new Date(d.timestamp).getTime() : 0))
+    .filter(Boolean);
+  if (timestamps.length > 0) {
+    referenceDate = new Date(Math.max(...timestamps));
+  }
+
+  const limitDate = new Date(referenceDate);
+  limitDate.setDate(limitDate.getDate() - 14);
+
+  const filteredPoints = points
+    .filter((item) => item.timestamp && new Date(item.timestamp) >= limitDate)
+    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+  if (filteredPoints.length < 2) {
+    return renderFlatLine();
+  }
+
+  const prices = filteredPoints.map((p) => p.avg_price || 0);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const range = maxPrice - minPrice;
+
+  const firstPrice = prices[0];
+  const lastPrice = prices[prices.length - 1];
+  const strokeColor =
+    lastPrice > firstPrice
+      ? "#7dffb0" // green (upward trend)
+      : lastPrice < firstPrice
+        ? "#ff8e8e" // red (downward trend)
+        : "#f7b84b"; // gold (flat trend)
+
+  const width = 45;
+  const height = 12;
+  const padding = 1;
+  const effectiveHeight = height - padding * 2;
+
+  const pathData = filteredPoints
+    .map((p, idx) => {
+      const x = (idx / (filteredPoints.length - 1)) * width;
+      const y =
+        range === 0
+          ? height / 2
+          : padding +
+            effectiveHeight -
+            (((p.avg_price || 0) - minPrice) / range) * effectiveHeight;
+      return `${idx === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+
+  const formatTooltipDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(language || "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const colWidth = width / filteredPoints.length;
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      style={{
+        verticalAlign: "middle",
+        marginRight: "8px",
+        display: "inline-block",
+        overflow: "visible",
+      }}
+    >
+      <path
+        d={pathData}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {filteredPoints.map((p, idx) => {
+        const x = (idx / (filteredPoints.length - 1)) * width;
+        const titleText = `${formatTooltipDate(p.timestamp)}: ${Math.round(
+          p.avg_price,
+        ).toLocaleString()}`;
+        return (
+          <rect
+            key={idx}
+            x={x - colWidth / 2}
+            y={0}
+            width={colWidth}
+            height={height}
+            fill="transparent"
+            style={{ cursor: "pointer" }}
+          >
+            <title>{titleText}</title>
+          </rect>
+        );
+      })}
+    </svg>
+  );
+}
+
+export default function RecipeSimulator({ language, region }) {
   const [ingredients, setIngredients] = useState([]);
   const [outputItem, setOutputItem] = useState("");
   const [selectedOutputId, setSelectedOutputId] = useState("T4_BAG");
@@ -278,12 +242,6 @@ export default function RecipeSimulator() {
   const itemDefsRef = useRef({});
   const [refreshingPrices, setRefreshingPrices] = useState(false);
   const [returnPercent, setReturnPercent] = useState(20);
-  const [region, setRegion] = useState("europe");
-  const [language, setLanguage] = useState(
-    supportedLanguages.includes("PL-PL")
-      ? "PL-PL"
-      : supportedLanguages[0] || "EN-US",
-  );
   const [itemNameLookup, setItemNameLookup] = useState({});
   const [results, setResults] = useState(null);
 
@@ -291,14 +249,6 @@ export default function RecipeSimulator() {
     setIngredients((prev) =>
       prev.map((item, idx) => (idx === i ? { ...item, ...changes } : item)),
     );
-  }
-
-  function getHostForRegion() {
-    return region === "europe"
-      ? "https://europe.albion-online-data.com"
-      : region === "west"
-        ? "https://west.albion-online-data.com"
-        : "https://east.albion-online-data.com";
   }
 
   function simulate() {
@@ -332,20 +282,30 @@ export default function RecipeSimulator() {
     const consumed = init.map(
       (it, idx) => initialAvailable[idx] - available[idx],
     );
-    const totalCost = consumed.reduce(
-      (s, c, idx) => s + c * init[idx].buyPrice,
+    const initialCost = init.reduce(
+      (sum, it, idx) => sum + initialAvailable[idx] * it.buyPrice,
       0,
     );
+    const remainingInventoryValue = init.reduce(
+      (sum, it, idx) => sum + Math.max(0, available[idx]) * it.buyPrice,
+      0,
+    );
+    const totalCost = Math.max(0, initialCost - remainingInventoryValue);
 
-    const host = getHostForRegion();
+    const host = getHostForRegion(region);
     const outputId = selectedOutputId || outputItem;
     const url = `${host}/api/v2/stats/prices/${encodeURIComponent(outputId)}.json`;
 
     setResults({ loading: true, crafts, consumed, totalCost });
 
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
+    Promise.all([
+      fetch(url).then((r) => r.json()),
+      fetchItemPriceHistory(outputId, region, buyCities).catch((err) => {
+        console.error("Failed to fetch simulator price history:", err);
+        return null;
+      }),
+    ])
+      .then(([data, historyRaw]) => {
         const rowsByCity = new Map();
 
         for (const d of data) {
@@ -378,7 +338,12 @@ export default function RecipeSimulator() {
         const rows = Array.from(rowsByCity.values()).sort((a, b) =>
           a.city.localeCompare(b.city),
         );
-        setResults((prev) => ({ ...prev, loading: false, rows }));
+        setResults((prev) => ({
+          ...prev,
+          loading: false,
+          rows,
+          history: historyRaw,
+        }));
       })
       .catch((err) =>
         setResults((prev) => ({ ...prev, loading: false, error: String(err) })),
@@ -387,10 +352,6 @@ export default function RecipeSimulator() {
 
   useEffect(() => {
     setItemNameLookup(buildNameLookup(namesData, language));
-  }, [language]);
-
-  useEffect(() => {
-    document.title = getUiText("title", language);
   }, [language]);
 
   useEffect(() => {
@@ -486,75 +447,18 @@ export default function RecipeSimulator() {
     refreshPricesForRegion();
   }, [region]);
 
-  function isSubsequence(needle, hay) {
-    let i = 0,
-      j = 0;
-    while (i < needle.length && j < hay.length) {
-      if (needle[i] === hay[j]) i++;
-      j++;
-    }
-    return i === needle.length;
-  }
-
-  function resolveOutputItemId(value) {
-    const trimmed = String(value || "").trim();
-    if (!trimmed) return null;
-
-    const searchIndex = itemsIndex || [];
-    const exactId = searchIndex.find(
-      (item) => item.id.toLowerCase() === trimmed.toLowerCase(),
-    );
-    if (exactId) return exactId.id;
-
-    const exactName = searchIndex.find(
-      (item) => item.name.toLowerCase() === trimmed.toLowerCase(),
-    );
-    if (exactName) return exactName.id;
-
-    return null;
-  }
-
-  function findMatches(q) {
-    if (!q || q.length < 1) return [];
-    const s = q.toLowerCase();
-    const out = [];
-    const searchIndex = itemsIndex || [];
-    for (let i = 0; i < searchIndex.length && out.length < 10; i++) {
-      const it = searchIndex[i];
-      if (
-        (it.id && it.id.toLowerCase().startsWith(s)) ||
-        (it.name && it.name.toLowerCase().startsWith(s))
-      ) {
-        out.push({ id: it.id, name: it.name });
-      }
-    }
-    for (let i = 0; i < searchIndex.length && out.length < 10; i++) {
-      const it = searchIndex[i];
-      if (out.find((x) => x.id === it.id)) continue;
-      if (it.text.includes(s)) out.push({ id: it.id, name: it.name });
-    }
-    if (out.length < 10) {
-      for (let i = 0; i < searchIndex.length && out.length < 10; i++) {
-        const it = searchIndex[i];
-        if (out.find((x) => x.id === it.id)) continue;
-        if (isSubsequence(s, it.text)) out.push({ id: it.id, name: it.name });
-      }
-    }
-    return out.slice(0, 10);
-  }
-
   function onOutputSearchChange(q) {
     const nextValue = q || "";
     setOutputItem(nextValue);
 
-    const resolvedId = resolveOutputItemId(nextValue);
+    const resolvedId = resolveOutputItemId(nextValue, itemsIndex);
     if (resolvedId) {
       setSelectedOutputId(resolvedId);
     }
 
     if (timersRef.current["out"]) clearTimeout(timersRef.current["out"]);
     timersRef.current["out"] = setTimeout(() => {
-      setOutputSuggestions(findMatches(nextValue));
+      setOutputSuggestions(findMatches(nextValue, itemsIndex));
     }, 180);
   }
 
@@ -566,33 +470,7 @@ export default function RecipeSimulator() {
   }
 
   async function fetchItemMarketPrice(itemId, city) {
-    try {
-      const host = getHostForRegion();
-      const url = `${host}/api/v2/stats/prices/${encodeURIComponent(itemId)}.json`;
-      const r = await fetch(url);
-      const data = await r.json();
-      if (city) {
-        const normalizedCity = city.toLowerCase();
-        const matched = data.find((d) => {
-          const value = (d.city || d.location || d.name || "").toLowerCase();
-          return value === normalizedCity;
-        });
-        if (matched) {
-          return (
-            matched.sell_price_min || matched.sell_price || matched.price || 0
-          );
-        }
-      }
-      let min = Infinity;
-      for (const d of data) {
-        const p = d.sell_price_min || d.sell_price || d.price || 0;
-        if (p && p > 0 && p < min) min = p;
-      }
-      if (min === Infinity) return 0;
-      return min;
-    } catch (e) {
-      return 0;
-    }
+    return fetchMarketPrice(itemId, city, region);
   }
 
   async function refreshAllPrices() {
@@ -634,46 +512,18 @@ export default function RecipeSimulator() {
   }
 
   return (
-    <div className="fantasy-shell">
-      <div className="fantasy-card">
-        <div className="fantasy-header">
-          <div className="fantasy-title-wrap">
-            <div className="fantasy-badge">⚔️</div>
-            <div>
-              <h2>{getUiText("title", language)}</h2>
-              <p className="fantasy-subtitle">
-                {getUiText("subtitle", language)}
-              </p>
-            </div>
-          </div>
-
-          <div className="fantasy-toolbar">
-            <div className="fantasy-control-group">
-              <label>{getUiText("language", language)}</label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                {supportedLanguages.map((locale) => (
-                  <option key={locale} value={locale}>
-                    {locale}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="fantasy-control-group">
-              <label>{getUiText("region", language)}</label>
-              <select
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-              >
-                <option value="europe">{getUiText("europe", language)}</option>
-                <option value="west">{getUiText("west", language)}</option>
-                <option value="east">{getUiText("east", language)}</option>
-              </select>
-            </div>
+    <div className="fantasy-card">
+      <div className="fantasy-header">
+        <div className="fantasy-title-wrap">
+          <div className="fantasy-badge">⚔️</div>
+          <div>
+            <h2>{getUiText("title", language)}</h2>
+            <p className="fantasy-subtitle">
+              {getUiText("subtitle", language)}
+            </p>
           </div>
         </div>
+      </div>
 
         <p className="fantasy-intro">{getUiText("intro", language)}</p>
 
@@ -748,7 +598,7 @@ export default function RecipeSimulator() {
                   onChange={(e) => onOutputSearchChange(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      const nextId = resolveOutputItemId(outputItem);
+                      const nextId = resolveOutputItemId(outputItem, itemsIndex);
                       if (nextId) {
                         setSelectedOutputId(nextId);
                         setOutputSuggestions([]);
@@ -854,9 +704,16 @@ export default function RecipeSimulator() {
                         return (
                         <tr key={idx}>
                           <td>{r.city}</td>
-                          <td>{Math.round(r.price)}</td>
-                          <td>{Math.round(r.revenue)}</td>
-                          <td className={profitClass}>{Math.round(r.profit)}</td>
+                          <td>
+                            <Sparkline
+                              data={results.history}
+                              city={r.city}
+                              language={language}
+                            />
+                            {Math.round(r.price).toLocaleString()}
+                          </td>
+                          <td>{Math.round(r.revenue).toLocaleString()}</td>
+                          <td className={profitClass}>{Math.round(r.profit).toLocaleString()}</td>
                           <td className={profitClass}>
                             {profitPct ?? "—"}
                           </td>
@@ -870,7 +727,6 @@ export default function RecipeSimulator() {
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }

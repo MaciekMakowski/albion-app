@@ -91,6 +91,71 @@ tr:nth-child(even) td {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.fantasy-app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+}
+
+.fantasy-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.fantasy-nav-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 184, 75, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e9d9a9;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.fantasy-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.fantasy-nav-btn:hover {
+  background: rgba(247, 184, 75, 0.12);
+  border-color: rgba(247, 184, 75, 0.45);
+  color: #ffe7a8;
+}
+
+.fantasy-nav-btn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 58, 16, 0.85) 0%,
+    rgba(213, 157, 42, 0.85) 100%
+  );
+  border-color: rgba(247, 184, 75, 0.55);
+  color: #fff7db;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.fantasy-shared-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(247, 184, 75, 0.2);
+}
+
+.fantasy-price-checker-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
 .fantasy-shell {
   max-width: 1100px;
   margin: 0 auto;
@@ -360,6 +425,140 @@ tr:nth-child(even) td {
   color: #ff8e8e;
 }
 
+.fantasy-price-checker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 20px;
+  margin-top: 14px;
+  align-items: start;
+}
+
+.fantasy-history-wrap {
+  background: rgba(18, 12, 8, 0.4);
+  border: 1px solid rgba(247, 184, 75, 0.15);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.fantasy-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(247, 184, 75, 0.12);
+  padding-bottom: 8px;
+}
+
+.fantasy-history-header h4 {
+  margin: 0;
+  color: #ffe7a8;
+  font-size: 1.1rem;
+}
+
+.fantasy-history-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fantasy-timeframe-btns {
+  display: flex;
+  gap: 4px;
+  background: rgba(13, 18, 24, 0.6);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(247, 184, 75, 0.25);
+}
+
+.fantasy-timeframe-btn {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #ffe7a8;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.fantasy-timeframe-btn:hover {
+  background: rgba(247, 184, 75, 0.1);
+  transform: none;
+}
+
+.fantasy-timeframe-btn.active {
+  background: linear-gradient(135deg, #7a3a10 0%, #d59d2a 100%);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.fantasy-chart-container {
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+  background: rgba(13, 18, 24, 0.3);
+  border-radius: 10px;
+  padding: 8px 0;
+}
+
+.fantasy-chart-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.fantasy-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  background: rgba(13, 18, 24, 0.3);
+  border-radius: 10px;
+  border: 1px dashed rgba(247, 184, 75, 0.2);
+  color: rgba(247, 184, 75, 0.6);
+  text-align: center;
+  padding: 20px;
+}
+
+.chart-axis-text {
+  font-family: inherit;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chart-avg-label {
+  font-family: inherit;
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fantasy-chart-tooltip {
+  animation: tooltipFadeIn 0.15s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 860px) {
   .fantasy-header {
     flex-direction: column;
@@ -368,5 +567,14 @@ tr:nth-child(even) td {
 
   .fantasy-controls-grid {
     grid-template-columns: 1fr;
+  }
+
+  .fantasy-price-checker-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .fantasy-price-checker-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
