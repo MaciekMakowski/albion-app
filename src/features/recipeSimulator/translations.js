@@ -52,6 +52,7 @@ export const uiTranslations = {
     priceCheckerIntro:
       "Select an item to view current market prices in every royal city and the Black Market.",
     searchItem: "Search item",
+    quickSearch: "Quick search",
     checkPrices: "Check prices",
     sellPrice: "Sell (min)",
     buyPrice: "Buy (max)",
@@ -140,6 +141,7 @@ export const uiTranslations = {
     priceCheckerIntro:
       "Wybierz przedmiot, aby zobaczyć aktualne ceny rynkowe w każdym królewskim mieście i na Black Market.",
     searchItem: "Szukaj przedmiotu",
+    quickSearch: "Szybkie wyszukiwanie",
     checkPrices: "Sprawdź ceny",
     sellPrice: "Sprzedaż (min)",
     buyPrice: "Zakup (max)",

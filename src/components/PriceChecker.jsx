@@ -12,6 +12,9 @@ import {
 import ItemSearchInput from "./ItemSearchInput";
 import PriceHistoryChart from "./PriceHistoryChart";
 
+const QUICK_SEARCH_STORAGE_KEY = "albion.priceChecker.quickSearch.v1";
+const QUICK_SEARCH_LIMIT = 20;
+
 function formatPrice(value) {
   return value > 0 ? Math.round(value).toLocaleString() : "—";
 }
@@ -43,6 +46,47 @@ export default function PriceChecker({ language, region }) {
   const [selectedHistoryCities, setSelectedHistoryCities] = useState(() => [
     ...buyCities,
   ]);
+  const [recentSearchIds, setRecentSearchIds] = useState([]);
+
+  function readRecentSearches() {
+    try {
+      if (typeof window === "undefined") return [];
+      const raw = window.localStorage.getItem(QUICK_SEARCH_STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function persistRecentSearches(ids) {
+    try {
+      if (typeof window === "undefined") return;
+      window.localStorage.setItem(
+        QUICK_SEARCH_STORAGE_KEY,
+        JSON.stringify(ids || []),
+      );
+    } catch {
+      // Ignore storage write errors.
+    }
+  }
+
+  function pushRecentSearch(itemId) {
+    if (!itemId) return;
+    setRecentSearchIds((prev) => {
+      const next = [itemId, ...prev.filter((id) => id !== itemId)].slice(
+        0,
+        QUICK_SEARCH_LIMIT,
+      );
+      persistRecentSearches(next);
+      return next;
+    });
+  }
+
+  useEffect(() => {
+    setRecentSearchIds(readRecentSearches());
+  }, []);
 
   useEffect(() => {
     if (selectedItemId) {
@@ -112,6 +156,11 @@ export default function PriceChecker({ language, region }) {
     if (!selectedItemId) return;
     checkPrices();
   }, [selectedItemId, region]);
+
+  useEffect(() => {
+    if (!selectedItemId) return;
+    pushRecentSearch(selectedItemId);
+  }, [selectedItemId]);
 
   useEffect(() => {
     if (!selectedItemId) return;
@@ -214,6 +263,47 @@ export default function PriceChecker({ language, region }) {
           </button>
         </div>
       </div>
+
+      {recentSearchIds.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            paddingLeft: 2,
+            marginTop: 8,
+            marginBottom: 12,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              color: "#d4b162",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {getUiText("quickSearch", language)}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {recentSearchIds.map((itemId) => (
+              <button
+                key={itemId}
+                type="button"
+                className="fantasy-timeframe-btn"
+                onClick={() => setSelectedItemId(itemId)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                }}
+              >
+                {getItemDisplayLabel(itemId, itemNameLookup) || itemId}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="fantasy-summary">
         {!rows && !loading && !error && (
