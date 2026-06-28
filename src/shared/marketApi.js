@@ -112,3 +112,21 @@ export async function fetchItemsPriceHistoryBatch(
   }
   return await response.json();
 }
+
+export async function fetchItemsPricesBatch(itemIds, region, locations = []) {
+  const validIds = (itemIds || []).filter(Boolean);
+  if (validIds.length === 0) return [];
+
+  const host = getHostForRegion(region);
+  const encodedPath = validIds.map((id) => encodeURIComponent(id)).join(",");
+  let url = `${host}/api/v2/stats/prices/${encodedPath}.json`;
+  if (locations && locations.length > 0) {
+    url += `?locations=${encodeURIComponent(locations.join(","))}`;
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return await response.json();
+}

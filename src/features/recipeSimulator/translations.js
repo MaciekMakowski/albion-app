@@ -84,6 +84,8 @@ export const uiTranslations = {
     topProductsCity: "Market scope",
     topProductsCityGlobal: "Global (all cities)",
     topProductsNoData: "No products found for selected filters.",
+    topProductsAvgSell: "Avg sell price",
+    topProductsAvgBuy: "Avg buy price",
   },
   "PL-PL": {
     title: "Symulator receptur Albion",
@@ -170,6 +172,8 @@ export const uiTranslations = {
     topProductsCity: "Zakres rynku",
     topProductsCityGlobal: "Globalnie (wszystkie miasta)",
     topProductsNoData: "Brak produktów dla wybranych filtrów.",
+    topProductsAvgSell: "Srednia cena sprzedazy",
+    topProductsAvgBuy: "Srednia cena zakupu",
   },
   "DE-DE": {
     title: "Albion-Rezept-Simulator",
