@@ -345,6 +345,14 @@ tr:nth-child(even) td {
   margin-top: 12px;
 }
 
+.profit-positive {
+  color: #7dffb0;
+}
+
+.profit-negative {
+  color: #ff8e8e;
+}
+
 @media (max-width: 860px) {
   .fantasy-header {
     flex-direction: column;

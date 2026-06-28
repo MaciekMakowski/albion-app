@@ -94,6 +94,7 @@ const supportedLanguages = buildLanguageOptions(namesData);
 const uiTranslations = {
   "EN-US": {
     title: "Albion Recipe Simulator",
+    subtitle: "Craft, calculate, and optimize your next profit",
     language: "Language",
     region: "Region",
     item: "Item",
@@ -118,12 +119,14 @@ const uiTranslations = {
     price: "Price",
     revenue: "Revenue",
     profit: "Profit",
+    profitPercent: "Profit %",
     europe: "Europe",
     west: "Americas (West)",
     east: "Asia (East)",
   },
   "PL-PL": {
     title: "Symulator receptur Albion",
+    subtitle: "Twórz, kalkuluj i optymalizuj swój następny zysk",
     language: "Język",
     region: "Region",
     item: "Przedmiot",
@@ -148,12 +151,14 @@ const uiTranslations = {
     price: "Cena",
     revenue: "Przychód",
     profit: "Zysk",
+    profitPercent: "Zysk %",
     europe: "Europa",
     west: "Ameryki (Zachód)",
     east: "Azja (Wschód)",
   },
   "DE-DE": {
     title: "Albion-Rezept-Simulator",
+    subtitle: "Herstellen, kalkulieren und den nächsten Gewinn optimieren",
     language: "Sprache",
     region: "Region",
     item: "Gegenstand",
@@ -179,12 +184,14 @@ const uiTranslations = {
     price: "Preis",
     revenue: "Umsatz",
     profit: "Gewinn",
+    profitPercent: "Gewinn %",
     europe: "Europa",
     west: "Amerika (West)",
     east: "Asien (Ost)",
   },
   "FR-FR": {
     title: "Simulateur de recettes Albion",
+    subtitle: "Fabriquez, calculez et optimisez votre prochain profit",
     language: "Langue",
     region: "Région",
     item: "Objet",
@@ -209,12 +216,14 @@ const uiTranslations = {
     price: "Prix",
     revenue: "Revenu",
     profit: "Bénéfice",
+    profitPercent: "Bénéfice %",
     europe: "Europe",
     west: "Amériques (Ouest)",
     east: "Asie (Est)",
   },
   "RU-RU": {
     title: "Симулятор рецептов Albion",
+    subtitle: "Создавайте, рассчитывайте и оптимизируйте следующую прибыль",
     language: "Язык",
     region: "Регион",
     item: "Предмет",
@@ -239,6 +248,7 @@ const uiTranslations = {
     price: "Цена",
     revenue: "Выручка",
     profit: "Прибыль",
+    profitPercent: "Прибыль %",
     europe: "Европа",
     west: "Америка (Запад)",
     east: "Азия (Восток)",
@@ -248,6 +258,12 @@ const uiTranslations = {
 function getUiText(key, language) {
   const locale = uiTranslations[language] || uiTranslations["EN-US"];
   return locale[key] || uiTranslations["EN-US"][key] || key;
+}
+
+function formatProfitPercent(profit, totalCost) {
+  if (!totalCost) return null;
+  const pct = Math.round((profit / totalCost) * 100);
+  return `${pct >= 0 ? "+" : ""}${pct}%`;
 }
 
 export default function RecipeSimulator() {
@@ -626,7 +642,7 @@ export default function RecipeSimulator() {
             <div>
               <h2>{getUiText("title", language)}</h2>
               <p className="fantasy-subtitle">
-                Craft, calculate, and optimize your next profit
+                {getUiText("subtitle", language)}
               </p>
             </div>
           </div>
@@ -817,17 +833,34 @@ export default function RecipeSimulator() {
                         <th>{getUiText("price", language)}</th>
                         <th>{getUiText("revenue", language)}</th>
                         <th>{getUiText("profit", language)}</th>
+                        <th>{getUiText("profitPercent", language)}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {results.rows.map((r, idx) => (
+                      {results.rows.map((r, idx) => {
+                        const profitPct = formatProfitPercent(
+                          r.profit,
+                          results.totalCost,
+                        );
+                        const profitClass =
+                          r.profit > 0
+                            ? "profit-positive"
+                            : r.profit < 0
+                              ? "profit-negative"
+                              : "";
+
+                        return (
                         <tr key={idx}>
                           <td>{r.city}</td>
                           <td>{Math.round(r.price)}</td>
                           <td>{Math.round(r.revenue)}</td>
-                          <td>{Math.round(r.profit)}</td>
+                          <td className={profitClass}>{Math.round(r.profit)}</td>
+                          <td className={profitClass}>
+                            {profitPct ?? "—"}
+                          </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
