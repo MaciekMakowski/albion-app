@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
+import namesData from "../data/items_names.json";
 
 const buyCities = [
   "Bridgewatch",
@@ -44,9 +45,41 @@ function collectItemEntries(source) {
   return { entries, defs };
 }
 
+function buildLanguageOptions(source) {
+  const locales = new Set();
+  (source || []).forEach((entry) => {
+    if (entry?.LocalizedNames && typeof entry.LocalizedNames === "object") {
+      Object.keys(entry.LocalizedNames).forEach((locale) =>
+        locales.add(locale),
+      );
+    }
+  });
+  const ordered = Array.from(locales).sort();
+  return ordered.length > 0 ? ordered : ["EN-US", "PL-PL"];
+}
+
+function buildNameLookup(source, language) {
+  const lookup = {};
+  (source || []).forEach((entry) => {
+    const uniqueName = entry?.UniqueName;
+    const localizedName = entry?.LocalizedNames?.[language];
+    if (uniqueName) {
+      lookup[uniqueName] = localizedName || uniqueName;
+    }
+  });
+  return lookup;
+}
+
+function getItemDisplayName(itemId, lookup) {
+  if (!itemId) return "";
+  return lookup[itemId] || itemId;
+}
+
+const supportedLanguages = buildLanguageOptions(namesData);
+
 export default function RecipeSimulator() {
   const [ingredients, setIngredients] = useState([]);
-  const [outputItem, setOutputItem] = useState("T4_BAG");
+  const [outputItem, setOutputItem] = useState("");
   const [selectedOutputId, setSelectedOutputId] = useState("T4_BAG");
   const [outputSuggestions, setOutputSuggestions] = useState([]);
   const timersRef = useRef({});
@@ -57,6 +90,12 @@ export default function RecipeSimulator() {
   const [refreshingPrices, setRefreshingPrices] = useState(false);
   const [returnPercent, setReturnPercent] = useState(20);
   const [region, setRegion] = useState("europe");
+  const [language, setLanguage] = useState(
+    supportedLanguages.includes("PL-PL")
+      ? "PL-PL"
+      : supportedLanguages[0] || "EN-US",
+  );
+  const [itemNameLookup, setItemNameLookup] = useState({});
   const [results, setResults] = useState(null);
 
   function updateIngredient(i, changes) {
@@ -110,7 +149,8 @@ export default function RecipeSimulator() {
     );
 
     const host = getHostForRegion();
-    const url = `${host}/api/v2/stats/prices/${encodeURIComponent(outputItem)}.json`;
+    const outputId = selectedOutputId || outputItem;
+    const url = `${host}/api/v2/stats/prices/${encodeURIComponent(outputId)}.json`;
 
     setResults({ loading: true, crafts, consumed, totalCost });
 
@@ -157,21 +197,36 @@ export default function RecipeSimulator() {
   }
 
   useEffect(() => {
+    setItemNameLookup(buildNameLookup(namesData, language));
+  }, [language]);
+
+  useEffect(() => {
+    if (selectedOutputId) {
+      setOutputItem(getItemDisplayName(selectedOutputId, itemNameLookup));
+    }
+  }, [selectedOutputId, itemNameLookup, language]);
+
+  useEffect(() => {
     const data = itemsData?.items || itemsData;
     const { entries, defs } = collectItemEntries(data);
     itemDefsRef.current = defs;
     setItemDefs(defs);
 
-    const idx = entries.map((it) => ({
-      id: it.id,
-      name: it.name,
-      text: (it.id + " " + it.name).toLowerCase(),
-    }));
-    const map = Object.fromEntries(entries.map((it) => [it.id, it.name]));
+    const idx = entries.map((it) => {
+      const displayName = itemNameLookup[it.id] || it.name || it.id;
+      return {
+        id: it.id,
+        name: displayName,
+        text: (it.id + " " + displayName).toLowerCase(),
+      };
+    });
+    const map = Object.fromEntries(
+      entries.map((it) => [it.id, itemNameLookup[it.id] || it.name || it.id]),
+    );
 
     setItemsIndex(idx);
     setItemsMap(map);
-  }, []);
+  }, [itemNameLookup]);
 
   function applyIngredientsForOutput(nextOutputId) {
     const trimmedOutput = String(nextOutputId || "").trim();
@@ -248,6 +303,24 @@ export default function RecipeSimulator() {
     return i === needle.length;
   }
 
+  function resolveOutputItemId(value) {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) return null;
+
+    const searchIndex = itemsIndex || [];
+    const exactId = searchIndex.find(
+      (item) => item.id.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (exactId) return exactId.id;
+
+    const exactName = searchIndex.find(
+      (item) => item.name.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (exactName) return exactName.id;
+
+    return null;
+  }
+
   function findMatches(q) {
     if (!q || q.length < 1) return [];
     const s = q.toLowerCase();
@@ -281,10 +354,9 @@ export default function RecipeSimulator() {
     const nextValue = q || "";
     setOutputItem(nextValue);
 
-    const trimmed = String(nextValue).trim();
-    const defs = itemDefsRef.current || itemDefs;
-    if (trimmed && defs[trimmed]) {
-      setSelectedOutputId(trimmed);
+    const resolvedId = resolveOutputItemId(nextValue);
+    if (resolvedId) {
+      setSelectedOutputId(resolvedId);
     }
 
     if (timersRef.current["out"]) clearTimeout(timersRef.current["out"]);
@@ -295,7 +367,7 @@ export default function RecipeSimulator() {
 
   function selectOutputSuggestion(item) {
     const nextId = item?.id || "";
-    setOutputItem(nextId);
+    setOutputItem(getItemDisplayName(nextId, itemNameLookup));
     setSelectedOutputId(nextId);
     setOutputSuggestions([]);
   }
@@ -379,32 +451,47 @@ export default function RecipeSimulator() {
         }}
       >
         <h2 style={{ margin: 0 }}>Albion Recipe Simulator</h2>
-        <div className="row" style={{ gap: 8, alignItems: "center" }}>
-          <label style={{ width: 80 }}>Region</label>
-          <select value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="europe">Europe</option>
-            <option value="west">Americas (West)</option>
-            <option value="east">Asia (East)</option>
-          </select>
+        <div
+          className="row"
+          style={{ gap: 8, alignItems: "center", flexWrap: "wrap" }}
+        >
+          <div className="row" style={{ gap: 6, alignItems: "center" }}>
+            <label style={{ width: 70 }}>Język</label>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            >
+              {supportedLanguages.map((locale) => (
+                <option key={locale} value={locale}>
+                  {locale}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="row" style={{ gap: 6, alignItems: "center" }}>
+            <label style={{ width: 70 }}>Region</label>
+            <select value={region} onChange={(e) => setRegion(e.target.value)}>
+              <option value="europe">Europe</option>
+              <option value="west">Americas (West)</option>
+              <option value="east">Asia (East)</option>
+            </select>
+          </div>
         </div>
       </div>
       <p>
         Ingredients are populated from the selected output's crafting
-        requirements. You can set available material quantity, buy price, and
-        buy city.
+        requirements. Item names are shown in the selected language and you can
+        set available material quantity, buy price, and buy city.
       </p>
 
       {ingredients.map((it, idx) => (
         <div key={idx} className="item">
           <div className="row">
-            <label style={{ width: 120 }}>Item id/name</label>
+            <label style={{ width: 120 }}>Item</label>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>{it.name}</div>
-              {itemsMap[it.name] && (
-                <div style={{ fontSize: 12, color: "#374151", marginTop: 4 }}>
-                  {itemsMap[it.name]}
-                </div>
-              )}
+              <div style={{ fontWeight: 600 }}>
+                {itemsMap[it.name] || it.name}
+              </div>
             </div>
             <label style={{ width: 140, marginLeft: 8 }}>
               Required per craft
@@ -452,14 +539,14 @@ export default function RecipeSimulator() {
       <hr />
 
       <div className="row" style={{ gap: 10 }}>
-        <label style={{ width: 120 }}>Output item id</label>
+        <label style={{ width: 120 }}>Output item</label>
         <div style={{ position: "relative", flex: 1 }}>
           <input
             value={outputItem}
             onChange={(e) => onOutputSearchChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                const nextId = String(outputItem || "").trim();
+                const nextId = resolveOutputItemId(outputItem);
                 if (nextId) {
                   setSelectedOutputId(nextId);
                   setOutputSuggestions([]);
@@ -468,11 +555,6 @@ export default function RecipeSimulator() {
             }}
             style={{ width: 220 }}
           />
-          {itemsMap[outputItem] && (
-            <div style={{ fontSize: 12, color: "#374151", marginTop: 4 }}>
-              {itemsMap[outputItem]}
-            </div>
-          )}
           {outputSuggestions && outputSuggestions.length > 0 && (
             <div
               style={{
@@ -491,7 +573,7 @@ export default function RecipeSimulator() {
                   style={{ padding: 6, cursor: "pointer" }}
                   onMouseDown={() => selectOutputSuggestion(s)}
                 >
-                  {s.id} {s.name ? `— ${s.name}` : ""}
+                  {s.name}
                 </div>
               ))}
             </div>
