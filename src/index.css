@@ -104,7 +104,7 @@ tr:nth-child(even) td {
   border: 1px solid rgba(247, 184, 75, 0.3);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .fantasy-shell::before {
@@ -264,6 +264,10 @@ tr:nth-child(even) td {
   display: flex;
 }
 
+.fantasy-output-search {
+  position: relative;
+}
+
 .fantasy-input-wrap input {
   flex: 1;
   width: auto;
@@ -278,10 +282,10 @@ tr:nth-child(even) td {
 .fantasy-suggestions {
   position: absolute;
   z-index: 40;
-  top: calc(100% + 4px);
+  bottom: calc(100% + 6px);
   left: 0;
-  width: 100%;
-  max-height: 220px;
+  right: 0;
+  max-height: min(320px, 50vh);
   overflow: auto;
   background: rgba(16, 21, 28, 0.97);
   border: 1px solid rgba(247, 184, 75, 0.24);
@@ -290,9 +294,12 @@ tr:nth-child(even) td {
 }
 
 .fantasy-suggestion {
-  padding: 8px 10px;
+  padding: 10px 12px;
   cursor: pointer;
   color: #fbe7aa;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .fantasy-suggestion:hover {

@@ -741,21 +741,23 @@ export default function RecipeSimulator() {
         <div className="fantasy-controls-grid">
           <div className="fantasy-control-group wide">
             <label>{getUiText("outputItem", language)}</label>
-            <div className="fantasy-input-wrap">
-              <input
-                value={outputItem}
-                onChange={(e) => onOutputSearchChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const nextId = resolveOutputItemId(outputItem);
-                    if (nextId) {
-                      setSelectedOutputId(nextId);
-                      setOutputSuggestions([]);
+            <div className="fantasy-output-search">
+              <div className="fantasy-input-wrap">
+                <input
+                  value={outputItem}
+                  onChange={(e) => onOutputSearchChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const nextId = resolveOutputItemId(outputItem);
+                      if (nextId) {
+                        setSelectedOutputId(nextId);
+                        setOutputSuggestions([]);
+                      }
                     }
-                  }
-                }}
-                style={{ flex: 1 }}
-              />
+                  }}
+                  style={{ flex: 1 }}
+                />
+              </div>
               {outputSuggestions && outputSuggestions.length > 0 && (
                 <div className="fantasy-suggestions">
                   {outputSuggestions.map((s, si) => (
