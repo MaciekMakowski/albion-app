@@ -242,6 +242,7 @@ export default function RecipeSimulator({ language, region }) {
   const itemDefsRef = useRef({});
   const [refreshingPrices, setRefreshingPrices] = useState(false);
   const [returnPercent, setReturnPercent] = useState(20);
+  const [saleTaxPercent, setSaleTaxPercent] = useState(4);
   const [itemNameLookup, setItemNameLookup] = useState({});
   const [results, setResults] = useState(null);
 
@@ -261,6 +262,7 @@ export default function RecipeSimulator({ language, region }) {
     const initialAvailable = init.map((it) => it.available);
 
     const rp = Math.max(0, Math.min(100, Number(returnPercent) || 0)) / 100;
+    const taxRate = Math.max(0, Number(saleTaxPercent) || 0) / 100;
 
     let available = init.map((it) => it.available);
     let crafts = 0;
@@ -296,7 +298,19 @@ export default function RecipeSimulator({ language, region }) {
     const outputId = selectedOutputId || outputItem;
     const url = `${host}/api/v2/stats/prices/${encodeURIComponent(outputId)}.json`;
 
-    setResults({ loading: true, crafts, consumed, totalCost });
+    setResults({
+      loading: true,
+      crafts,
+      consumed,
+      totalCost,
+      comparison: { loading: true, rows: [] },
+    });
+
+    const cityComparisonPromise = buildCityCostComparison(
+      init,
+      consumed,
+      totalCost,
+    );
 
     Promise.all([
       fetch(url).then((r) => r.json()),
@@ -304,8 +318,9 @@ export default function RecipeSimulator({ language, region }) {
         console.error("Failed to fetch simulator price history:", err);
         return null;
       }),
+      cityComparisonPromise,
     ])
-      .then(([data, historyRaw]) => {
+      .then(([data, historyRaw, comparison]) => {
         const rowsByCity = new Map();
 
         for (const d of data) {
@@ -324,7 +339,8 @@ export default function RecipeSimulator({ language, region }) {
             city,
             price,
             revenue: price * crafts,
-            profit: price * crafts - totalCost,
+            tax: price * crafts * taxRate,
+            profit: price * crafts - price * crafts * taxRate - totalCost,
           };
 
           if (
@@ -343,12 +359,73 @@ export default function RecipeSimulator({ language, region }) {
           loading: false,
           rows,
           history: historyRaw,
+          comparison,
         }));
       })
       .catch((err) =>
-        setResults((prev) => ({ ...prev, loading: false, error: String(err) })),
+        setResults((prev) => ({
+          ...prev,
+          loading: false,
+          error: String(err),
+          comparison: {
+            loading: false,
+            rows: [],
+            error: String(err),
+          },
+        })),
       );
   }
+
+  async function buildCityCostComparison(init, consumed, baseTotalCost) {
+    try {
+      const rows = await Promise.all(
+        buyCities.map(async (city) => {
+          let cost = 0;
+          let missingPrices = 0;
+
+          for (let i = 0; i < init.length; i++) {
+            const qty = Number(consumed[i]) || 0;
+            if (qty <= 0) continue;
+
+            const price = await fetchItemMarketPrice(init[i].name, city);
+            if (!price || price <= 0) {
+              missingPrices++;
+              continue;
+            }
+            cost += qty * price;
+          }
+
+          const isComplete = missingPrices === 0;
+          const profitabilityVsCurrent =
+            isComplete && baseTotalCost > 0
+              ? ((baseTotalCost - cost) / baseTotalCost) * 100
+              : null;
+
+          return {
+            city,
+            cost: isComplete ? cost : null,
+            missingPrices,
+            profitabilityVsCurrent,
+          };
+        }),
+      );
+
+      const sorted = rows.sort((a, b) => {
+        if (a.cost == null && b.cost == null)
+          return a.city.localeCompare(b.city);
+        if (a.cost == null) return 1;
+        if (b.cost == null) return -1;
+        return a.cost - b.cost;
+      });
+
+      return { loading: false, rows: sorted };
+    } catch (err) {
+      return { loading: false, rows: [], error: String(err) };
+    }
+  }
+
+  const bestComparisonCity =
+    results?.comparison?.rows?.find((row) => row.cost != null)?.city || null;
 
   useEffect(() => {
     setItemNameLookup(buildNameLookup(namesData, language));
@@ -634,6 +711,22 @@ export default function RecipeSimulator({ language, region }) {
           />
         </div>
 
+        <div className="fantasy-control-group">
+          <label>{getUiText("saleTaxRate", language)}</label>
+          <select
+            value={saleTaxPercent}
+            onChange={(e) => setSaleTaxPercent(Number(e.target.value))}
+            style={{ width: 170 }}
+          >
+            <option value={4}>
+              4% - {getUiText("saleTaxPremium", language)}
+            </option>
+            <option value={6}>
+              6% - {getUiText("saleTaxStandard", language)}
+            </option>
+          </select>
+        </div>
+
         <div className="fantasy-actions">
           <button className="fantasy-btn primary" onClick={simulate}>
             {getUiText("simulate", language)}
@@ -684,6 +777,7 @@ export default function RecipeSimulator({ language, region }) {
                       <th>{getUiText("city", language)}</th>
                       <th>{getUiText("price", language)}</th>
                       <th>{getUiText("revenue", language)}</th>
+                      <th>{getUiText("tax", language)}</th>
                       <th>{getUiText("profit", language)}</th>
                       <th>{getUiText("profitPercent", language)}</th>
                     </tr>
@@ -713,6 +807,7 @@ export default function RecipeSimulator({ language, region }) {
                             {Math.round(r.price).toLocaleString()}
                           </td>
                           <td>{Math.round(r.revenue).toLocaleString()}</td>
+                          <td>{Math.round(r.tax).toLocaleString()}</td>
                           <td className={profitClass}>
                             {Math.round(r.profit).toLocaleString()}
                           </td>
@@ -727,6 +822,101 @@ export default function RecipeSimulator({ language, region }) {
           </div>
         )}
       </div>
+
+      {results && (
+        <div className="fantasy-summary" style={{ marginTop: 16 }}>
+          <div className="fantasy-summary-card">
+            <h3>{getUiText("cityCostComparisonTitle", language)}</h3>
+            <p className="fantasy-intro" style={{ marginTop: 0 }}>
+              {getUiText("currentVariantCost", language)}:{" "}
+              <strong>
+                {Math.round(results.totalCost || 0).toLocaleString()}
+              </strong>
+            </p>
+
+            {results.comparison?.loading && (
+              <p className="fantasy-state">
+                {getUiText("comparisonLoading", language)}
+              </p>
+            )}
+
+            {results.comparison?.error && (
+              <p className="fantasy-state error">
+                {getUiText("comparisonError", language)}:{" "}
+                {results.comparison.error}
+              </p>
+            )}
+
+            {!!results.comparison?.rows?.length && (
+              <div className="fantasy-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{getUiText("city", language)}</th>
+                      <th>{getUiText("comparisonCost", language)}</th>
+                      <th>{getUiText("comparisonProfitability", language)}</th>
+                      <th>{getUiText("comparisonStatus", language)}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.comparison.rows.map((r, idx) => {
+                      const isBest =
+                        bestComparisonCity && r.city === bestComparisonCity;
+                      const profitability =
+                        r.profitabilityVsCurrent == null
+                          ? "—"
+                          : `${r.profitabilityVsCurrent >= 0 ? "+" : ""}${r.profitabilityVsCurrent.toFixed(1)}%`;
+
+                      const profitabilityClass =
+                        r.profitabilityVsCurrent > 0
+                          ? "profit-positive"
+                          : r.profitabilityVsCurrent < 0
+                            ? "profit-negative"
+                            : "";
+
+                      return (
+                        <tr key={idx}>
+                          <td>
+                            {r.city}
+                            {isBest && (
+                              <span
+                                style={{
+                                  marginLeft: 8,
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  background: "rgba(76, 175, 80, 0.15)",
+                                  color: "#2e7d32",
+                                }}
+                              >
+                                {getUiText("comparisonBest", language)}
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            {r.cost == null
+                              ? "—"
+                              : Math.round(r.cost).toLocaleString()}
+                          </td>
+                          <td className={profitabilityClass}>
+                            {profitability}
+                          </td>
+                          <td>
+                            {r.missingPrices > 0
+                              ? `${getUiText("comparisonMissingPrices", language)}: ${r.missingPrices}`
+                              : getUiText("comparisonComplete", language)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
