@@ -1,16 +1,30 @@
-# Albion Recipe Simulator
+# Albion App Workspace
 
-Simple React app that simulates iterative crafting with salvage and fetches output item prices from the Albion Online Data API.
+Repozytorium ma teraz strukturę z osobnym frontendem i backendem:
 
-Run:
+- `client` - aplikacja React + Vite
+- `serwer` - serwer Node.js + Express
+
+## Instalacja
 
 ```bash
-cd "d:\albion app"
+cd "d:\\albion app"
 npm install
+npm install --prefix client
+npm install --prefix serwer
+```
+
+## Uruchamianie (oba naraz)
+
+```bash
 npm run dev
 ```
 
-Usage:
-- Add 1–5 ingredients. For each: set item id/name (for reference), required per craft, available quantity and buy price per unit.
-- Set output item id (example: `T4_BAG`), salvage percent and region.
-- Click `Simulate` to estimate produced outputs and fetch prices per city. Profit is revenue minus total material costs.
+## Uruchamianie osobno
+
+```bash
+npm run dev:client
+npm run dev:serwer
+```
+
+Serwer domyslnie dziala na `http://localhost:3000` i udostepnia endpoint `GET /api/health`.

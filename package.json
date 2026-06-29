@@ -1,18 +1,15 @@
 {
-  "name": "albion-recipe-sim",
-  "version": "0.1.0",
+  "name": "albion-app-workspace",
   "private": true,
+  "version": "1.0.0",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:serwer\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:serwer": "npm run dev --prefix serwer",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix serwer"
   },
   "devDependencies": {
-    "vite": "5.0.0",
-    "@vitejs/plugin-react": "^4.0.0"
+    "concurrently": "^9.0.1"
   }
 }
