@@ -77,6 +77,13 @@ function calculateTrend(historyData, daysBack) {
 
   // Sort by timestamp
   prices.sort((a, b) => a.ts - b.ts);
+
+  // Require data to span at least 20% of the timeframe to be meaningful
+  const timeSpanMs = prices[prices.length - 1].ts - prices[0].ts;
+  const minSpanMs = daysBack * 0.2 * 24 * 60 * 60 * 1000;
+  if (timeSpanMs < minSpanMs) {
+    return null;
+  }
   // Sort sparkline prices by timestamp to show trend over time
   priceHistory.sort(
     (a, b) =>
@@ -124,10 +131,18 @@ export default function MarketTrends({ language, region }) {
 
   useEffect(() => {
     if (!itemsIndex || itemsIndex.length === 0) return;
-    loadMarketTrends();
+
+    const controller = new AbortController();
+
+    setTrends([]); // Clear immediately before loading
+    loadMarketTrends(controller.signal);
+
+    return () => controller.abort(); // Cancel pending request if dependencies change
   }, [itemsIndex, region, timeframe]);
 
-  const loadMarketTrends = async () => {
+  const loadMarketTrends = async (signal) => {
+    if (signal?.aborted) return; // Exit if already aborted
+
     setLoading(true);
     setError(null);
 
@@ -137,7 +152,8 @@ export default function MarketTrends({ language, region }) {
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
         if (Date.now() - timestamp < TRENDS_CACHE_TTL_MS) {
-          processAndDisplayTrends(data);
+          if (signal?.aborted) return; // Check before processing cached data
+          processAndDisplayTrends(data, daysBack);
           setLoading(false);
           return;
         }
@@ -156,6 +172,8 @@ export default function MarketTrends({ language, region }) {
       let allHistoryData = [];
 
       for (const chunk of chunks) {
+        if (signal?.aborted) return; // Exit if request was cancelled
+
         try {
           const history = await fetchItemsPriceHistoryBatch(
             chunk,
@@ -178,34 +196,41 @@ export default function MarketTrends({ language, region }) {
         }),
       );
 
-      processAndDisplayTrends(allHistoryData);
+      if (signal?.aborted) return; // Exit if request was cancelled before processing
+
+      processAndDisplayTrends(allHistoryData, daysBack);
     } catch (err) {
-      setError("Error loading market trends: " + err.message);
-      console.error(err);
+      if (!signal?.aborted) {
+        // Only show error if not cancelled
+        setError("Error loading market trends: " + err.message);
+        console.error(err);
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        // Only update loading if not cancelled
+        setLoading(false);
+      }
     }
   };
 
-  const processAndDisplayTrends = (historyData) => {
-    console.log("Processing history data:", {
-      dataLength: historyData.length,
-      firstItem: historyData[0],
-    });
+  const processAndDisplayTrends = (historyData, daysBackParam) => {
+    const effectiveDaysBack = daysBackParam ?? daysBack;
 
-    const trendsList = [];
-
+    // Group all city entries by itemId first
+    const grouped = new Map();
     for (const entry of historyData) {
       const itemId = entry?.item_id;
       if (!itemId) continue;
+      if (!grouped.has(itemId)) grouped.set(itemId, []);
+      grouped.get(itemId).push(entry);
+    }
 
-      const trend = calculateTrend([entry], daysBack);
+    const trendsList = [];
+
+    for (const [itemId, entries] of grouped.entries()) {
+      const trend = calculateTrend(entries, effectiveDaysBack);
       if (trend) {
-        // Show all trends, even with 0 change
-        trendsList.push({
-          itemId,
-          ...trend,
-        });
+        trendsList.push({ itemId, ...trend });
       }
     }
 
@@ -225,7 +250,8 @@ export default function MarketTrends({ language, region }) {
 
   const handleRefresh = () => {
     localStorage.removeItem(cacheKey);
-    loadMarketTrends();
+    setTrends([]); // Clear before refresh
+    loadMarketTrends(null); // Pass null for manual refresh
   };
 
   return (
