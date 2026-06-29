@@ -21,8 +21,6 @@ function requestLoggerMiddleware(req, res, next) {
       userAgent: req.headers["user-agent"] || "",
       timestamp: new Date().toISOString(),
     };
-
-    console.log(JSON.stringify(payload));
   });
 
   next();

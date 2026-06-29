@@ -239,12 +239,6 @@ export default function MarketTrends({ language, region }) {
       (a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent),
     );
 
-    console.log("Market Trends Debug:", {
-      totalDataPoints: historyData.length,
-      trendsFound: trendsList.length,
-      topTrends: trendsList.slice(0, 5),
-    });
-
     setTrends(trendsList.slice(0, 50)); // Top 50 trends
   };
 

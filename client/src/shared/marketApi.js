@@ -5,7 +5,7 @@ function toApiError(response) {
 function toIdsPath(itemIds) {
   return (itemIds || [])
     .filter(Boolean)
-    .map((id) => encodeURIComponent(id))
+    .map((id) => id)
     .join(",");
 }
 

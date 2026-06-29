@@ -88,9 +88,10 @@ function collectPriceIdsFromRecipe(
 ) {
   for (const { itemId } of recipe) {
     if (!itemId) continue;
-    ids.add(itemId);
+
     const alias = toAtAlias(itemId);
     if (alias) ids.add(alias);
+    else ids.add(itemId);
 
     if (visiting.has(itemId)) continue;
     const def = itemDefs?.[itemId];
@@ -106,20 +107,11 @@ function collectPriceIdsFromRecipe(
 function toAtAlias(itemId) {
   const match = String(itemId).match(/^(.*)_LEVEL([1-4])$/);
   if (!match) return null;
-  return `${match[1]}@${match[2]}`;
-}
-
-function toLevelAlias(itemId) {
-  const match = String(itemId).match(/^(.*)@([1-4])$/);
-  if (!match) return null;
-  return `${match[1]}_LEVEL${match[2]}`;
+  return `${itemId}@${match[2]}`;
 }
 
 function getPriceByAliases(priceMap, itemId, city) {
-  const idsToTry = [itemId, toAtAlias(itemId), toLevelAlias(itemId)].filter(
-    Boolean,
-  );
-
+  const idsToTry = [itemId].filter(Boolean);
   for (const id of idsToTry) {
     const price = priceMap[id]?.[city];
     if (price) return price;
@@ -129,7 +121,6 @@ function getPriceByAliases(priceMap, itemId, city) {
 
 function getItemVariants(sub2Id, itemDefs) {
   if (!sub2Id || !itemDefs) return [];
-
   const matchingItems = Object.entries(itemDefs).filter(([id, def]) => {
     if (def["@shopsubcategory2"] !== sub2Id) return false;
     if (!def.craftingrequirements) return false;
@@ -163,7 +154,7 @@ function getItemVariants(sub2Id, itemDefs) {
       if (recipe.length > 0) {
         variants.push({
           id,
-          displayId: `${id}@${level}`,
+          displayId: `${id}_LEVEL${level}`,
           tier,
           enchant: level,
           recipe,
@@ -293,36 +284,9 @@ export default function CraftPlanner({ language, region }) {
     if (visiting.has(itemId)) return null;
 
     const marketPrice = getPriceByAliases(cityPrices, itemId, city);
-    const def = itemDefs[itemId];
-    const recipe = extractRecipe(def?.craftingrequirements);
 
-    if (recipe.length === 0) {
-      cache.set(cacheKey, marketPrice);
-      return marketPrice;
-    }
-
-    visiting.add(itemId);
-    let recipeCost = 0;
-    for (const ingredient of recipe) {
-      const ingredientUnitCost = resolveUnitCost(
-        ingredient.itemId,
-        city,
-        cache,
-        visiting,
-      );
-      if (!ingredientUnitCost) {
-        recipeCost = null;
-        break;
-      }
-      recipeCost += ingredientUnitCost * ingredient.count;
-    }
-    visiting.delete(itemId);
-
-    // Production table should prefer craft cost from recipe.
-    // If not computable, fallback to market price for this item.
-    const resolved = recipeCost ?? marketPrice;
-    cache.set(cacheKey, resolved);
-    return resolved;
+    cache.set(cacheKey, marketPrice);
+    return marketPrice;
   }
 
   function calcCost(recipe, city) {

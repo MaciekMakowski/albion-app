@@ -18,7 +18,7 @@ async function fetchAlbionJson(url) {
   const timeoutMs =
     Number.isFinite(ALBION_API_TIMEOUT_MS) && ALBION_API_TIMEOUT_MS > 0
       ? ALBION_API_TIMEOUT_MS
-      : 8000;
+      : 12000;
   const maxRetries =
     Number.isFinite(ALBION_API_RETRY_COUNT) && ALBION_API_RETRY_COUNT >= 0
       ? ALBION_API_RETRY_COUNT
@@ -96,14 +96,7 @@ function toAtAlias(itemId) {
   // T5_WOOD_LEVEL1 -> T5_WOOD_LEVEL1@1
   const match = String(itemId || "").match(/^(.*_LEVEL([1-4]))$/i);
   if (!match) return null;
-  return `${match[1]}@${match[2]}`;
-}
-
-function toLevelAlias(itemId) {
-  // T5_WOOD_LEVEL1@1 -> T5_WOOD_LEVEL1
-  const match = String(itemId || "").match(/^(.*_LEVEL[1-4])@[1-4]$/);
-  if (!match) return null;
-  return match[1];
+  return `${itemId}@${match[2]}`;
 }
 
 function buildItemIdAliasPlan(itemIds) {
@@ -120,7 +113,7 @@ function buildItemIdAliasPlan(itemIds) {
   }
 
   for (const id of requested) {
-    const aliases = [id, toAtAlias(id), toLevelAlias(id)].filter(Boolean);
+    const aliases = [id, toAtAlias(id)].filter(Boolean);
 
     for (const alias of aliases) {
       const key = alias.toLowerCase();
@@ -151,9 +144,9 @@ function normalizeMarketRows(rows, responseIdByUpstream) {
 
     if (!upstreamId) return entry;
 
-    const normalizedId =
+    let normalizedId =
       responseIdByUpstream.get(upstreamId.toLowerCase()) || upstreamId;
-
+    normalizedId = normalizedId.split("@")[0]; // Remove enchant level suffix if present
     if (normalizedId === upstreamId) return entry;
 
     const nextEntry = { ...entry };
@@ -169,7 +162,6 @@ function normalizeMarketRows(rows, responseIdByUpstream) {
     ) {
       nextEntry.item_id = normalizedId;
     }
-
     return nextEntry;
   });
 }
@@ -177,7 +169,7 @@ function normalizeMarketRows(rows, responseIdByUpstream) {
 async function fetchPrices({ region, itemIds, locations }) {
   const host = getHostForRegion(region);
   const { upstreamIds, responseIdByUpstream } = buildItemIdAliasPlan(itemIds);
-  const encodedPath = upstreamIds.map((id) => encodeURIComponent(id)).join(",");
+  const encodedPath = upstreamIds.map((id) => id).join(",");
   const query = buildQuery({
     locations: locations.length > 0 ? locations.join(",") : null,
   });
@@ -189,7 +181,7 @@ async function fetchPrices({ region, itemIds, locations }) {
 async function fetchHistory({ region, itemIds, locations, timeScale }) {
   const host = getHostForRegion(region);
   const { upstreamIds, responseIdByUpstream } = buildItemIdAliasPlan(itemIds);
-  const encodedPath = upstreamIds.map((id) => encodeURIComponent(id)).join(",");
+  const encodedPath = upstreamIds.map((id) => id).join(",");
   const query = buildQuery({
     "time-scale": timeScale,
     locations: locations.length > 0 ? locations.join(",") : null,
