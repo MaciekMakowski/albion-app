@@ -49,38 +49,15 @@ export default function App() {
 
   return (
     <div className="fantasy-app">
+      <AppNav
+        activeModule={activeModule}
+        language={language}
+        onLanguageChange={setLanguage}
+        region={region}
+        onRegionChange={setRegion}
+      />
+
       <div className="fantasy-shell">
-        <div className="fantasy-header">
-          <AppNav activeModule={activeModule} language={language} />
-
-          <div className="fantasy-shared-toolbar">
-            <div className="fantasy-control-group">
-              <label>{getUiText("language", language)}</label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                {supportedLanguages.map((locale) => (
-                  <option key={locale} value={locale}>
-                    {locale}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="fantasy-control-group">
-              <label>{getUiText("region", language)}</label>
-              <select
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-              >
-                <option value="europe">{getUiText("europe", language)}</option>
-                <option value="west">{getUiText("west", language)}</option>
-                <option value="east">{getUiText("east", language)}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
         <Routes>
           <Route
             path="/recipe"
