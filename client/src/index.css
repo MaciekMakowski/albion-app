@@ -303,9 +303,19 @@ tr:nth-child(even) td {
 
 .fantasy-control-group {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  gap: 12px;
   min-width: 140px;
+  align-items: center;
+}
+.fantasy-control-group.reverse {
+  flex-direction: row-reverse;
+}
+.fantasy-control-group-item {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .fantasy-control-group.wide {
@@ -327,6 +337,7 @@ tr:nth-child(even) td {
 }
 
 .fantasy-section {
+  margin-top: 24px;
   display: grid;
   gap: 10px;
 }
@@ -392,10 +403,12 @@ tr:nth-child(even) td {
 .fantasy-input-wrap {
   position: relative;
   display: flex;
+  width: 100%;
 }
 
 .fantasy-output-search {
   position: relative;
+  flex: 1;
 }
 
 .fantasy-input-wrap input {
@@ -641,5 +654,8 @@ tr:nth-child(even) td {
   .fantasy-price-checker-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+  .fantasy-control-group {
+    flex-direction: column;
   }
 }

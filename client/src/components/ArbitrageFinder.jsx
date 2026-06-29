@@ -223,7 +223,7 @@ export default function ArbitrageFinder({ language, region }) {
         </p>
 
         <div className="fantasy-control-group fantasy-row">
-          <div>
+          <div className="fantasy-control-group-item">
             <label>{getUiText("arbitrageMinProfit", language)}</label>
             <input
               type="number"
@@ -236,7 +236,7 @@ export default function ArbitrageFinder({ language, region }) {
             />
           </div>
 
-          <div>
+          <div className="fantasy-control-group-item">
             <label>{getUiText("arbitrageSortBy", language)}</label>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="profit">
