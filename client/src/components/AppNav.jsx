@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { supportedLanguages } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
-
+import AppNavLogo from "./AppNavLogo";
 export default function AppNav({
   activeModule,
   language,
@@ -11,6 +11,7 @@ export default function AppNav({
 }) {
   return (
     <nav className="fantasy-nav">
+      <AppNavLogo />
       <div className="fantasy-nav-links">
         <NavLink
           to="/recipe"

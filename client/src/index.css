@@ -120,6 +120,17 @@ tr:nth-child(even) td {
   order: -1;
   box-sizing: border-box;
 }
+.fantasy-nav-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #c2682c 0%, #d59d2a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: "MedievalSharp", cursive;
+  font-weight: 600;
+  font-style: normal;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
 
 .fantasy-nav-links {
   display: flex;
