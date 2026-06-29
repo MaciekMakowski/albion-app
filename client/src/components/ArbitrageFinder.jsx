@@ -216,47 +216,59 @@ export default function ArbitrageFinder({ language, region }) {
 
   return (
     <div className="fantasy-arbitrage-finder">
-      <div className="fantasy-section">
-        <h1>{getUiText("arbitrageFinderTitle", language)}</h1>
-        <p className="fantasy-intro">
-          {getUiText("arbitrageFinderIntro", language)}
-        </p>
-
-        <div className="fantasy-control-group fantasy-row">
-          <div className="fantasy-control-group-item">
-            <label>{getUiText("arbitrageMinProfit", language)}</label>
-            <input
-              type="number"
-              value={minProfit}
-              onChange={(e) =>
-                setMinProfit(Math.max(0, Number(e.target.value)))
-              }
-              min="0"
-              step="1000"
-            />
+      <div className="fantasy-card">
+        <div className="fantasy-header">
+          <div className="fantasy-title-wrap">
+            <div className="fantasy-badge">⚙️</div>
+            <div>
+              <h2>{getUiText("arbitrageFinderTitle", language)}</h2>
+              <p className="fantasy-subtitle">
+                {getUiText("arbitrageFinderIntro", language)}
+              </p>
+            </div>
           </div>
+        </div>
 
-          <div className="fantasy-control-group-item">
-            <label>{getUiText("arbitrageSortBy", language)}</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="profit">
-                {getUiText("arbitrageSortProfit", language)}
-              </option>
-              <option value="margin">
-                {getUiText("arbitrageSortMargin", language)}
-              </option>
-            </select>
+        <div className="fantasy-section">
+          <div className="fantasy-control-group fantasy-row">
+            <div className="fantasy-control-group-item">
+              <label>{getUiText("arbitrageMinProfit", language)}</label>
+              <input
+                type="number"
+                value={minProfit}
+                onChange={(e) =>
+                  setMinProfit(Math.max(0, Number(e.target.value)))
+                }
+                min="0"
+                step="1000"
+              />
+            </div>
+
+            <div className="fantasy-control-group-item">
+              <label>{getUiText("arbitrageSortBy", language)}</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="profit">
+                  {getUiText("arbitrageSortProfit", language)}
+                </option>
+                <option value="margin">
+                  {getUiText("arbitrageSortMargin", language)}
+                </option>
+              </select>
+            </div>
+
+            <button
+              className="fantasy-btn"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              {loading
+                ? getUiText("arbitrageRefreshing", language)
+                : getUiText("arbitrageRefresh", language)}
+            </button>
           </div>
-
-          <button
-            className="fantasy-btn"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            {loading
-              ? getUiText("arbitrageRefreshing", language)
-              : getUiText("arbitrageRefresh", language)}
-          </button>
         </div>
       </div>
 

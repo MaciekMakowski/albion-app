@@ -474,7 +474,7 @@ export default function TopProducts({ language, region }) {
           </select>
         </div>
 
-        <div className="fantasy-control-group">
+        <div className="fantasy-control-group reverse ">
           <label>{getUiText("topProductsCity", language)}</label>
           <select value={cityKey} onChange={(e) => setCityKey(e.target.value)}>
             {cityOptions.map((city) => (

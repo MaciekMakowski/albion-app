@@ -252,34 +252,46 @@ export default function LocationArbitrageMap({ language, region }) {
 
   return (
     <div className="fantasy-location-map">
-      <div className="fantasy-section">
-        <h1>{getUiText("locationMapTitle", language)}</h1>
-        <p className="fantasy-intro">
-          {getUiText("locationMapIntro", language)}
-        </p>
-
-        <div className="fantasy-control-group fantasy-row">
-          <div>
-            <label>{getUiText("locationMapSortBy", language)}</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="spread">
-                {getUiText("locationMapSortSell", language)}
-              </option>
-              <option value="maxSpread">
-                {getUiText("locationMapSortMax", language)}
-              </option>
-            </select>
+      <div className="fantasy-card">
+        <div className="fantasy-header">
+          <div className="fantasy-title-wrap">
+            <div className="fantasy-badge">🗺️</div>
+            <div>
+              <h2>{getUiText("locationMapTitle", language)}</h2>
+              <p className="fantasy-subtitle">
+                {getUiText("locationMapIntro", language)}
+              </p>
+            </div>
           </div>
+        </div>
 
-          <button
-            className="fantasy-btn"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            {loading
-              ? getUiText("locationMapRefreshing", language)
-              : getUiText("locationMapRefresh", language)}
-          </button>
+        <div className="fantasy-section">
+          <div className="fantasy-control-group fantasy-row">
+            <div className="fantasy-control-group-item">
+              <label>{getUiText("locationMapSortBy", language)}</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="spread">
+                  {getUiText("locationMapSortSell", language)}
+                </option>
+                <option value="maxSpread">
+                  {getUiText("locationMapSortMax", language)}
+                </option>
+              </select>
+            </div>
+
+            <button
+              className="fantasy-btn"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              {loading
+                ? getUiText("locationMapRefreshing", language)
+                : getUiText("locationMapRefresh", language)}
+            </button>
+          </div>
         </div>
       </div>
 

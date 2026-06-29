@@ -3,6 +3,7 @@ import { getItemDisplayLabel } from "../features/recipeSimulator/recipeSimulator
 import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
 import { fetchItemsPriceHistoryBatch } from "../shared/marketApi";
+import MiniSparkline from "./MiniSparkline";
 
 const TRENDS_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours - trends change frequently
 const TRENDS_CACHE_STORAGE_KEY = "albion.marketTrends.v1";
@@ -46,6 +47,7 @@ function calculateTrend(historyData, daysBack) {
 
   const cutoffTime = Date.now() - daysBack * 24 * 60 * 60 * 1000;
   const prices = [];
+  const priceHistory = []; // Store all prices for sparkline
   const cityPrices = new Map(); // Track latest price per city
 
   for (const entry of historyData) {
@@ -59,6 +61,7 @@ function calculateTrend(historyData, daysBack) {
         const avgPrice = point.avg_price || 0;
         if (avgPrice > 0) {
           prices.push({ ts, price: avgPrice, location });
+          priceHistory.push(avgPrice); // Add to sparkline data
           // Track latest price per city
           if (!cityPrices.has(location) || cityPrices.get(location).ts < ts) {
             cityPrices.set(location, { ts, price: avgPrice });
@@ -74,6 +77,12 @@ function calculateTrend(historyData, daysBack) {
 
   // Sort by timestamp
   prices.sort((a, b) => a.ts - b.ts);
+  // Sort sparkline prices by timestamp to show trend over time
+  priceHistory.sort(
+    (a, b) =>
+      prices.findIndex((p) => p.price === a) -
+      prices.findIndex((p) => p.price === b),
+  );
 
   const oldestPrice = prices[0].price;
   const latestPrice = prices[prices.length - 1].price;
@@ -98,6 +107,7 @@ function calculateTrend(historyData, daysBack) {
     isUp: change > 0,
     bestCity,
     bestPrice: Math.floor(bestPrice),
+    priceHistory: priceHistory.slice(0, 60), // Keep last 60 data points for sparkline
   };
 }
 
@@ -220,37 +230,46 @@ export default function MarketTrends({ language, region }) {
 
   return (
     <div className="fantasy-market-trends">
-      <div className="fantasy-section">
-        <h1>{getUiText("marketTrendsTitle", language)}</h1>
-        <p className="fantasy-intro">
-          {getUiText("marketTrendsIntro", language)}
-        </p>
-
-        <div className="fantasy-control-group fantasy-row">
-          <div>
-            <label>{getUiText("marketTrendsTimeframe", language)}</label>
-            <select
-              value={timeframe}
-              onChange={(e) => setTimeframe(e.target.value)}
-            >
-              <option value="7d">
-                {getUiText("marketTrends7d", language)}
-              </option>
-              <option value="30d">
-                {getUiText("marketTrends30d", language)}
-              </option>
-            </select>
+      <div className="fantasy-card">
+        <div className="fantasy-header">
+          <div className="fantasy-title-wrap">
+            <div className="fantasy-badge">📈</div>
+            <div>
+              <h2>{getUiText("marketTrendsTitle", language)}</h2>
+              <p className="fantasy-subtitle">
+                {getUiText("marketTrendsIntro", language)}
+              </p>
+            </div>
           </div>
+        </div>
 
-          <button
-            className="fantasy-btn"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            {loading
-              ? getUiText("marketTrendsRefreshing", language)
-              : getUiText("marketTrendsRefresh", language)}
-          </button>
+        <div className="fantasy-section">
+          <div className="fantasy-control-group fantasy-row">
+            <div className="fantasy-control-group-item">
+              <label>{getUiText("marketTrendsTimeframe", language)}</label>
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value)}
+              >
+                <option value="7d">
+                  {getUiText("marketTrends7d", language)}
+                </option>
+                <option value="30d">
+                  {getUiText("marketTrends30d", language)}
+                </option>
+              </select>
+            </div>
+
+            <button
+              className="fantasy-btn"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              {loading
+                ? getUiText("marketTrendsRefreshing", language)
+                : getUiText("marketTrendsRefresh", language)}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -282,6 +301,7 @@ export default function MarketTrends({ language, region }) {
                 <th>{getUiText("marketTrendsPriceEnd", language)}</th>
                 <th>{getUiText("marketTrendsChange", language)}</th>
                 <th>{getUiText("marketTrendsChangePercent", language)}</th>
+                <th style={{ textAlign: "center" }}>Chart</th>
                 <th>{getUiText("marketTrendsBestCity", language)}</th>
               </tr>
             </thead>
@@ -317,6 +337,13 @@ export default function MarketTrends({ language, region }) {
                   >
                     {trend.changePercent > 0 ? "↑" : "↓"}{" "}
                     {Math.abs(trend.changePercent).toFixed(2)}%
+                  </td>
+                  <td style={{ textAlign: "center", padding: "4px 8px" }}>
+                    {trend.priceHistory && trend.priceHistory.length > 1 ? (
+                      <MiniSparkline prices={trend.priceHistory} />
+                    ) : (
+                      <span style={{ fontSize: "0.8em", opacity: 0.5 }}>—</span>
+                    )}
                   </td>
                   <td className="fantasy-price">
                     <div>{trend.bestCity}</div>
