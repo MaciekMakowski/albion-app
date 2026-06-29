@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
@@ -10,9 +11,16 @@ import {
 import { getUiText } from "./features/recipeSimulator/translations";
 
 export default function App() {
-  const [activeModule, setActiveModule] = useState("recipe");
+  const location = useLocation();
   const [language, setLanguage] = useState(getDefaultLanguage());
   const [region, setRegion] = useState("europe");
+
+  const activeModule =
+    location.pathname === "/price-checker"
+      ? "price"
+      : location.pathname === "/top-products"
+        ? "top"
+        : "recipe";
 
   useEffect(() => {
     const titleKey =
@@ -28,11 +36,7 @@ export default function App() {
     <div className="fantasy-app">
       <div className="fantasy-shell">
         <div className="fantasy-header">
-          <AppNav
-            activeModule={activeModule}
-            onModuleChange={setActiveModule}
-            language={language}
-          />
+          <AppNav activeModule={activeModule} language={language} />
 
           <div className="fantasy-shared-toolbar">
             <div className="fantasy-control-group">
@@ -62,15 +66,22 @@ export default function App() {
           </div>
         </div>
 
-        {activeModule === "recipe" && (
-          <RecipeSimulator language={language} region={region} />
-        )}
-        {activeModule === "price" && (
-          <PriceChecker language={language} region={region} />
-        )}
-        {activeModule === "top" && (
-          <TopProducts language={language} region={region} />
-        )}
+        <Routes>
+          <Route
+            path="/recipe"
+            element={<RecipeSimulator language={language} region={region} />}
+          />
+          <Route
+            path="/price-checker"
+            element={<PriceChecker language={language} region={region} />}
+          />
+          <Route
+            path="/top-products"
+            element={<TopProducts language={language} region={region} />}
+          />
+          <Route path="/" element={<Navigate to="/recipe" replace />} />
+          <Route path="*" element={<Navigate to="/recipe" replace />} />
+        </Routes>
       </div>
     </div>
   );

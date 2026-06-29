@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: albion-app
+    restart: unless-stopped
+    env_file:
+      - ./serwer/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    networks:
+      - albion-net
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: albion-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - app
+    networks:
+      - albion-net
+
+  grafana:
+    image: grafana/grafana:11.1.4
+    container_name: albion-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    env_file:
+      - ./monitoring/.env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - albion-net
+
+networks:
+  albion-net:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:

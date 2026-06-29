@@ -1,9 +1,22 @@
-export function getHostForRegion(region) {
-  return region === "europe"
-    ? "https://europe.albion-online-data.com"
-    : region === "west"
-      ? "https://west.albion-online-data.com"
-      : "https://east.albion-online-data.com";
+function toApiError(response) {
+  return new Error(`HTTP ${response.status}`);
+}
+
+function toIdsPath(itemIds) {
+  return (itemIds || [])
+    .filter(Boolean)
+    .map((id) => encodeURIComponent(id))
+    .join(",");
+}
+
+function toQuery(params) {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value == null || value === "") return;
+    searchParams.set(key, String(value));
+  });
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
 }
 
 export function getCityName(entry) {
@@ -19,14 +32,7 @@ export function getBuyPrice(entry) {
 }
 
 export async function fetchItemPricesByCity(itemId, region) {
-  const host = getHostForRegion(region);
-  const url = `${host}/api/v2/stats/prices/${encodeURIComponent(itemId)}.json`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  const data = await response.json();
+  const data = await fetchItemsPricesBatch([itemId], region);
   const byCity = new Map();
 
   for (const entry of data) {
@@ -78,16 +84,17 @@ export async function fetchItemPriceHistory(
   locations = [],
   timeScale = 24,
 ) {
-  const host = getHostForRegion(region);
-  let url = `${host}/api/v2/stats/history/${encodeURIComponent(itemId)}.json?time-scale=${timeScale}`;
-  if (locations && locations.length > 0) {
-    url += `&locations=${encodeURIComponent(locations.join(","))}`;
-  }
+  const query = toQuery({
+    region,
+    timeScale,
+    locations: locations && locations.length > 0 ? locations.join(",") : null,
+  });
+  const url = `/api/market/history/${encodeURIComponent(itemId)}${query}`;
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    throw toApiError(response);
   }
-  return await response.json();
+  return response.json();
 }
 
 export async function fetchItemsPriceHistoryBatch(
@@ -99,34 +106,33 @@ export async function fetchItemsPriceHistoryBatch(
   const validIds = (itemIds || []).filter(Boolean);
   if (validIds.length === 0) return [];
 
-  const host = getHostForRegion(region);
-  const encodedPath = validIds.map((id) => encodeURIComponent(id)).join(",");
-  let url = `${host}/api/v2/stats/history/${encodedPath}.json?time-scale=${timeScale}`;
-  if (locations && locations.length > 0) {
-    url += `&locations=${encodeURIComponent(locations.join(","))}`;
-  }
+  const query = toQuery({
+    region,
+    timeScale,
+    locations: locations && locations.length > 0 ? locations.join(",") : null,
+  });
+  const url = `/api/market/history/${toIdsPath(validIds)}${query}`;
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    throw toApiError(response);
   }
-  return await response.json();
+  return response.json();
 }
 
 export async function fetchItemsPricesBatch(itemIds, region, locations = []) {
   const validIds = (itemIds || []).filter(Boolean);
   if (validIds.length === 0) return [];
 
-  const host = getHostForRegion(region);
-  const encodedPath = validIds.map((id) => encodeURIComponent(id)).join(",");
-  let url = `${host}/api/v2/stats/prices/${encodedPath}.json`;
-  if (locations && locations.length > 0) {
-    url += `?locations=${encodeURIComponent(locations.join(","))}`;
-  }
+  const query = toQuery({
+    region,
+    locations: locations && locations.length > 0 ? locations.join(",") : null,
+  });
+  const url = `/api/market/prices/${toIdsPath(validIds)}${query}`;
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    throw toApiError(response);
   }
-  return await response.json();
+  return response.json();
 }

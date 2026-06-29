@@ -2,13 +2,19 @@
   "name": "albion-app-server",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "node --watch index.js",
-    "start": "node index.js"
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "audit": "npm audit",
+    "audit:prod": "npm audit --omit=dev",
+    "deps:outdated": "npm outdated"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "prom-client": "^15.1.3"
   }
 }

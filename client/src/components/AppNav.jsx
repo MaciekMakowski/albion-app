@@ -1,29 +1,27 @@
+import { NavLink } from "react-router-dom";
 import { getUiText } from "../features/recipeSimulator/translations";
 
-export default function AppNav({ activeModule, onModuleChange, language }) {
+export default function AppNav({ activeModule, language }) {
   return (
     <nav className="fantasy-nav" aria-label="Modules">
-      <button
-        type="button"
+      <NavLink
+        to="/recipe"
         className={`fantasy-nav-btn${activeModule === "recipe" ? " active" : ""}`}
-        onClick={() => onModuleChange("recipe")}
       >
         {getUiText("navRecipe", language)}
-      </button>
-      <button
-        type="button"
+      </NavLink>
+      <NavLink
+        to="/price-checker"
         className={`fantasy-nav-btn${activeModule === "price" ? " active" : ""}`}
-        onClick={() => onModuleChange("price")}
       >
         {getUiText("navPriceChecker", language)}
-      </button>
-      <button
-        type="button"
+      </NavLink>
+      <NavLink
+        to="/top-products"
         className={`fantasy-nav-btn${activeModule === "top" ? " active" : ""}`}
-        onClick={() => onModuleChange("top")}
       >
         {getUiText("navTopProducts", language)}
-      </button>
+      </NavLink>
     </nav>
   );
 }

@@ -6,8 +6,20 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:serwer\"",
     "dev:client": "npm run dev --prefix client",
     "dev:serwer": "npm run dev --prefix serwer",
+    "dev:with-monitoring": "npm run monitoring:up && npm run dev",
     "build": "npm run build --prefix client",
-    "start": "npm run start --prefix serwer"
+    "start": "npm run start --prefix serwer",
+    "monitoring:up": "docker compose -f monitoring/docker-compose.yml --env-file monitoring/.env.example up -d",
+    "monitoring:down": "docker compose -f monitoring/docker-compose.yml --env-file monitoring/.env.example down",
+    "monitoring:restart": "docker compose -f monitoring/docker-compose.yml --env-file monitoring/.env.example restart",
+    "monitoring:logs": "docker compose -f monitoring/docker-compose.yml --env-file monitoring/.env.example logs -f",
+    "monitoring:ps": "docker compose -f monitoring/docker-compose.yml --env-file monitoring/.env.example ps",
+    "docker:up": "docker compose --env-file monitoring/.env up -d --build",
+    "docker:down": "docker compose --env-file monitoring/.env down",
+    "docker:logs": "docker compose --env-file monitoring/.env logs -f",
+    "docker:ps": "docker compose --env-file monitoring/.env ps",
+    "docker:up:example": "docker compose --env-file monitoring/.env.example up -d --build",
+    "docker:down:example": "docker compose --env-file monitoring/.env.example down"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

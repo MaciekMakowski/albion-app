@@ -3,6 +3,8 @@ dist/
 .vite/
 .env
 .env.*
+serwer/.env
+monitoring/.env
 *.log
 npm-debug.log*
 yarn-debug.log*

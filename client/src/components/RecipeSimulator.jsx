@@ -5,8 +5,8 @@ import { getUiText } from "../features/recipeSimulator/translations";
 import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
 import {
   fetchItemPriceHistory,
+  fetchItemsPricesBatch,
   fetchItemMarketPrice as fetchMarketPrice,
-  getHostForRegion,
 } from "../shared/marketApi";
 
 const buyCities = [
@@ -294,9 +294,7 @@ export default function RecipeSimulator({ language, region }) {
     );
     const totalCost = Math.max(0, initialCost - remainingInventoryValue);
 
-    const host = getHostForRegion(region);
     const outputId = selectedOutputId || outputItem;
-    const url = `${host}/api/v2/stats/prices/${encodeURIComponent(outputId)}.json`;
 
     setResults({
       loading: true,
@@ -313,7 +311,7 @@ export default function RecipeSimulator({ language, region }) {
     );
 
     Promise.all([
-      fetch(url).then((r) => r.json()),
+      fetchItemsPricesBatch([outputId], region),
       fetchItemPriceHistory(outputId, region, buyCities).catch((err) => {
         console.error("Failed to fetch simulator price history:", err);
         return null;
