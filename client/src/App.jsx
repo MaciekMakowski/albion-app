@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppNav from "./components/AppNav";
+import ArbitrageFinder from "./components/ArbitrageFinder";
+import LocationArbitrageMap from "./components/LocationArbitrageMap";
+import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
 import TopProducts from "./components/TopProducts";
@@ -20,7 +23,13 @@ export default function App() {
       ? "price"
       : location.pathname === "/top-products"
         ? "top"
-        : "recipe";
+        : location.pathname === "/arbitrage"
+          ? "arbitrage"
+          : location.pathname === "/location-map"
+            ? "locationMap"
+            : location.pathname === "/market-trends"
+              ? "trends"
+              : "recipe";
 
   useEffect(() => {
     const titleKey =
@@ -28,7 +37,13 @@ export default function App() {
         ? "priceCheckerTitle"
         : activeModule === "top"
           ? "topProductsTitle"
-          : "title";
+          : activeModule === "arbitrage"
+            ? "arbitrageFinderTitle"
+            : activeModule === "locationMap"
+              ? "locationMapTitle"
+              : activeModule === "trends"
+                ? "marketTrendsTitle"
+                : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -78,6 +93,20 @@ export default function App() {
           <Route
             path="/top-products"
             element={<TopProducts language={language} region={region} />}
+          />
+          <Route
+            path="/arbitrage"
+            element={<ArbitrageFinder language={language} region={region} />}
+          />
+          <Route
+            path="/location-map"
+            element={
+              <LocationArbitrageMap language={language} region={region} />
+            }
+          />
+          <Route
+            path="/market-trends"
+            element={<MarketTrends language={language} region={region} />}
           />
           <Route path="/" element={<Navigate to="/recipe" replace />} />
           <Route path="*" element={<Navigate to="/recipe" replace />} />

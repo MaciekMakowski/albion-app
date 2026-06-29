@@ -22,6 +22,24 @@ export default function AppNav({ activeModule, language }) {
       >
         {getUiText("navTopProducts", language)}
       </NavLink>
+      <NavLink
+        to="/arbitrage"
+        className={`fantasy-nav-btn${activeModule === "arbitrage" ? " active" : ""}`}
+      >
+        {getUiText("navArbitrageFinder", language)}
+      </NavLink>
+      <NavLink
+        to="/location-map"
+        className={`fantasy-nav-btn${activeModule === "locationMap" ? " active" : ""}`}
+      >
+        {getUiText("navLocationMap", language)}
+      </NavLink>
+      <NavLink
+        to="/market-trends"
+        className={`fantasy-nav-btn${activeModule === "trends" ? " active" : ""}`}
+      >
+        {getUiText("navMarketTrends", language)}
+      </NavLink>
     </nav>
   );
 }

@@ -10,7 +10,7 @@ import {
 const TOP_LIMIT = 50;
 const CANDIDATE_LIMIT = 900;
 const BATCH_SIZE = 80;
-const PRICE_CACHE_TTL_MS = 15 * 60 * 1000;
+const PRICE_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const PRICE_CACHE_RETENTION_MS = 24 * 60 * 60 * 1000;
 const PRICE_CACHE_MAX_SCOPES = 24;
 const PRICE_CACHE_STORAGE_KEY = "albion.topProducts.avgPrices.v1";
@@ -343,7 +343,7 @@ export default function TopProducts({ language, region }) {
 
               if (
                 cityKey !== "global" &&
-                String(entry?.city || "").toLowerCase() !==
+                String(entry?.location || entry?.city || "").toLowerCase() !==
                   cityKey.toLowerCase()
               ) {
                 continue;
