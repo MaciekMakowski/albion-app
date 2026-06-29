@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import ArbitrageFinder from "./components/ArbitrageFinder";
+import CraftPlanner from "./components/CraftPlanner";
 import LocationArbitrageMap from "./components/LocationArbitrageMap";
 import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
@@ -26,7 +27,9 @@ export default function App() {
             ? "locationMap"
             : location.pathname === "/market-trends"
               ? "trends"
-              : "recipe";
+              : location.pathname === "/craft-planner"
+                ? "craft"
+                : "recipe";
 
   useEffect(() => {
     const titleKey =
@@ -40,7 +43,9 @@ export default function App() {
               ? "locationMapTitle"
               : activeModule === "trends"
                 ? "marketTrendsTitle"
-                : "title";
+                : activeModule === "craft"
+                  ? "craftPlannerTitle"
+                  : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -81,6 +86,10 @@ export default function App() {
           <Route
             path="/market-trends"
             element={<MarketTrends language={language} region={region} />}
+          />
+          <Route
+            path="/craft-planner"
+            element={<CraftPlanner language={language} region={region} />}
           />
           <Route path="/" element={<Navigate to="/recipe" replace />} />
           <Route path="*" element={<Navigate to="/recipe" replace />} />

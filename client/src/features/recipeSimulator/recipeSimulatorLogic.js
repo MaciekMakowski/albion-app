@@ -63,7 +63,22 @@ export function buildNameLookup(source, language) {
     const uniqueName = entry?.UniqueName;
     const localizedName = entry?.LocalizedNames?.[language];
     if (uniqueName) {
-      lookup[uniqueName] = localizedName || uniqueName;
+      const resolvedName = localizedName || uniqueName;
+      lookup[uniqueName] = resolvedName;
+
+      // items_names.json stores T5_WOOD_LEVEL1@1 -> also register T5_WOOD_LEVEL1 (items.json key)
+      const atLevelMatch = String(uniqueName).match(/^(.*_LEVEL[1-4])@[1-4]$/);
+      if (atLevelMatch) {
+        lookup[atLevelMatch[1]] = lookup[atLevelMatch[1]] || resolvedName;
+      }
+
+      // Generic @N enchant (e.g. T4_POTION_HEAL@1) -> also register base id
+      if (!atLevelMatch) {
+        const atMatch = String(uniqueName).match(/^(.+)@\d+$/);
+        if (atMatch) {
+          lookup[atMatch[1]] = lookup[atMatch[1]] || resolvedName;
+        }
+      }
     }
   });
   return lookup;

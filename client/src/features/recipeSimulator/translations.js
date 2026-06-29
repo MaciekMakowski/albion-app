@@ -137,6 +137,15 @@ export const uiTranslations = {
     marketTrendsTrend: "Trend",
     marketTrendsBestCity: "Best price at",
     navMarketTrends: "Market Trends",
+    navCraftPlanner: "Craft Planner",
+    craftPlannerTitle: "Craft Planner",
+    craftPlannerIntro:
+      "Select an item category to see recipes and crafting costs in each city.",
+    craftPlannerCategory: "Category",
+    craftPlannerSelectCategory: "-- Select category --",
+    craftPlannerNoItems: "No craftable items found in this category.",
+    craftPlannerLoadingPrices: "Loading ingredient prices...",
+    craftPlannerRecipe: "Recipe",
   },
   "PL-PL": {
     title: "Symulator receptur Albion",
@@ -275,6 +284,16 @@ export const uiTranslations = {
     marketTrendsTrend: "Trend",
     marketTrendsBestCity: "Najlepsza cena w",
     navMarketTrends: "Trendy rynkowe",
+    navCraftPlanner: "Planer receptur",
+    craftPlannerTitle: "Planer receptur",
+    craftPlannerIntro:
+      "Wybierz kategorię przedmiotów, aby zobaczyć receptury i koszty produkcji w każdym mieście.",
+    craftPlannerCategory: "Kategoria",
+    craftPlannerSelectCategory: "-- Wybierz kategorię --",
+    craftPlannerNoItems:
+      "Nie znaleziono przedmiotów z recepturą w tej kategorii.",
+    craftPlannerLoadingPrices: "Ładowanie cen składników...",
+    craftPlannerRecipe: "Receptura",
   },
   "DE-DE": {
     title: "Albion-Rezept-Simulator",
@@ -396,6 +415,15 @@ export const uiTranslations = {
     marketTrendsTrend: "Trend",
     marketTrendsBestCity: "Bester Preis bei",
     navMarketTrends: "Markttrends",
+    navCraftPlanner: "Craft-Planer",
+    craftPlannerTitle: "Craft-Planer",
+    craftPlannerIntro:
+      "Wähle eine Kategorie, um Rezepte und Herstellungskosten in jeder Stadt zu sehen.",
+    craftPlannerCategory: "Kategorie",
+    craftPlannerSelectCategory: "-- Kategorie wählen --",
+    craftPlannerNoItems: "Keine herstellbaren Gegenstände in dieser Kategorie.",
+    craftPlannerLoadingPrices: "Zutatenpreise werden geladen...",
+    craftPlannerRecipe: "Rezept",
   },
   "FR-FR": {
     title: "Simulateur de recettes Albion",
@@ -516,6 +544,15 @@ export const uiTranslations = {
     marketTrendsTrend: "Tendance",
     marketTrendsBestCity: "Meilleur prix à",
     navMarketTrends: "Tendances du marché",
+    navCraftPlanner: "Planificateur",
+    craftPlannerTitle: "Planificateur de craft",
+    craftPlannerIntro:
+      "Sélectionnez une catégorie pour voir les recettes et les coûts de fabrication dans chaque ville.",
+    craftPlannerCategory: "Catégorie",
+    craftPlannerSelectCategory: "-- Choisir une catégorie --",
+    craftPlannerNoItems: "Aucun objet fabricable dans cette catégorie.",
+    craftPlannerLoadingPrices: "Chargement des prix des ingrédients...",
+    craftPlannerRecipe: "Recette",
   },
   "RU-RU": {
     title: "Симулятор рецептов Albion",
@@ -614,6 +651,15 @@ export const uiTranslations = {
     marketTrendsTrend: "Тренд",
     marketTrendsBestCity: "Лучшая цена в",
     navMarketTrends: "Рыночные тренды",
+    navCraftPlanner: "Планировщик",
+    craftPlannerTitle: "Планировщик крафта",
+    craftPlannerIntro:
+      "Выберите категорию, чтобы увидеть рецепты и стоимость изготовления в каждом городе.",
+    craftPlannerCategory: "Категория",
+    craftPlannerSelectCategory: "-- Выбрать категорию --",
+    craftPlannerNoItems: "Нет предметов с рецептом в этой категории.",
+    craftPlannerLoadingPrices: "Загрузка цен ингредиентов...",
+    craftPlannerRecipe: "Рецепт",
     priceCheckerSubtitle: "Сравните цены предмета во всех городах",
     priceCheckerIntro:
       "Выберите предмет, чтобы увидеть текущие рыночные цены в каждом королевском городе и на Black Market.",

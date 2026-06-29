@@ -48,6 +48,12 @@ export default function AppNav({
         >
           {getUiText("navMarketTrends", language)}
         </NavLink>
+        <NavLink
+          to="/craft-planner"
+          className={`fantasy-nav-link${activeModule === "craft" ? " active" : ""}`}
+        >
+          {getUiText("navCraftPlanner", language)}
+        </NavLink>
       </div>
 
       <div className="fantasy-nav-controls">
