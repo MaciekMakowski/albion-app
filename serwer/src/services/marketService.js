@@ -18,7 +18,7 @@ async function fetchAlbionJson(url) {
   const timeoutMs =
     Number.isFinite(ALBION_API_TIMEOUT_MS) && ALBION_API_TIMEOUT_MS > 0
       ? ALBION_API_TIMEOUT_MS
-      : 12000;
+      : 8000;
   const maxRetries =
     Number.isFinite(ALBION_API_RETRY_COUNT) && ALBION_API_RETRY_COUNT >= 0
       ? ALBION_API_RETRY_COUNT
