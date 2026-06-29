@@ -1,8 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { supportedLanguages } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
-import {
-  supportedLanguages,
-} from "../features/recipeSimulator/recipeSimulatorLogic";
 
 export default function AppNav({
   activeModule,
@@ -55,7 +53,10 @@ export default function AppNav({
       <div className="fantasy-nav-controls">
         <div className="fantasy-nav-select">
           <label>{getUiText("language", language)}</label>
-          <select value={language} onChange={(e) => onLanguageChange(e.target.value)}>
+          <select
+            value={language}
+            onChange={(e) => onLanguageChange(e.target.value)}
+          >
             {supportedLanguages.map((locale) => (
               <option key={locale} value={locale}>
                 {locale}
@@ -65,7 +66,10 @@ export default function AppNav({
         </div>
         <div className="fantasy-nav-select">
           <label>{getUiText("region", language)}</label>
-          <select value={region} onChange={(e) => onRegionChange(e.target.value)}>
+          <select
+            value={region}
+            onChange={(e) => onRegionChange(e.target.value)}
+          >
             <option value="europe">{getUiText("europe", language)}</option>
             <option value="west">{getUiText("west", language)}</option>
             <option value="east">{getUiText("east", language)}</option>

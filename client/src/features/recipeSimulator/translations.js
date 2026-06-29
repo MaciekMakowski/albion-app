@@ -119,7 +119,7 @@ export const uiTranslations = {
     locationMapSellPrices: "Sell Prices",
     locationMapBuyPrices: "Buy Prices",
     locationMapSpread: "Spread",
-    navLocationMap: "Location Map",
+    navLocationMap: "Location Arbitrage",
     marketTrendsTitle: "Market Trends",
     marketTrendsIntro:
       "Track price trends over 7 or 30 days. See which items are rising or falling in value and identify potential buying/selling opportunities.",
@@ -257,7 +257,7 @@ export const uiTranslations = {
     locationMapSellPrices: "Ceny sprzedaży",
     locationMapBuyPrices: "Ceny zakupu",
     locationMapSpread: "Rozpiętość",
-    navLocationMap: "Mapa lokalizacji",
+    navLocationMap: "Arbitraż lokalizacji",
     marketTrendsTitle: "Trendy rynkowe",
     marketTrendsIntro:
       "Śledź trendy cen przez 7 lub 30 dni. Zobacz które przedmioty rosną lub spadają w wartości i zidentyfikuj potencjalne okazje kupna/sprzedaży.",
@@ -378,7 +378,7 @@ export const uiTranslations = {
     locationMapSellPrices: "Verkaufspreise",
     locationMapBuyPrices: "Kaufpreise",
     locationMapSpread: "Spanne",
-    navLocationMap: "Standortkarte",
+    navLocationMap: "Standort-Arbitrage",
     marketTrendsTitle: "Markttrends",
     marketTrendsIntro:
       "Verfolge Preistrends über 7 oder 30 Tage. Siehe welche Gegenstände im Wert steigen oder fallen und identifiziere potenzielle Kauf-/Verkaufsmöglichkeiten.",
@@ -498,7 +498,7 @@ export const uiTranslations = {
     locationMapSellPrices: "Prix de vente",
     locationMapBuyPrices: "Prix d'achat",
     locationMapSpread: "Écart",
-    navLocationMap: "Carte de localisation",
+    navLocationMap: "Arbitrage de localisation",
     marketTrendsTitle: "Tendances du marché",
     marketTrendsIntro:
       "Suivez les tendances des prix sur 7 ou 30 jours. Voyez quels articles augmentent ou diminuent en valeur et identifiez les opportunités d'achat/vente potentielles.",
@@ -596,7 +596,7 @@ export const uiTranslations = {
     locationMapSellPrices: "Цены продажи",
     locationMapBuyPrices: "Цены покупки",
     locationMapSpread: "Разброс",
-    navLocationMap: "Карта локаций",
+    navLocationMap: "Арбитраж локаций",
     marketTrendsTitle: "Рыночные тренды",
     marketTrendsIntro:
       "Отслеживайте ценовые тренды за 7 или 30 дней. Посмотрите, какие предметы растут или падают в цене, и определите потенциальные возможности покупки/продажи.",

@@ -7,10 +7,7 @@ import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
 import TopProducts from "./components/TopProducts";
-import {
-  getDefaultLanguage,
-  supportedLanguages,
-} from "./features/recipeSimulator/recipeSimulatorLogic";
+import { getDefaultLanguage } from "./features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "./features/recipeSimulator/translations";
 
 export default function App() {
