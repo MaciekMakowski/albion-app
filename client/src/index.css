@@ -126,7 +126,7 @@ tr:nth-child(even) td {
   background: linear-gradient(135deg, #c2682c 0%, #d59d2a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: "MedievalSharp", cursive;
+  font-family: "New Rocker", system-ui;
   font-weight: 600;
   font-style: normal;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);

@@ -20,7 +20,7 @@ const {
 } = require("./middlewares/errorHandlers");
 const {
   frontendSsrMiddleware,
-  staticFrontendMiddleware,
+  staticFrontendMiddleware, // <-- to jest kluczowe
 } = require("./middlewares/frontendSsrMiddleware");
 
 const app = express();
@@ -65,23 +65,37 @@ const jsonLimit = process.env.JSON_BODY_LIMIT || "100kb";
 
 app.set("trust proxy", trustProxy);
 app.disable("x-powered-by");
+
+// Podstawowe middleware'e niezależne od ścieżki
 app.use(requestContextMiddleware);
 app.use(requestLoggerMiddleware);
 app.use(metricsMiddleware);
 app.use(helmet());
 app.use(enforceHttpsIfEnabled);
-app.use(cors(corsOptions));
+// **************** KLUCZOWA ZMIANA TUTAJ ****************
+// Przenieś staticFrontendMiddleware PRZED parsowaniem ciała żądania i przed trasami API.
+// To zapewni, że pliki statyczne (takie jak CSS) zostaną obsłużone w pierwszej kolejności.
+app.use(staticFrontendMiddleware);
+
+app.use(cors(corsOptions)); // CORS ZAWSZE przed parsowaniem ciała, aby preflight OPTIONS działało
+
+
+// Middleware'y do parsowania ciała żądania (tylko dla API)
 app.use(express.json({ limit: jsonLimit }));
 app.use(
   express.urlencoded({ extended: false, limit: jsonLimit, parameterLimit: 50 }),
 );
-app.use("/api", apiRateLimiter);
 
+// Trasy API
+app.use("/api", apiRateLimiter);
 app.use("/api", healthRoutes);
 app.use("/api/market", marketRoutes);
-app.use(staticFrontendMiddleware);
-app.use(frontendSsrMiddleware);
 
+// SSR middleware - powinien być na końcu, po plikach statycznych i API,
+// aby obsługiwał resztę tras frontendu.
+app.use(frontendSsrMiddleware); // <-- Pozostaje tu
+
+// Obsługa błędów (zawsze na końcu)
 app.use(notFoundHandler);
 app.use(errorHandler);
 

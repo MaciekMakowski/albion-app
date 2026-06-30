@@ -23,9 +23,40 @@ const hasFrontendBuildArtifacts =
   fs.existsSync(clientIndexPath) &&
   fs.existsSync(serverEntryPath);
 
-const staticFrontendMiddleware = hasFrontendBuildArtifacts
-  ? express.static(clientDistPath, { index: false })
-  : (_req, _res, next) => next();
+
+const actualStaticMiddleware = express.static(clientDistPath, { index: false });
+
+
+const staticFrontendMiddleware = (req, res, next) => {
+  // Logowanie przed przekazaniem do express.static
+  console.log(`Static Middleware Wrapper: Attempting to serve static file for path: ${req.path}`);
+
+  // Flaga, aby sprawdzić, czy express.static obsłużył żądanie
+  let handledByStatic = false;
+  const originalEnd = res.end; // Zachowaj oryginalną funkcję res.end
+  res.end = function (...args) {
+    if (res.statusCode >= 200 && res.statusCode < 300) { // Sprawdź, czy status wskazuje na sukces
+        console.log(`Static Middleware Wrapper: File ${req.path} SERVED with status ${res.statusCode} and Content-Type: ${res.getHeader('Content-Type') || 'unknown'}`);
+        handledByStatic = true;
+    } else {
+        console.log(`Static Middleware Wrapper: File ${req.path} handled, but with status ${res.statusCode}`);
+    }
+    originalEnd.apply(this, args); // Wywołaj oryginalne res.end
+  };
+
+  // Przekaż żądanie do właściwego express.static middleware
+  actualStaticMiddleware(req, res, (err) => {
+    // Ta callback jest wywoływana TYLKO jeśli express.static NIE obsłużył żądania (czyli wywołał next)
+    if (!handledByStatic) { // Upewnij się, że nie został obsłużony wcześniej
+        if (err) {
+            console.error(`Static Middleware Wrapper: Error in express.static for path: ${req.path}`, err);
+        } else {
+            console.log(`Static Middleware Wrapper: File ${req.path} NOT FOUND by express.static, calling next()`);
+        }
+    }
+    next(err); // Przekaż dalej błąd lub po prostu wywołaj next
+  });
+};
 
 let cachedRendererModulePromise = null;
 let cachedTemplate = null;
@@ -43,6 +74,7 @@ function hasFileExtension(requestPath) {
 }
 
 async function frontendSsrMiddleware(req, res, next) {
+
   if (!hasFrontendBuildArtifacts) {
     next();
     return;

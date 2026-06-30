@@ -12,10 +12,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     networks:
       - albion-net
+      - proxy
 
   prometheus:
     image: prom/prometheus:v2.54.1
@@ -24,8 +25,8 @@ services:
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     depends_on:
       - app
     networks:
@@ -35,8 +36,6 @@ services:
     image: grafana/grafana:11.1.4
     container_name: albion-grafana
     restart: unless-stopped
-    ports:
-      - "3001:3000"
     env_file:
       - ./monitoring/.env
     environment:
@@ -47,6 +46,8 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    expose:
+      - "3000"
     depends_on:
       - prometheus
     networks:
@@ -54,7 +55,10 @@ services:
 
 networks:
   albion-net:
-    driver: bridge
+    external: true
+
+  proxy:
+    external: true
 
 volumes:
   prometheus_data:

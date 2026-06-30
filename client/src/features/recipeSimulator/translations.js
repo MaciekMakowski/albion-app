@@ -124,6 +124,7 @@ export const uiTranslations = {
     marketTrendsIntro:
       "Track price trends over 7 or 30 days. See which items are rising or falling in value and identify potential buying/selling opportunities.",
     marketTrendsTimeframe: "Timeframe",
+    marketTrends2d: "2 Days",
     marketTrends7d: "7 Days",
     marketTrends30d: "30 Days",
     marketTrendsRefresh: "Refresh trends",
@@ -271,6 +272,7 @@ export const uiTranslations = {
     marketTrendsIntro:
       "Śledź trendy cen przez 7 lub 30 dni. Zobacz które przedmioty rosną lub spadają w wartości i zidentyfikuj potencjalne okazje kupna/sprzedaży.",
     marketTrendsTimeframe: "Okres czasu",
+    marketTrends2d: "2 dni",
     marketTrends7d: "7 dni",
     marketTrends30d: "30 dni",
     marketTrendsRefresh: "Odśwież trendy",
@@ -402,6 +404,7 @@ export const uiTranslations = {
     marketTrendsIntro:
       "Verfolge Preistrends über 7 oder 30 Tage. Siehe welche Gegenstände im Wert steigen oder fallen und identifiziere potenzielle Kauf-/Verkaufsmöglichkeiten.",
     marketTrendsTimeframe: "Zeitraum",
+    marketTrends2d: "2 Tage",
     marketTrends7d: "7 Tage",
     marketTrends30d: "30 Tage",
     marketTrendsRefresh: "Trends aktualisieren",
@@ -531,6 +534,7 @@ export const uiTranslations = {
     marketTrendsIntro:
       "Suivez les tendances des prix sur 7 ou 30 jours. Voyez quels articles augmentent ou diminuent en valeur et identifiez les opportunités d'achat/vente potentielles.",
     marketTrendsTimeframe: "Période",
+    marketTrends2d: "2 jours",
     marketTrends7d: "7 jours",
     marketTrends30d: "30 jours",
     marketTrendsRefresh: "Actualiser les tendances",
@@ -638,6 +642,7 @@ export const uiTranslations = {
     marketTrendsIntro:
       "Отслеживайте ценовые тренды за 7 или 30 дней. Посмотрите, какие предметы растут или падают в цене, и определите потенциальные возможности покупки/продажи.",
     marketTrendsTimeframe: "Период времени",
+    marketTrends2d: "2 дня",
     marketTrends7d: "7 дней",
     marketTrends30d: "30 дней",
     marketTrendsRefresh: "Обновить тренды",
