@@ -6,6 +6,7 @@ import {
 import { useItemsData } from "../hooks/useItemsData";
 import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPricesBatch } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 
 const CITIES = MARKET_CITIES;
 const BATCH_SIZE = 80;
@@ -682,12 +683,16 @@ export default function CraftArbitrage({ language, region }) {
               >
                 <div
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                     fontWeight: 700,
                     color: "#ffe7a8",
                     marginBottom: 10,
                   }}
                 >
-                  {item.label}
+                  <ItemIcon itemId={item.itemId} size={20} />
+                  <span>{item.label}</span>
                 </div>
 
                 <div

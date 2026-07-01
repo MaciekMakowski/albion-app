@@ -1,8 +1,14 @@
+import { NavLink } from "react-router-dom";
+
 const AppNavLogo = () => {
   return (
-    <div className="fantasy-nav-logo">
+    <NavLink
+      to="/"
+      className="fantasy-nav-logo"
+      style={{ textDecoration: "none" }}
+    >
       <i>ALLbeON.me</i>
-    </div>
+    </NavLink>
   );
 };
 

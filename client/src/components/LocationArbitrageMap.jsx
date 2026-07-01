@@ -4,6 +4,7 @@ import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
 import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPricesBatch } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 
 const LOCATION_MAP_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const LOCATION_MAP_CACHE_STORAGE_KEY = "albion.locationArbitrageMap.v1";
@@ -328,7 +329,19 @@ export default function LocationArbitrageMap({ language, region }) {
           <div className="fantasy-location-map-grid">
             {mapData.map((item) => (
               <div key={item.itemId} className="fantasy-location-map-card">
-                <h3>{getItemDisplayLabel(item.itemId, itemNameLookup)}</h3>
+                <h3
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 12,
+                  }}
+                >
+                  <ItemIcon itemId={item.itemId} size={20} />
+                  <span>
+                    {getItemDisplayLabel(item.itemId, itemNameLookup)}
+                  </span>
+                </h3>
 
                 <div className="fantasy-map-column">
                   <h4>{getUiText("locationMapSellPrices", language)}</h4>

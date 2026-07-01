@@ -4,6 +4,7 @@ import AppNav from "./components/AppNav";
 import ArbitrageFinder from "./components/ArbitrageFinder";
 import CraftArbitrage from "./components/CraftArbitrage";
 import CraftPlanner from "./components/CraftPlanner";
+import HomePage from "./components/HomePage";
 import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
@@ -17,35 +18,39 @@ export default function App() {
   const [region, setRegion] = useState("europe");
 
   const activeModule =
-    location.pathname === "/price-checker"
-      ? "price"
-      : location.pathname === "/top-products"
-        ? "top"
-        : location.pathname === "/arbitrage"
-          ? "arbitrage"
-          : location.pathname === "/craft-arbitrage"
-            ? "craftArbitrage"
-            : location.pathname === "/market-trends"
-              ? "trends"
-              : location.pathname === "/craft-planner"
-                ? "craft"
-                : "recipe";
+    location.pathname === "/"
+      ? "home"
+      : location.pathname === "/price-checker"
+        ? "price"
+        : location.pathname === "/top-products"
+          ? "top"
+          : location.pathname === "/arbitrage"
+            ? "arbitrage"
+            : location.pathname === "/craft-arbitrage"
+              ? "craftArbitrage"
+              : location.pathname === "/market-trends"
+                ? "trends"
+                : location.pathname === "/craft-planner"
+                  ? "craft"
+                  : "recipe";
 
   useEffect(() => {
     const titleKey =
-      activeModule === "price"
-        ? "priceCheckerTitle"
-        : activeModule === "top"
-          ? "topProductsTitle"
-          : activeModule === "arbitrage"
-            ? "arbitrageFinderTitle"
-            : activeModule === "craftArbitrage"
-              ? "craftArbitrageTitle"
-              : activeModule === "trends"
-                ? "marketTrendsTitle"
-                : activeModule === "craft"
-                  ? "craftPlannerTitle"
-                  : "title";
+      activeModule === "home"
+        ? "homeTitle"
+        : activeModule === "price"
+          ? "priceCheckerTitle"
+          : activeModule === "top"
+            ? "topProductsTitle"
+            : activeModule === "arbitrage"
+              ? "arbitrageFinderTitle"
+              : activeModule === "craftArbitrage"
+                ? "craftArbitrageTitle"
+                : activeModule === "trends"
+                  ? "marketTrendsTitle"
+                  : activeModule === "craft"
+                    ? "craftPlannerTitle"
+                    : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -61,6 +66,7 @@ export default function App() {
 
       <div className="fantasy-shell">
         <Routes>
+          <Route path="/" element={<HomePage language={language} />} />
           <Route
             path="/recipe"
             element={<RecipeSimulator language={language} region={region} />}
@@ -93,8 +99,7 @@ export default function App() {
             path="/craft-planner"
             element={<CraftPlanner language={language} region={region} />}
           />
-          <Route path="/" element={<Navigate to="/recipe" replace />} />
-          <Route path="*" element={<Navigate to="/recipe" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </div>

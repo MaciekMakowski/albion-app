@@ -5,6 +5,7 @@ const {
   parseTimeScale,
 } = require("../utils/marketParams");
 const { fetchPrices, fetchHistory } = require("../services/marketService");
+const { getItemIcon } = require("../services/itemIconService");
 
 async function getPricesController(req, res, next) {
   try {
@@ -47,7 +48,26 @@ async function getHistoryController(req, res, next) {
   }
 }
 
+async function getItemIconController(req, res, next) {
+  try {
+    const result = await getItemIcon({
+      itemId: req.params.itemId,
+      size: req.query.size,
+      quality: req.query.quality,
+      locale: req.query.locale,
+    });
+
+    res.set("Content-Type", result.contentType || "image/png");
+    res.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+    res.set("X-Cache", result.cacheStatus || "MISS");
+    res.status(200).send(result.buffer);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getPricesController,
   getHistoryController,
+  getItemIconController,
 };

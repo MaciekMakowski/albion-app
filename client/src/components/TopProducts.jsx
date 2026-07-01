@@ -6,6 +6,7 @@ import {
   fetchItemsPriceHistoryBatch,
   fetchItemsPricesBatch,
 } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 
 const TOP_LIMIT = 50;
 const CANDIDATE_LIMIT = 900;
@@ -519,8 +520,19 @@ export default function TopProducts({ language, region }) {
                     <tr key={row.itemId}>
                       <td>{row.rank}</td>
                       <td>
-                        {getItemDisplayLabel(row.itemId, itemNameLookup) ||
-                          row.itemId}
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <ItemIcon itemId={row.itemId} size={18} />
+                          <span>
+                            {getItemDisplayLabel(row.itemId, itemNameLookup) ||
+                              row.itemId}
+                          </span>
+                        </span>
                       </td>
                       <td>
                         {formatAvgPrice(avgPricesByItem[row.itemId]?.avgSell)}

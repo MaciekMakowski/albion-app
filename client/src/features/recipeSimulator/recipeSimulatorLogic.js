@@ -133,7 +133,12 @@ export function resolveOutputItemId(value, itemsIndex) {
   return null;
 }
 
-export const supportedLanguages = buildLanguageOptions(namesData);
+const fullySupportedUiLanguages = ["EN-US", "PL-PL", "DE-DE", "FR-FR"];
+const availableDataLanguages = buildLanguageOptions(namesData);
+
+export const supportedLanguages = fullySupportedUiLanguages.filter((locale) =>
+  availableDataLanguages.includes(locale),
+);
 
 export function getDefaultLanguage() {
   return supportedLanguages.includes("PL-PL")

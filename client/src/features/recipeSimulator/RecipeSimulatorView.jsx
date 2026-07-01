@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import ItemIcon from "../../components/ItemIcon";
 
 export default function RecipeSimulatorView({
   t,
@@ -75,7 +76,16 @@ export default function RecipeSimulatorView({
             <label style={{ width: 120 }}>{t("item")}</label>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600 }}>
-                {getItemLabel(it.name) || it.name}
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <ItemIcon itemId={it.name} size={18} />
+                  <span>{getItemLabel(it.name) || it.name}</span>
+                </span>
               </div>
             </div>
             <label style={{ width: 140, marginLeft: 8 }}>
@@ -152,7 +162,16 @@ export default function RecipeSimulatorView({
                   style={{ padding: 6, cursor: "pointer" }}
                   onMouseDown={() => selectOutputSuggestion(s)}
                 >
-                  {getItemLabel(s.id) || s.name}
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <ItemIcon itemId={s.id} size={16} />
+                    <span>{getItemLabel(s.id) || s.name}</span>
+                  </span>
                 </div>
               ))}
             </div>

@@ -10,6 +10,7 @@ import {
   fetchItemPriceHistory,
   fetchItemPricesByCity,
 } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 import ItemSearchInput from "./ItemSearchInput";
 import PriceHistoryChart from "./PriceHistoryChart";
 
@@ -306,7 +307,18 @@ export default function PriceChecker({ language, region }) {
                   fontSize: 12,
                 }}
               >
-                {getItemDisplayLabel(itemId, itemNameLookup) || itemId}
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <ItemIcon itemId={itemId} size={16} />
+                  <span>
+                    {getItemDisplayLabel(itemId, itemNameLookup) || itemId}
+                  </span>
+                </span>
               </button>
             ))}
           </div>
@@ -328,9 +340,12 @@ export default function PriceChecker({ language, region }) {
 
         {rows && (
           <div className="fantasy-summary-card">
-            <h3>
-              {getItemDisplayLabel(selectedItemId, itemNameLookup) ||
-                selectedItemId}
+            <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <ItemIcon itemId={selectedItemId} size={22} />
+              <span>
+                {getItemDisplayLabel(selectedItemId, itemNameLookup) ||
+                  selectedItemId}
+              </span>
             </h3>
             <div className="fantasy-price-checker-grid">
               <div className="fantasy-table-wrap">

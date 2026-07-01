@@ -1,5 +1,7 @@
 export const uiTranslations = {
   "EN-US": {
+    homeTitle: "Albion Online Tools",
+    navHome: "Home",
     title: "Albion Recipe Simulator",
     subtitle: "Craft, calculate, and optimize your next profit",
     language: "Language",
@@ -176,6 +178,8 @@ export const uiTranslations = {
     craftPlannerRecipe: "Recipe",
   },
   "PL-PL": {
+    homeTitle: "Narzędzia Albion Online",
+    navHome: "Start",
     title: "Symulator receptur Albion",
     subtitle: "Twórz, kalkuluj i optymalizuj swój następny zysk",
     language: "Język",
@@ -352,6 +356,8 @@ export const uiTranslations = {
     craftPlannerRecipe: "Receptura",
   },
   "DE-DE": {
+    homeTitle: "Albion Online Werkzeuge",
+    navHome: "Startseite",
     title: "Albion-Rezept-Simulator",
     subtitle: "Herstellen, kalkulieren und den nächsten Gewinn optimieren",
     language: "Sprache",
@@ -399,11 +405,19 @@ export const uiTranslations = {
     east: "Asien (Ost)",
     navRecipe: "Rezept-Simulator",
     navPriceChecker: "Preis-Checker",
+    navTopProducts: "Top-Produkte",
     priceCheckerTitle: "Preis-Checker",
     priceCheckerSubtitle: "Vergleiche Gegenstandspreise in allen Städten",
     priceCheckerIntro:
       "Wähle einen Gegenstand, um aktuelle Marktpreise in jeder Königstadt und am Black Market zu sehen.",
     searchItem: "Gegenstand suchen",
+    filterTier: "Stufe",
+    filterTierAll: "Alle Stufen",
+    filterEnchantment: "Verzauberung",
+    filterEnchantmentAll: "Alle Verzauberungen",
+    filterQuality: "Qualität",
+    filterQualityAll: "Alle Qualitäten",
+    quickSearch: "Schnellsuche",
     checkPrices: "Preise prüfen",
     sellPrice: "Verkauf (min)",
     buyPrice: "Kauf (max)",
@@ -420,6 +434,25 @@ export const uiTranslations = {
     volume: "Volumen",
     loadingHistory: "Preisverlauf wird geladen...",
     totalVolume: "Gesamtvolumen",
+    topProductsTitle: "Top-Produkte",
+    topProductsSubtitle: "50 meistgekaufte Produkte nach Marktvolumen",
+    topProductsIntro:
+      "Das Ranking wird aus der Markthistorie der ausgewählten Region erstellt und nach gehandelter Menge sortiert.",
+    topProducts24h: "24 Std",
+    topProducts3d: "3 Tage",
+    topProducts7d: "7 Tage",
+    topProducts14d: "14 Tage",
+    topProductsLoading: "Top-Produkte werden geladen...",
+    topProductsError: "Fehler beim Laden der Top-Produkte",
+    topProductsCategory: "Kategorie",
+    topProductsCategoryall: "Alle",
+    topProductsCategoryresources: "Ressourcen",
+    topProductsCategorygear: "Ausrüstung",
+    topProductsCity: "Marktbereich",
+    topProductsCityGlobal: "Global (alle Städte)",
+    topProductsNoData: "Keine Produkte für die ausgewählten Filter gefunden.",
+    topProductsAvgSell: "Ø Verkaufspreis",
+    topProductsAvgBuy: "Ø Kaufpreis",
     arbitrageFinderTitle: "Arbitrage-Finder",
     arbitrageFinderIntro:
       "Finde profitable Handelsmöglichkeiten, indem du Preise in allen Städten vergleichst. Kaufe günstig in einer Stadt und verkaufe teuer in einer anderen für schnellen Gewinn.",
@@ -439,6 +472,26 @@ export const uiTranslations = {
     arbitrageProfit: "Gewinn pro Einheit",
     arbitrageProfitPercent: "Gewinn %",
     navArbitrageFinder: "Arbitrage-Finder",
+    navCraftArbitrage: "Craft-Arbitrage",
+    craftArbitrageTitle: "Craft-Arbitrage",
+    craftArbitrageIntro:
+      "Wähle eine Kategorie und finde die besten Produkte, die du günstig in einer Stadt herstellen und in einer anderen teurer verkaufen kannst.",
+    craftArbitrageCategory: "Kategorie",
+    craftArbitrageSubcategory: "Unterkategorie",
+    craftArbitrageSubcategoryAll: "Alle Unterkategorien",
+    craftArbitrageSortBy: "Sortieren nach",
+    craftArbitrageSortGold: "Gewinn (Gold)",
+    craftArbitrageSortPercent: "Gewinn (%)",
+    craftArbitrageRefresh: "Aktualisieren",
+    craftArbitrageRefreshing: "Aktualisieren...",
+    craftArbitrageLoading: "Craft-Arbitrage wird berechnet...",
+    craftArbitrageNoData: "Keine profitablen Craft-Möglichkeiten gefunden.",
+    craftArbitrageCraftCity: "Craft-Stadt",
+    craftArbitrageCraftCost: "Craft-Kosten",
+    craftArbitrageSellCity: "Verkaufsstadt",
+    craftArbitrageSellPrice: "Verkaufspreis",
+    craftArbitrageProfit: "Gewinn",
+    craftArbitrageProfitPercent: "Gewinn %",
     locationMapTitle: "Standort-Arbitrage-Karte",
     locationMapIntro:
       "Vergleiche Preise in allen Städten, um zu sehen, welche Standorte die größten Preisunterschiede haben. Grün hebt die höchsten Preise hervor, Rot hebt die niedrigsten Preise hervor.",
@@ -484,6 +537,8 @@ export const uiTranslations = {
     craftPlannerRecipe: "Rezept",
   },
   "FR-FR": {
+    homeTitle: "Outils Albion Online",
+    navHome: "Accueil",
     title: "Simulateur de recettes Albion",
     subtitle: "Fabriquez, calculez et optimisez votre prochain profit",
     language: "Langue",
@@ -530,11 +585,19 @@ export const uiTranslations = {
     east: "Asie (Est)",
     navRecipe: "Simulateur de recettes",
     navPriceChecker: "Vérificateur de prix",
+    navTopProducts: "Meilleurs produits",
     priceCheckerTitle: "Vérificateur de prix",
     priceCheckerSubtitle: "Comparez les prix d'un objet dans toutes les villes",
     priceCheckerIntro:
       "Sélectionnez un objet pour voir les prix du marché dans chaque ville royale et au Black Market.",
     searchItem: "Rechercher un objet",
+    filterTier: "Palier",
+    filterTierAll: "Tous les paliers",
+    filterEnchantment: "Enchantement",
+    filterEnchantmentAll: "Tous les enchantements",
+    filterQuality: "Qualité",
+    filterQualityAll: "Toutes les qualités",
+    quickSearch: "Recherche rapide",
     checkPrices: "Vérifier les prix",
     sellPrice: "Vente (min)",
     buyPrice: "Achat (max)",
@@ -551,6 +614,25 @@ export const uiTranslations = {
     volume: "Volume",
     loadingHistory: "Chargement de l'historique des prix...",
     totalVolume: "Volume total",
+    topProductsTitle: "Meilleurs produits",
+    topProductsSubtitle: "50 produits les plus achetés par volume de marché",
+    topProductsIntro:
+      "Le classement est généré à partir de l'historique du marché de la région sélectionnée et trié par quantité échangée.",
+    topProducts24h: "24 h",
+    topProducts3d: "3 jours",
+    topProducts7d: "7 jours",
+    topProducts14d: "14 jours",
+    topProductsLoading: "Chargement des meilleurs produits...",
+    topProductsError: "Erreur lors du chargement des meilleurs produits",
+    topProductsCategory: "Catégorie",
+    topProductsCategoryall: "Toutes",
+    topProductsCategoryresources: "Ressources",
+    topProductsCategorygear: "Équipement",
+    topProductsCity: "Portée du marché",
+    topProductsCityGlobal: "Global (toutes les villes)",
+    topProductsNoData: "Aucun produit trouvé pour les filtres sélectionnés.",
+    topProductsAvgSell: "Prix de vente moyen",
+    topProductsAvgBuy: "Prix d'achat moyen",
     arbitrageFinderTitle: "Chercheur d'arbitrage",
     arbitrageFinderIntro:
       "Trouvez des opportunités commerciales rentables en comparant les prix dans toutes les villes. Achetez bas dans une ville et vendez haut dans une autre pour un profit instantané.",
@@ -570,6 +652,26 @@ export const uiTranslations = {
     arbitrageProfit: "Bénéfice par unité",
     arbitrageProfitPercent: "Bénéfice %",
     navArbitrageFinder: "Chercheur d'arbitrage",
+    navCraftArbitrage: "Arbitrage de craft",
+    craftArbitrageTitle: "Arbitrage de craft",
+    craftArbitrageIntro:
+      "Choisissez une catégorie et trouvez les meilleurs produits à fabriquer à bas coût dans une ville et à vendre plus cher dans une autre.",
+    craftArbitrageCategory: "Catégorie",
+    craftArbitrageSubcategory: "Sous-catégorie",
+    craftArbitrageSubcategoryAll: "Toutes les sous-catégories",
+    craftArbitrageSortBy: "Trier par",
+    craftArbitrageSortGold: "Bénéfice (or)",
+    craftArbitrageSortPercent: "Bénéfice (%)",
+    craftArbitrageRefresh: "Actualiser",
+    craftArbitrageRefreshing: "Actualisation...",
+    craftArbitrageLoading: "Calcul de l'arbitrage de craft...",
+    craftArbitrageNoData: "Aucune opportunité de craft rentable trouvée.",
+    craftArbitrageCraftCity: "Ville de craft",
+    craftArbitrageCraftCost: "Coût de craft",
+    craftArbitrageSellCity: "Ville de vente",
+    craftArbitrageSellPrice: "Prix de vente",
+    craftArbitrageProfit: "Bénéfice",
+    craftArbitrageProfitPercent: "Bénéfice %",
     locationMapTitle: "Carte d'arbitrage par localisation",
     locationMapIntro:
       "Comparez les prix dans toutes les villes pour voir quelles localisations ont les plus grandes différences de prix. Le vert met en évidence les prix les plus élevés, le rouge met en évidence les prix les plus bas.",
@@ -1010,4 +1112,462 @@ export function getCraftPlannerTaxonomyLabel(kind, id, language) {
 export function getUiText(key, language) {
   const locale = uiTranslations[language] || uiTranslations["EN-US"];
   return locale[key] || uiTranslations["EN-US"][key] || key;
+}
+
+const homePageCopyByLanguage = {
+  "EN-US": {
+    eyebrow: "Free tools for Albion Online players",
+    title:
+      "Albion Online economy, market analysis and profit tools in one place",
+    intro:
+      "ALLbeON.me is a free toolkit for Albion Online players who want to understand the market better, compare prices, plan crafting and discover profitable economic decisions. If you are searching for Albion Online market data, Albion economy insights or better Albion profit routes, this page is built for that exact purpose.",
+    lead: "The app helps you answer practical questions fast: where to buy, where to sell, what to craft, which items trend up or down, and which product categories are worth your focus right now. The goal is simple: less guessing, more data-driven decisions.",
+    primaryCta: "Open the tools",
+    supportCta: "Support via Buy Me a Coffee",
+    supportHeading: "Buy Me a Coffee",
+    supportText:
+      "This project is built as a free resource for the Albion Online community. If these tools help your trading, crafting or market analysis, you can support the site through Buy Me a Coffee.",
+    sections: [
+      {
+        title: "What you can do here",
+        items: [
+          "Use Price Checker to compare Albion Online prices across cities.",
+          "Calculate real crafting costs with the recipe simulator and craft planner.",
+          "Discover trading and crafting arbitrage opportunities across cities.",
+          "Track market trends, demand and product performance with clear views.",
+        ],
+      },
+      {
+        title: "Who this app is for",
+        items: [
+          "Traders looking for better Albion Online profit across royal city markets.",
+          "Crafters comparing ingredient cost against finished item market value.",
+          "Players analyzing the Albion Online market for arbitrage and price movement.",
+          "Anyone who wants faster, cleaner economic decisions in Albion Online.",
+        ],
+      },
+    ],
+    features: [
+      {
+        title: "Price Checker",
+        text: "Compare sell and buy prices across cities and inspect item price history.",
+        to: "/price-checker",
+        cta: "Check prices",
+        badge: "Market data",
+      },
+      {
+        title: "Craft Planner",
+        text: "Browse item categories and compare crafting cost against final selling price in multiple cities.",
+        to: "/craft-planner",
+        cta: "Open craft planner",
+        badge: "Craft planning",
+      },
+      {
+        title: "Craft Arbitrage",
+        text: "Find the most profitable crafting opportunities by category and subcategory, sorted by flat gold or percentage.",
+        to: "/craft-arbitrage",
+        cta: "Find crafting opportunities",
+        badge: "Best opportunities",
+      },
+      {
+        title: "Market Trends",
+        text: "Track items rising or falling in value and see where the best city price currently exists.",
+        to: "/market-trends",
+        cta: "View market trends",
+        badge: "Trend analysis",
+      },
+    ],
+    visuals: [
+      {
+        label: "Market data",
+        title: "Prices, volume and best city",
+        text: "Placeholder for a hero graphic showing market comparison and city price spreads.",
+        accent: "MD",
+      },
+      {
+        label: "Craft planning",
+        title: "Craft cost and profit",
+        text: "Placeholder for a recipe planner illustration with ingredient costs and selling value.",
+        accent: "CP",
+      },
+      {
+        label: "Profit search",
+        title: "Arbitrage and best opportunities",
+        text: "Placeholder for a mini card set highlighting top profitable items and trade routes.",
+        accent: "AR",
+      },
+    ],
+    seo: {
+      title: "Why this app helps with Albion Online",
+      paragraphs: [
+        "ALLbeON.me brings together the market and crafting information Albion Online players usually need to gather from several different tools. Instead of switching between the market, recipe calculators and price comparisons, you get one clean starting point for economic decisions.",
+        "That matters when you want to check Albion Online market prices, evaluate Albion economy decisions, compare Albion profit opportunities or simply understand whether a craft is worth doing in the current city economy.",
+      ],
+      keywords: [
+        "albion online",
+        "albion economy",
+        "albion profit",
+        "albion online market",
+        "albion market prices",
+        "craft planner",
+        "craft arbitrage",
+        "price checker",
+      ],
+    },
+    heroStats: [
+      {
+        title: "Albion Online",
+        text: "market, economy, crafting, trading",
+      },
+      {
+        title: "Albion economy",
+        text: "cost calculations, trends and profitability",
+      },
+      {
+        title: "Albion profit",
+        text: "arbitrage, craft arbitrage, city-to-city pricing",
+      },
+    ],
+  },
+  "PL-PL": {
+    eyebrow: "Darmowe narzędzia dla graczy Albion Online",
+    title: "Albion Online ekonomia, market i zarobek w jednym miejscu",
+    intro:
+      "ALLbeON.me to darmowa pomoc dla graczy Albion Online, którzy chcą lepiej rozumieć rynek, sprawdzać ceny, planować crafting i znajdować najbardziej opłacalne decyzje ekonomiczne. Jeśli interesuje Cię Albion ekonomia, Albion online market, handel między miastami albo po prostu lepszy Albion zarobek, tutaj dostajesz konkretne dane bez zbędnego chaosu.",
+    lead: "Celem aplikacji jest ułatwienie podejmowania decyzji w grze: gdzie kupić, gdzie sprzedać, co wytworzyć, które produkty mają najlepszy trend i jakie kategorie dają dziś największą przewagę. Wszystko w formie prostych widoków, które działają zarówno na desktopie, jak i na telefonie.",
+    primaryCta: "Przejdź do narzędzi",
+    supportCta: "Wesprzyj przez Buy Me a Coffee",
+    supportHeading: "Buy Me a Coffee",
+    supportText:
+      "Projekt jest tworzony jako darmowa pomoc dla społeczności Albion Online. Jeśli narzędzia pomagają Ci w handlu, craftingu albo analizie rynku, możesz wesprzeć utrzymanie strony przez Buy Me a Coffee.",
+    sections: [
+      {
+        title: "Co znajdziesz w aplikacji",
+        items: [
+          "Price Checker do szybkiego porównywania cen Albion Online między miastami.",
+          "Symulator receptur i planer craftu do liczenia realnego kosztu wytworzenia.",
+          "Arbitraż i Craft Arbitrage do szukania okazji: tanio wytworzyć, drożej sprzedać.",
+          "Top produkty i trendy rynkowe do śledzenia popytu, zmian ceny i opłacalności.",
+        ],
+      },
+      {
+        title: "Dla kogo jest ALLbeON.me",
+        items: [
+          "Dla traderów, którzy chcą znaleźć lepszy Albion zarobek na marketach królewskich miast.",
+          "Dla crafterów, którzy chcą porównać koszt składników z ceną gotowego przedmiotu.",
+          "Dla graczy analizujących Albion online market pod kątem trendów i arbitrażu.",
+          "Dla osób, które chcą po prostu szybciej podejmować decyzje ekonomiczne w Albion Online.",
+        ],
+      },
+    ],
+    features: [
+      {
+        title: "Price Checker",
+        text: "Porównuj ceny sprzedaży i zakupu w miastach oraz sprawdzaj historię cen dla wybranego przedmiotu.",
+        to: "/price-checker",
+        cta: "Sprawdź ceny",
+        badge: "Dane rynkowe",
+      },
+      {
+        title: "Craft Planner",
+        text: "Wybieraj kategorie przedmiotów i analizuj koszt wytworzenia oraz cenę sprzedaży w różnych miastach.",
+        to: "/craft-planner",
+        cta: "Otwórz planer craftu",
+        badge: "Planowanie craftu",
+      },
+      {
+        title: "Craft Arbitrage",
+        text: "Znajduj najbardziej opłacalne produkty do craftu według kategorii i podkategorii, po gold lub procentach.",
+        to: "/craft-arbitrage",
+        cta: "Znajdź okazje craftu",
+        badge: "Najlepsze okazje",
+      },
+      {
+        title: "Market Trends",
+        text: "Śledź które przedmioty w Albion Online rosną, spadają i gdzie aktualnie mają najlepszą cenę.",
+        to: "/market-trends",
+        cta: "Zobacz trendy",
+        badge: "Analiza trendów",
+      },
+    ],
+    visuals: [
+      {
+        label: "Market data",
+        title: "Ceny, wolumen i najlepsze miasto",
+        text: "Placeholder na grafikę pokazującą porównanie rynków i różnice cen między miastami.",
+        accent: "MD",
+      },
+      {
+        label: "Craft planning",
+        title: "Koszt craftu i zysk",
+        text: "Placeholder na ikonę lub ilustrację planera receptur, kosztów materiałów i sprzedaży.",
+        accent: "CP",
+      },
+      {
+        label: "Profit search",
+        title: "Arbitraż i najlepsze okazje",
+        text: "Placeholder na miniaturę z listą najbardziej opłacalnych produktów i kierunków handlu.",
+        accent: "AR",
+      },
+    ],
+    seo: {
+      title: "Dlaczego ta strona pomaga w Albion Online",
+      paragraphs: [
+        "ALLbeON.me porządkuje informacje, które w Albion Online zwykle trzeba zbierać z kilku miejsc. Zamiast skakać między marketem, symulatorem receptur i analizą cen, dostajesz jeden prosty punkt startowy dla decyzji ekonomicznych.",
+        "To szczególnie przydatne, gdy chcesz sprawdzić Albion ekonomia, Albion online market, Albion zarobek, ceny craftu albo aktualne różnice między miastami. Dzięki temu szybciej oceniasz, czy warto kupić, wytworzyć, przewieźć czy sprzedać konkretny przedmiot.",
+      ],
+      keywords: [
+        "albion online",
+        "albion ekonomia",
+        "albion zarobek",
+        "albion online market",
+        "albion market prices",
+        "craft planner",
+        "craft arbitrage",
+        "price checker",
+      ],
+    },
+    heroStats: [
+      {
+        title: "Albion Online",
+        text: "market, economy, crafting, trading",
+      },
+      {
+        title: "Albion ekonomia",
+        text: "kalkulacje kosztu, trendów i opłacalności",
+      },
+      {
+        title: "Albion zarobek",
+        text: "arbitraż, craft arbitrage, ceny między miastami",
+      },
+    ],
+  },
+  "DE-DE": {
+    eyebrow: "Kostenlose Tools fur Albion Online Spieler",
+    title: "Albion Online Okonomie, Markt und Gewinn an einem Ort",
+    intro:
+      "ALLbeON.me ist ein kostenloses Toolkit fur Albion Online Spieler, die den Markt besser verstehen, Preise vergleichen, Crafting planen und profitablere Entscheidungen treffen wollen.",
+    lead: "Die App hilft dir schnell zu entscheiden: wo kaufen, wo verkaufen, was craften und welche Kategorien gerade am meisten Gewinn bringen.",
+    primaryCta: "Zu den Tools",
+    supportCta: "Unterstutze uber Buy Me a Coffee",
+    supportHeading: "Buy Me a Coffee",
+    supportText:
+      "Dieses Projekt ist eine kostenlose Hilfe fur die Albion Online Community. Wenn dir die Tools helfen, kannst du die Seite uber Buy Me a Coffee unterstutzen.",
+    sections: [
+      {
+        title: "Was du hier machen kannst",
+        items: [
+          "Preise in Albion Online zwischen Stadten vergleichen.",
+          "Echte Crafting-Kosten mit Rezept-Simulator und Craft-Planer berechnen.",
+          "Handels- und Crafting-Arbitrage Moglichkeiten finden.",
+          "Markttrends, Nachfrage und Produktleistung verfolgen.",
+        ],
+      },
+      {
+        title: "Fur wen ist ALLbeON.me",
+        items: [
+          "Trader, die besseren Gewinn auf den Stadtemarkten suchen.",
+          "Crafter, die Materialkosten mit Verkaufspreisen vergleichen.",
+          "Spieler, die den Markt auf Arbitrage und Trends analysieren.",
+          "Alle, die schnellere wirtschaftliche Entscheidungen wollen.",
+        ],
+      },
+    ],
+    features: [
+      {
+        title: "Price Checker",
+        text: "Vergleiche Kauf- und Verkaufspreise in allen Stadten und sieh den Preisverlauf.",
+        to: "/price-checker",
+        cta: "Preise prufen",
+        badge: "Marktdaten",
+      },
+      {
+        title: "Craft Planner",
+        text: "Vergleiche Herstellungskosten und Verkaufspreise nach Kategorie und Stadt.",
+        to: "/craft-planner",
+        cta: "Craft-Planer offnen",
+        badge: "Craft Planung",
+      },
+      {
+        title: "Craft Arbitrage",
+        text: "Finde die profitabelsten Craft-Moglichkeiten nach Kategorie und Unterkategorie.",
+        to: "/craft-arbitrage",
+        cta: "Craft Chancen finden",
+        badge: "Beste Chancen",
+      },
+      {
+        title: "Market Trends",
+        text: "Verfolge steigende oder fallende Preise und den besten Stadtpreis.",
+        to: "/market-trends",
+        cta: "Trends ansehen",
+        badge: "Trendanalyse",
+      },
+    ],
+    visuals: [
+      {
+        label: "Market data",
+        title: "Preise, Volumen und beste Stadt",
+        text: "Platzhalter fur eine Grafik mit Marktvergleich und Preisunterschieden.",
+        accent: "MD",
+      },
+      {
+        label: "Craft planning",
+        title: "Craft Kosten und Gewinn",
+        text: "Platzhalter fur eine Illustration mit Materialkosten und Verkaufspreis.",
+        accent: "CP",
+      },
+      {
+        label: "Profit search",
+        title: "Arbitrage und beste Chancen",
+        text: "Platzhalter fur Karten mit den profitabelsten Produkten und Routen.",
+        accent: "AR",
+      },
+    ],
+    seo: {
+      title: "Warum diese Seite bei Albion Online hilft",
+      paragraphs: [
+        "ALLbeON.me vereint Markt- und Crafting-Daten an einem Ort, statt mehrere Tools parallel nutzen zu mussen.",
+        "So kannst du schneller beurteilen, ob sich Kaufen, Craften, Transportieren oder Verkaufen fur einen Gegenstand lohnt.",
+      ],
+      keywords: [
+        "albion online",
+        "albion markt",
+        "albion gewinn",
+        "albion economy",
+        "craft planner",
+        "craft arbitrage",
+        "price checker",
+      ],
+    },
+    heroStats: [
+      {
+        title: "Albion Online",
+        text: "Markt, Okonomie, Crafting, Trading",
+      },
+      {
+        title: "Albion Okonomie",
+        text: "Kosten, Trends und Profitabilitat",
+      },
+      {
+        title: "Albion Gewinn",
+        text: "Arbitrage, Craft Arbitrage, Preisunterschiede zwischen Stadten",
+      },
+    ],
+  },
+  "FR-FR": {
+    eyebrow: "Outils gratuits pour les joueurs Albion Online",
+    title: "Economie Albion Online, marche et profit au meme endroit",
+    intro:
+      "ALLbeON.me est une boite a outils gratuite pour les joueurs Albion Online qui veulent mieux comprendre le marche, comparer les prix et planifier le craft.",
+    lead: "L'application aide a repondre vite: ou acheter, ou vendre, quoi fabriquer et quelles categories sont les plus rentables.",
+    primaryCta: "Ouvrir les outils",
+    supportCta: "Soutenir via Buy Me a Coffee",
+    supportHeading: "Buy Me a Coffee",
+    supportText:
+      "Ce projet est une aide gratuite pour la communaute Albion Online. Si ces outils t'aident, tu peux soutenir le site via Buy Me a Coffee.",
+    sections: [
+      {
+        title: "Ce que tu peux faire ici",
+        items: [
+          "Comparer les prix entre les villes d'Albion Online.",
+          "Calculer les vrais couts de craft avec le simulateur et le planificateur.",
+          "Trouver des opportunites d'arbitrage commerce et craft.",
+          "Suivre les tendances du marche et la demande.",
+        ],
+      },
+      {
+        title: "Pour qui est ALLbeON.me",
+        items: [
+          "Les traders qui cherchent un meilleur profit.",
+          "Les crafteurs qui comparent cout des ingredients et prix final.",
+          "Les joueurs qui analysent le marche et les tendances.",
+          "Toute personne voulant des decisions economiques plus rapides.",
+        ],
+      },
+    ],
+    features: [
+      {
+        title: "Price Checker",
+        text: "Compare les prix d'achat et de vente par ville et consulte l'historique.",
+        to: "/price-checker",
+        cta: "Verifier les prix",
+        badge: "Donnees marche",
+      },
+      {
+        title: "Craft Planner",
+        text: "Compare le cout de fabrication et le prix de vente selon la categorie et la ville.",
+        to: "/craft-planner",
+        cta: "Ouvrir le planificateur",
+        badge: "Planification craft",
+      },
+      {
+        title: "Craft Arbitrage",
+        text: "Trouve les meilleures opportunites de craft par categorie et sous-categorie.",
+        to: "/craft-arbitrage",
+        cta: "Trouver des opportunites",
+        badge: "Meilleures opportunites",
+      },
+      {
+        title: "Market Trends",
+        text: "Suis les hausses et baisses de prix et la meilleure ville actuelle.",
+        to: "/market-trends",
+        cta: "Voir les tendances",
+        badge: "Analyse des tendances",
+      },
+    ],
+    visuals: [
+      {
+        label: "Market data",
+        title: "Prix, volume et meilleure ville",
+        text: "Placeholder pour un visuel de comparaison des marches et ecarts de prix.",
+        accent: "MD",
+      },
+      {
+        label: "Craft planning",
+        title: "Cout du craft et profit",
+        text: "Placeholder pour une illustration du planificateur de craft.",
+        accent: "CP",
+      },
+      {
+        label: "Profit search",
+        title: "Arbitrage et meilleures opportunites",
+        text: "Placeholder pour des cartes montrant les items les plus rentables.",
+        accent: "AR",
+      },
+    ],
+    seo: {
+      title: "Pourquoi cette page aide sur Albion Online",
+      paragraphs: [
+        "ALLbeON.me rassemble en un seul endroit les informations marche et craft utiles aux joueurs.",
+        "Tu peux plus vite decider s'il vaut mieux acheter, fabriquer, transporter ou vendre un objet.",
+      ],
+      keywords: [
+        "albion online",
+        "albion economie",
+        "albion profit",
+        "albion market",
+        "craft planner",
+        "craft arbitrage",
+        "price checker",
+      ],
+    },
+    heroStats: [
+      {
+        title: "Albion Online",
+        text: "marche, economie, craft, trading",
+      },
+      {
+        title: "Economie Albion",
+        text: "calcul des couts, tendances et rentabilite",
+      },
+      {
+        title: "Profit Albion",
+        text: "arbitrage, craft arbitrage, prix entre villes",
+      },
+    ],
+  },
+};
+
+export function getHomePageCopy(language) {
+  return homePageCopyByLanguage[language] || homePageCopyByLanguage["EN-US"];
 }

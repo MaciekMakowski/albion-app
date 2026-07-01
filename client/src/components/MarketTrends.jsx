@@ -4,6 +4,7 @@ import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
 import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPriceHistoryBatch } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 import MiniSparkline from "./MiniSparkline";
 
 const TRENDS_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours - trends change frequently
@@ -373,12 +374,18 @@ export default function MarketTrends({ language, region }) {
                   <div
                     className="fantasy-item-name"
                     style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
                       fontWeight: 700,
                       color: "#ffe7a8",
                       marginBottom: 10,
                     }}
                   >
-                    {getItemDisplayLabel(trend.itemId, itemNameLookup)}
+                    <ItemIcon itemId={trend.itemId} size={20} />
+                    <span>
+                      {getItemDisplayLabel(trend.itemId, itemNameLookup)}
+                    </span>
                   </div>
 
                   <div

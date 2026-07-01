@@ -8,6 +8,7 @@ import {
   fetchItemsPricesBatch,
   fetchItemMarketPrice as fetchMarketPrice,
 } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 import ItemSearchInput from "./ItemSearchInput";
 
 const buyCities = MARKET_CITIES;
@@ -608,8 +609,14 @@ export default function RecipeSimulator({ language, region }) {
         {ingredients.map((it, idx) => (
           <div key={idx} className="fantasy-ingredient-card">
             <div className="fantasy-ingredient-name-row">
-              <div className="fantasy-ingredient-name">
-                {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
+              <div
+                className="fantasy-ingredient-name"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <ItemIcon itemId={it.name} size={20} />
+                <span>
+                  {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
+                </span>
               </div>
             </div>
 

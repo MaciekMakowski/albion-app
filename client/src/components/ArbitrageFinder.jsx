@@ -4,6 +4,7 @@ import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
 import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPricesBatch } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 
 const ARBITRAGE_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const ARBITRAGE_CACHE_STORAGE_KEY = "albion.arbitrageFinder.v1";
@@ -322,12 +323,16 @@ export default function ArbitrageFinder({ language, region }) {
                 <div
                   className="fantasy-item-name"
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                     fontWeight: 700,
                     color: "#ffe7a8",
                     marginBottom: 10,
                   }}
                 >
-                  {getItemDisplayLabel(opp.itemId, itemNameLookup)}
+                  <ItemIcon itemId={opp.itemId} size={20} />
+                  <span>{getItemDisplayLabel(opp.itemId, itemNameLookup)}</span>
                 </div>
 
                 <div

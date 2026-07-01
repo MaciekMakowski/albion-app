@@ -5,6 +5,7 @@ import {
 } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
 import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
+import ItemIcon from "./ItemIcon";
 
 function getTierFromId(itemId) {
   const match = String(itemId || "").match(/(^|[_-])T(\d+)(?=_|$)/i);
@@ -160,8 +161,12 @@ export default function ItemSearchInput({
                 key={item.id}
                 className="fantasy-suggestion"
                 onMouseDown={() => selectSuggestion(item)}
+                style={{ display: "flex", alignItems: "center", gap: 8 }}
               >
-                {getItemDisplayLabel(item.id, itemNameLookup) || item.name}
+                <ItemIcon itemId={item.id} size={20} />
+                <span>
+                  {getItemDisplayLabel(item.id, itemNameLookup) || item.name}
+                </span>
               </div>
             ))}
           </div>

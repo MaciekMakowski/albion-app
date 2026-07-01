@@ -11,6 +11,7 @@ import {
   getCityName,
   getSellPrice,
 } from "../shared/marketApi";
+import ItemIcon from "./ItemIcon";
 
 const CRAFT_CITIES = ROYAL_CITIES;
 
@@ -791,13 +792,17 @@ export default function CraftPlanner({ language, region }) {
                   >
                     <div
                       style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
                         marginBottom: 10,
                         fontWeight: 700,
                         color: "#ffe7a8",
                         fontSize: "1rem",
                       }}
                     >
-                      {label}
+                      <ItemIcon itemId={v.displayId} size={22} />
+                      <span>{label}</span>
                     </div>
 
                     <div
@@ -904,7 +909,22 @@ export default function CraftPlanner({ language, region }) {
                                         }}
                                       >
                                         <span>
-                                          {b.count}x {getItemLabel(b.itemId)}
+                                          <span
+                                            style={{
+                                              display: "inline-flex",
+                                              alignItems: "center",
+                                              gap: 6,
+                                            }}
+                                          >
+                                            <ItemIcon
+                                              itemId={b.itemId}
+                                              size={16}
+                                            />
+                                            <span>
+                                              {b.count}x{" "}
+                                              {getItemLabel(b.itemId)}
+                                            </span>
+                                          </span>
                                         </span>
                                         <span>{formatPrice(b.itemTotal)}</span>
                                       </div>
