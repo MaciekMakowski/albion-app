@@ -691,7 +691,7 @@ export default function CraftArbitrage({ language, region }) {
                     marginBottom: 10,
                   }}
                 >
-                  <ItemIcon itemId={item.itemId} size={20} />
+                  <ItemIcon itemId={item.itemId} size={24} />
                   <span>{item.label}</span>
                 </div>
 

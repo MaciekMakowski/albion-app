@@ -382,7 +382,7 @@ export default function MarketTrends({ language, region }) {
                       marginBottom: 10,
                     }}
                   >
-                    <ItemIcon itemId={trend.itemId} size={20} />
+                    <ItemIcon itemId={trend.itemId} size={24} />
                     <span>
                       {getItemDisplayLabel(trend.itemId, itemNameLookup)}
                     </span>

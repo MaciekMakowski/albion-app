@@ -163,7 +163,7 @@ export default function ItemSearchInput({
                 onMouseDown={() => selectSuggestion(item)}
                 style={{ display: "flex", alignItems: "center", gap: 8 }}
               >
-                <ItemIcon itemId={item.id} size={20} />
+                <ItemIcon itemId={item.id} size={24} />
                 <span>
                   {getItemDisplayLabel(item.id, itemNameLookup) || item.name}
                 </span>

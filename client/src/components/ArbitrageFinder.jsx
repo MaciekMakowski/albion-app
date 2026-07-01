@@ -331,7 +331,7 @@ export default function ArbitrageFinder({ language, region }) {
                     marginBottom: 10,
                   }}
                 >
-                  <ItemIcon itemId={opp.itemId} size={20} />
+                  <ItemIcon itemId={opp.itemId} size={24} />
                   <span>{getItemDisplayLabel(opp.itemId, itemNameLookup)}</span>
                 </div>
 

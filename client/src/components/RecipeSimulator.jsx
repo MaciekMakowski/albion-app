@@ -613,7 +613,7 @@ export default function RecipeSimulator({ language, region }) {
                 className="fantasy-ingredient-name"
                 style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
               >
-                <ItemIcon itemId={it.name} size={20} />
+                <ItemIcon itemId={it.name} size={24} />
                 <span>
                   {getItemDisplayLabel(it.name, itemNameLookup) || it.name}
                 </span>

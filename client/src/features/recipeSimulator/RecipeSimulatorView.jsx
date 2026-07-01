@@ -83,7 +83,7 @@ export default function RecipeSimulatorView({
                     gap: 8,
                   }}
                 >
-                  <ItemIcon itemId={it.name} size={18} />
+                  <ItemIcon itemId={it.name} size={24} />
                   <span>{getItemLabel(it.name) || it.name}</span>
                 </span>
               </div>
@@ -169,7 +169,7 @@ export default function RecipeSimulatorView({
                       gap: 8,
                     }}
                   >
-                    <ItemIcon itemId={s.id} size={16} />
+                    <ItemIcon itemId={s.id} size={24} />
                     <span>{getItemLabel(s.id) || s.name}</span>
                   </span>
                 </div>

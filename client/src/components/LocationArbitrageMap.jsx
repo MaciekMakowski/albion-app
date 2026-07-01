@@ -337,7 +337,7 @@ export default function LocationArbitrageMap({ language, region }) {
                     marginBottom: 12,
                   }}
                 >
-                  <ItemIcon itemId={item.itemId} size={20} />
+                  <ItemIcon itemId={item.itemId} size={24} />
                   <span>
                     {getItemDisplayLabel(item.itemId, itemNameLookup)}
                   </span>

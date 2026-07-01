@@ -527,7 +527,7 @@ export default function TopProducts({ language, region }) {
                             gap: 8,
                           }}
                         >
-                          <ItemIcon itemId={row.itemId} size={18} />
+                          <ItemIcon itemId={row.itemId} size={24} />
                           <span>
                             {getItemDisplayLabel(row.itemId, itemNameLookup) ||
                               row.itemId}

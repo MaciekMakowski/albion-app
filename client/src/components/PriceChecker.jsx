@@ -314,7 +314,7 @@ export default function PriceChecker({ language, region }) {
                     gap: 6,
                   }}
                 >
-                  <ItemIcon itemId={itemId} size={16} />
+                  <ItemIcon itemId={itemId} size={20} />
                   <span>
                     {getItemDisplayLabel(itemId, itemNameLookup) || itemId}
                   </span>
@@ -341,7 +341,7 @@ export default function PriceChecker({ language, region }) {
         {rows && (
           <div className="fantasy-summary-card">
             <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <ItemIcon itemId={selectedItemId} size={22} />
+              <ItemIcon itemId={selectedItemId} size={24} />
               <span>
                 {getItemDisplayLabel(selectedItemId, itemNameLookup) ||
                   selectedItemId}

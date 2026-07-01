@@ -801,7 +801,7 @@ export default function CraftPlanner({ language, region }) {
                         fontSize: "1rem",
                       }}
                     >
-                      <ItemIcon itemId={v.displayId} size={22} />
+                      <ItemIcon itemId={v.displayId} size={32} />
                       <span>{label}</span>
                     </div>
 
