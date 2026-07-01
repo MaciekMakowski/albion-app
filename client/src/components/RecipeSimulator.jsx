@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
 import namesData from "../data/items_names.json";
+import { buildItemIndex } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
 import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import {
@@ -466,31 +467,61 @@ export default function RecipeSimulator({ language, region }) {
     itemDefsRef.current = defs;
     setItemDefs(defs);
 
-    const idx = entries.map((it) => {
-      const displayName = itemNameLookup[it.id] || it.name || it.id;
-      return {
-        id: it.id,
-        name: displayName,
-        text: (it.id + " " + displayName).toLowerCase(),
-      };
-    });
-    const map = Object.fromEntries(
-      entries.map((it) => [it.id, itemNameLookup[it.id] || it.name || it.id]),
+    const { itemsIndex: idx, itemsMap: map } = buildItemIndex(
+      entries,
+      itemNameLookup,
+      defs,
     );
 
     setItemsIndex(idx);
     setItemsMap(map);
   }, [itemNameLookup]);
 
+  function splitEnchantFromItemId(itemId) {
+    const value = String(itemId || "").trim();
+    const atMatch = value.match(/^(.*)@(\d+)$/);
+    if (!atMatch) {
+      return { baseId: value, enchantLevel: 0 };
+    }
+    return {
+      baseId: atMatch[1],
+      enchantLevel: Number(atMatch[2]) || 0,
+    };
+  }
+
+  function resolveCraftingRequirements(itemId, defs) {
+    const { baseId, enchantLevel } = splitEnchantFromItemId(itemId);
+    const directDef = defs[itemId];
+    const baseDef = defs[baseId] || directDef;
+    if (!baseDef) return null;
+
+    if (enchantLevel > 0) {
+      const enchantments = normalizeArray(baseDef.enchantments?.enchantment);
+      const enchantRecipe = enchantments.find(
+        (ench) => Number(ench?.["@enchantmentlevel"] || 0) === enchantLevel,
+      );
+      if (enchantRecipe?.craftingrequirements) {
+        return enchantRecipe.craftingrequirements;
+      }
+    }
+
+    return (
+      baseDef.craftingrequirements || directDef?.craftingrequirements || null
+    );
+  }
+
   function applyIngredientsForOutput(nextOutputId) {
     const trimmedOutput = String(nextOutputId || "").trim();
     if (!trimmedOutput) return;
 
     const defs = itemDefsRef.current || itemDefs;
-    const def = defs[trimmedOutput];
-    if (!def || !def.craftingrequirements) return;
+    const craftingRequirements = resolveCraftingRequirements(
+      trimmedOutput,
+      defs,
+    );
+    if (!craftingRequirements) return;
 
-    const recipeList = normalizeArray(def.craftingrequirements);
+    const recipeList = normalizeArray(craftingRequirements);
     const recipe = recipeList[0] || null;
     const resources = normalizeArray(recipe?.craftresource);
 
@@ -515,10 +546,6 @@ export default function RecipeSimulator({ language, region }) {
   useEffect(() => {
     const trimmedOutput = String(selectedOutputId || "").trim();
     if (!trimmedOutput) return;
-
-    const defs = itemDefsRef.current || itemDefs;
-    const def = defs[trimmedOutput];
-    if (!def) return;
 
     applyIngredientsForOutput(trimmedOutput);
   }, [selectedOutputId, itemDefs]);

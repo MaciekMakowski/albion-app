@@ -100,15 +100,70 @@ export function getItemDataSource(source = itemsData) {
   return source?.items || source;
 }
 
-export function buildItemIndex(entries, lookup) {
-  const itemsIndex = entries.map((it) => {
-    const displayName = lookup[it.id] || it.name || it.id;
-    return {
-      id: it.id,
+function toArray(value) {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function hasExplicitEnchantInId(itemId) {
+  return (
+    /_LEVEL[1-4]$/i.test(String(itemId || "")) ||
+    /@\d+$/i.test(String(itemId || ""))
+  );
+}
+
+function getEnchantLevelsFromDef(def) {
+  const levels = new Set();
+  for (const ench of toArray(def?.enchantments?.enchantment)) {
+    const level = parseInt(ench?.["@enchantmentlevel"] || "", 10);
+    if (Number.isFinite(level) && level > 0) {
+      levels.add(level);
+    }
+  }
+  return Array.from(levels).sort((a, b) => a - b);
+}
+
+function buildSearchText(itemId, displayName, enchantLevel) {
+  const enchantHints =
+    enchantLevel > 0
+      ? ` @${enchantLevel} .${enchantLevel} level${enchantLevel} enchant ${enchantLevel}`
+      : "";
+  return `${itemId} ${displayName}${enchantHints}`.toLowerCase();
+}
+
+export function buildItemIndex(entries, lookup, defs = {}) {
+  const seenIds = new Set();
+  const itemsIndex = [];
+
+  function pushIndexItem(itemId, fallbackName, enchantLevel = 0) {
+    if (!itemId || seenIds.has(itemId)) return;
+    seenIds.add(itemId);
+
+    const displayName = lookup[itemId] || fallbackName || itemId;
+    itemsIndex.push({
+      id: itemId,
       name: displayName,
-      text: (it.id + " " + displayName).toLowerCase(),
-    };
-  });
+      text: buildSearchText(itemId, displayName, enchantLevel),
+    });
+  }
+
+  for (const it of entries) {
+    const baseId = it.id;
+    const baseName = lookup[baseId] || it.name || baseId;
+    const def = defs?.[baseId];
+
+    pushIndexItem(baseId, baseName, 0);
+
+    if (hasExplicitEnchantInId(baseId)) continue;
+
+    const enchantLevels = getEnchantLevelsFromDef(def);
+    for (const level of enchantLevels) {
+      const variantId = `${baseId}@${level}`;
+      const variantName = lookup[variantId] || baseName;
+      pushIndexItem(variantId, variantName, level);
+    }
+  }
+
   const itemsMap = Object.fromEntries(
     entries.map((it) => [it.id, lookup[it.id] || it.name || it.id]),
   );

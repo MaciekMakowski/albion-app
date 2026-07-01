@@ -72,9 +72,12 @@ export default function ItemSearchInput({
   function updateSuggestions(inputValue) {
     const hasActiveFilters =
       selectedTier !== "all" || selectedEnchantment !== "all";
-    const candidateLimit = hasActiveFilters ? 200 : 10;
-    const matches = findMatches(inputValue, itemsIndex, candidateLimit);
-    setSuggestions(applyFilters(matches).slice(0, 10));
+    const filteredIndex = hasActiveFilters
+      ? applyFilters(itemsIndex || [])
+      : itemsIndex || [];
+    const candidateLimit = hasActiveFilters ? 80 : 10;
+    const matches = findMatches(inputValue, filteredIndex, candidateLimit);
+    setSuggestions(matches.slice(0, 10));
   }
 
   function handleChange(nextValue) {

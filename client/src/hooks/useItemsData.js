@@ -24,7 +24,11 @@ export function useItemsData(language) {
     itemDefsRef.current = defs;
     setItemDefs(defs);
 
-    const { itemsIndex: nextIndex } = buildItemIndex(entries, itemNameLookup);
+    const { itemsIndex: nextIndex } = buildItemIndex(
+      entries,
+      itemNameLookup,
+      defs,
+    );
     setItemsIndex(nextIndex);
   }, [itemNameLookup]);
 
