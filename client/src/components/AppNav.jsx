@@ -38,6 +38,12 @@ export default function AppNav({
           {getUiText("navArbitrageFinder", language)}
         </NavLink>
         <NavLink
+          to="/craft-arbitrage"
+          className={`fantasy-nav-link${activeModule === "craftArbitrage" ? " active" : ""}`}
+        >
+          {getUiText("navCraftArbitrage", language)}
+        </NavLink>
+        <NavLink
           to="/market-trends"
           className={`fantasy-nav-link${activeModule === "trends" ? " active" : ""}`}
         >

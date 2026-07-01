@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import ArbitrageFinder from "./components/ArbitrageFinder";
+import CraftArbitrage from "./components/CraftArbitrage";
 import CraftPlanner from "./components/CraftPlanner";
 import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
@@ -22,11 +23,13 @@ export default function App() {
         ? "top"
         : location.pathname === "/arbitrage"
           ? "arbitrage"
-          : location.pathname === "/market-trends"
-            ? "trends"
-            : location.pathname === "/craft-planner"
-              ? "craft"
-              : "recipe";
+          : location.pathname === "/craft-arbitrage"
+            ? "craftArbitrage"
+            : location.pathname === "/market-trends"
+              ? "trends"
+              : location.pathname === "/craft-planner"
+                ? "craft"
+                : "recipe";
 
   useEffect(() => {
     const titleKey =
@@ -36,11 +39,13 @@ export default function App() {
           ? "topProductsTitle"
           : activeModule === "arbitrage"
             ? "arbitrageFinderTitle"
-            : activeModule === "trends"
-              ? "marketTrendsTitle"
-              : activeModule === "craft"
-                ? "craftPlannerTitle"
-                : "title";
+            : activeModule === "craftArbitrage"
+              ? "craftArbitrageTitle"
+              : activeModule === "trends"
+                ? "marketTrendsTitle"
+                : activeModule === "craft"
+                  ? "craftPlannerTitle"
+                  : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -71,6 +76,10 @@ export default function App() {
           <Route
             path="/arbitrage"
             element={<ArbitrageFinder language={language} region={region} />}
+          />
+          <Route
+            path="/craft-arbitrage"
+            element={<CraftArbitrage language={language} region={region} />}
           />
           <Route
             path="/location-map"
