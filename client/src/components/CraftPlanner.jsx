@@ -89,9 +89,13 @@ function collectPriceIdsFromRecipe(
   for (const { itemId } of recipe) {
     if (!itemId) continue;
 
-    const alias = toAtAlias(itemId);
-    if (alias) ids.add(alias);
-    else ids.add(itemId);
+    ids.add(itemId);
+    const baseAtAlias = toBaseAtAlias(itemId);
+    const levelAtAlias = toLevelAtAlias(itemId);
+    const levelAlias = toLevelAlias(itemId);
+    if (baseAtAlias) ids.add(baseAtAlias);
+    if (levelAtAlias) ids.add(levelAtAlias);
+    if (levelAlias) ids.add(levelAlias);
 
     if (visiting.has(itemId)) continue;
     const def = itemDefs?.[itemId];
@@ -104,14 +108,31 @@ function collectPriceIdsFromRecipe(
   }
 }
 
-function toAtAlias(itemId) {
+function toBaseAtAlias(itemId) {
   const match = String(itemId).match(/^(.*)_LEVEL([1-4])$/);
   if (!match) return null;
-  return `${itemId}@${match[2]}`;
+  return `${match[1]}@${match[2]}`;
+}
+
+function toLevelAtAlias(itemId) {
+  const match = String(itemId || "").match(/^(.*_LEVEL([1-4]))$/);
+  if (!match) return null;
+  return `${match[1]}@${match[2]}`;
+}
+
+function toLevelAlias(itemId) {
+  const match = String(itemId || "").match(/^(.*)@([1-4])$/);
+  if (!match) return null;
+  return `${match[1]}_LEVEL${match[2]}`;
 }
 
 function getPriceByAliases(priceMap, itemId, city) {
-  const idsToTry = [itemId].filter(Boolean);
+  const idsToTry = [
+    itemId,
+    toBaseAtAlias(itemId),
+    toLevelAtAlias(itemId),
+    toLevelAlias(itemId),
+  ].filter(Boolean);
   for (const id of idsToTry) {
     const price = priceMap[id]?.[city];
     if (price) return price;
@@ -179,34 +200,90 @@ function formatPrice(v) {
 
 export default function CraftPlanner({ language, region }) {
   const { itemNameLookup, itemDefs } = useItemsData(language);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [selectedSub2, setSelectedSub2] = useState("");
-  const [selectedLabel, setSelectedLabel] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [expandedCats, setExpandedCats] = useState(new Set());
-  const [expandedSubs, setExpandedSubs] = useState(new Set());
+  const [showCascadeDropdown, setShowCascadeDropdown] = useState(false);
+  const [activeCategoryId, setActiveCategoryId] = useState("");
+  const [activeSubcategoryId, setActiveSubcategoryId] = useState("");
   const [cityPrices, setCityPrices] = useState({});
   const [loadingPrices, setLoadingPrices] = useState(false);
   const [priceError, setPriceError] = useState(null);
 
-  function toggleCategory(catId) {
-    const newSet = new Set(expandedCats);
-    if (newSet.has(catId)) newSet.delete(catId);
-    else newSet.add(catId);
-    setExpandedCats(newSet);
-  }
-
-  function toggleSubcategory(subId) {
-    const newSet = new Set(expandedSubs);
-    if (newSet.has(subId)) newSet.delete(subId);
-    else newSet.add(subId);
-    setExpandedSubs(newSet);
-  }
-
-  function selectItem(sub2Id, label) {
+  function selectItem(sub2Id) {
     setSelectedSub2(sub2Id);
-    setSelectedLabel(label);
     setCityPrices({});
-    setShowDropdown(false);
+  }
+
+  const selectedCategory = useMemo(
+    () => CATEGORY_TREE.find((cat) => cat.id === selectedCategoryId) || null,
+    [selectedCategoryId],
+  );
+
+  const subcategoryOptions = selectedCategory?.subcats || [];
+
+  const selectedSubcategory = useMemo(
+    () =>
+      subcategoryOptions.find((sub) => sub.id === selectedSubcategoryId) ||
+      null,
+    [subcategoryOptions, selectedSubcategoryId],
+  );
+
+  const itemOptions = selectedSubcategory?.items || [];
+
+  const activeCategory = useMemo(
+    () => CATEGORY_TREE.find((cat) => cat.id === activeCategoryId) || null,
+    [activeCategoryId],
+  );
+  const activeSubcategoryOptions = activeCategory?.subcats || [];
+  const activeSubcategory = useMemo(
+    () =>
+      activeSubcategoryOptions.find((sub) => sub.id === activeSubcategoryId) ||
+      null,
+    [activeSubcategoryOptions, activeSubcategoryId],
+  );
+  const activeItemOptions = activeSubcategory?.items || [];
+
+  const selectedItemLabel = useMemo(() => {
+    if (!selectedSub2) return "";
+    for (const cat of CATEGORY_TREE) {
+      for (const sub of cat.subcats || []) {
+        const item = (sub.items || []).find((i) => i.id === selectedSub2);
+        if (item) {
+          return `${cat.label} / ${sub.label} / ${item.label}`;
+        }
+      }
+    }
+    return "";
+  }, [selectedSub2]);
+
+  function openCascadeDropdown() {
+    setShowCascadeDropdown(true);
+    const initialCategoryId = selectedCategoryId || CATEGORY_TREE[0]?.id || "";
+    setActiveCategoryId(initialCategoryId);
+
+    const category = CATEGORY_TREE.find((cat) => cat.id === initialCategoryId);
+    const initialSubcategoryId =
+      selectedSubcategoryId || category?.subcats?.[0]?.id || "";
+    setActiveSubcategoryId(initialSubcategoryId);
+  }
+
+  function chooseCategory(categoryId) {
+    setActiveCategoryId(categoryId);
+    const category = CATEGORY_TREE.find((cat) => cat.id === categoryId);
+    setActiveSubcategoryId(category?.subcats?.[0]?.id || "");
+  }
+
+  function chooseSubcategory(subcategoryId) {
+    setActiveSubcategoryId(subcategoryId);
+  }
+
+  function chooseItem(itemId) {
+    if (!itemId) return;
+    setSelectedCategoryId(activeCategoryId);
+    setSelectedSubcategoryId(activeSubcategoryId);
+    selectItem(itemId);
+    setShowCascadeDropdown(false);
   }
 
   const variants = useMemo(
@@ -214,16 +291,18 @@ export default function CraftPlanner({ language, region }) {
     [selectedSub2, itemDefs],
   );
 
-  const allIngredientIds = useMemo(() => {
+  const allPriceIds = useMemo(() => {
     const ids = new Set();
     for (const v of variants) {
       collectPriceIdsFromRecipe(v.recipe, itemDefs, ids);
+      const marketItemId = toBaseAtAlias(v.displayId) || v.id;
+      if (marketItemId) ids.add(marketItemId);
     }
     return Array.from(ids);
   }, [variants, itemDefs]);
 
   useEffect(() => {
-    if (allIngredientIds.length === 0) {
+    if (allPriceIds.length === 0) {
       setCityPrices({});
       return;
     }
@@ -236,8 +315,8 @@ export default function CraftPlanner({ language, region }) {
       try {
         const BATCH = 80;
         const chunks = [];
-        for (let i = 0; i < allIngredientIds.length; i += BATCH)
-          chunks.push(allIngredientIds.slice(i, i + BATCH));
+        for (let i = 0; i < allPriceIds.length; i += BATCH)
+          chunks.push(allPriceIds.slice(i, i + BATCH));
 
         let allData = [];
         for (const chunk of chunks) {
@@ -276,7 +355,7 @@ export default function CraftPlanner({ language, region }) {
 
     fetchPrices();
     return () => controller.abort();
-  }, [allIngredientIds, region]);
+  }, [allPriceIds, region]);
 
   function resolveUnitCost(itemId, city, cache, visiting = new Set()) {
     const cacheKey = `${city}:${itemId}`;
@@ -289,19 +368,31 @@ export default function CraftPlanner({ language, region }) {
     return marketPrice;
   }
 
-  function calcCost(recipe, city) {
+  function getRecipeCostWithBreakdown(recipe, city) {
     const cache = new Map();
     let total = 0;
+    const breakdown = [];
+
     for (const ingredient of recipe) {
-      const ingredientUnitCost = resolveUnitCost(
-        ingredient.itemId,
-        city,
-        cache,
-      );
-      if (!ingredientUnitCost) return null;
-      total += ingredientUnitCost * ingredient.count;
+      const unitCost = resolveUnitCost(ingredient.itemId, city, cache);
+      if (!unitCost) return null;
+
+      const itemTotal = unitCost * ingredient.count;
+      total += itemTotal;
+      breakdown.push({
+        itemId: ingredient.itemId,
+        count: ingredient.count,
+        unitCost,
+        itemTotal,
+      });
     }
-    return total;
+
+    return { total, breakdown };
+  }
+
+  function getVariantSellPrice(variant, city) {
+    const marketItemId = toBaseAtAlias(variant.displayId) || variant.id;
+    return getPriceByAliases(cityPrices, marketItemId, city);
   }
 
   function getItemLabel(id) {
@@ -343,7 +434,7 @@ export default function CraftPlanner({ language, region }) {
           >
             <label>{getUiText("craftPlannerCategory", language)}</label>
             <button
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={openCascadeDropdown}
               style={{
                 padding: "8px 16px",
                 background: "rgba(247, 184, 75, 0.1)",
@@ -352,7 +443,7 @@ export default function CraftPlanner({ language, region }) {
                 color: "#c9b391",
                 cursor: "pointer",
                 fontSize: "0.9rem",
-                minWidth: 260,
+                minWidth: 360,
                 textAlign: "left",
                 display: "flex",
                 justifyContent: "space-between",
@@ -360,18 +451,18 @@ export default function CraftPlanner({ language, region }) {
               }}
             >
               <span>
-                {selectedLabel ||
+                {selectedItemLabel ||
                   getUiText("craftPlannerSelectCategory", language)}
               </span>
               <span style={{ fontSize: "0.8rem" }}>
-                {showDropdown ? "▲" : "▼"}
+                {showCascadeDropdown ? "▲" : "▼"}
               </span>
             </button>
 
-            {showDropdown && (
+            {showCascadeDropdown && (
               <>
                 <div
-                  onClick={() => setShowDropdown(false)}
+                  onClick={() => setShowCascadeDropdown(false)}
                   style={{
                     position: "fixed",
                     top: 0,
@@ -386,109 +477,125 @@ export default function CraftPlanner({ language, region }) {
                     position: "absolute",
                     top: "100%",
                     left: 0,
-                    right: 0,
                     marginTop: 8,
-                    background: "rgba(20, 20, 30, 0.98)",
-                    border: "1px solid rgba(247, 184, 75, 0.4)",
-                    borderRadius: 8,
-                    padding: 12,
-                    maxHeight: 400,
-                    overflowY: "auto",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(220px, 1fr))",
+                    gap: 8,
                     zIndex: 1000,
-                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
                   }}
                 >
-                  {CATEGORY_TREE.map((cat) => (
-                    <div key={cat.id} style={{ marginBottom: 4 }}>
+                  <div
+                    style={{
+                      background: "rgba(20, 20, 30, 0.98)",
+                      border: "1px solid rgba(247, 184, 75, 0.4)",
+                      borderRadius: 8,
+                      padding: 8,
+                      maxHeight: 360,
+                      overflowY: "auto",
+                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                    }}
+                  >
+                    {CATEGORY_TREE.map((cat) => (
                       <button
-                        onClick={() => toggleCategory(cat.id)}
+                        key={cat.id}
+                        onClick={() => chooseCategory(cat.id)}
                         style={{
-                          background: "none",
-                          border: "none",
-                          color: "#c9b391",
-                          cursor: "pointer",
-                          textAlign: "left",
                           width: "100%",
-                          padding: "8px 0",
-                          fontSize: "0.95rem",
-                          fontWeight: 500,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
+                          textAlign: "left",
+                          padding: "8px 10px",
+                          border: "none",
+                          background:
+                            activeCategoryId === cat.id
+                              ? "rgba(247, 184, 75, 0.14)"
+                              : "transparent",
+                          color:
+                            activeCategoryId === cat.id ? "#ffe7a8" : "#c9b391",
+                          cursor: "pointer",
+                          fontSize: "0.9rem",
+                          borderRadius: 6,
+                          boxShadow: "none",
                         }}
                       >
-                        <span style={{ minWidth: 16 }}>
-                          {expandedCats.has(cat.id) ? "▼" : "▶"}
-                        </span>
                         {cat.label}
                       </button>
+                    ))}
+                  </div>
 
-                      {expandedCats.has(cat.id) && (
-                        <div style={{ marginLeft: 16, marginTop: 4 }}>
-                          {cat.subcats.map((sub) => (
-                            <div key={sub.id} style={{ marginBottom: 2 }}>
-                              <button
-                                onClick={() => toggleSubcategory(sub.id)}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#d4b162",
-                                  cursor: "pointer",
-                                  textAlign: "left",
-                                  width: "100%",
-                                  padding: "6px 0",
-                                  fontSize: "0.9rem",
-                                  fontWeight: 400,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 6,
-                                }}
-                              >
-                                <span style={{ minWidth: 16 }}>
-                                  {expandedSubs.has(sub.id) ? "▼" : "▶"}
-                                </span>
-                                {sub.label}
-                              </button>
+                  <div
+                    style={{
+                      background: "rgba(20, 20, 30, 0.98)",
+                      border: "1px solid rgba(247, 184, 75, 0.4)",
+                      borderRadius: 8,
+                      padding: 8,
+                      maxHeight: 360,
+                      overflowY: "auto",
+                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                    }}
+                  >
+                    {activeSubcategoryOptions.map((sub) => (
+                      <button
+                        key={sub.id}
+                        onClick={() => chooseSubcategory(sub.id)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "8px 10px",
+                          border: "none",
+                          background:
+                            activeSubcategoryId === sub.id
+                              ? "rgba(247, 184, 75, 0.14)"
+                              : "transparent",
+                          color:
+                            activeSubcategoryId === sub.id
+                              ? "#ffe7a8"
+                              : "#d4b162",
+                          cursor: "pointer",
+                          fontSize: "0.88rem",
+                          borderRadius: 6,
+                          boxShadow: "none",
+                        }}
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
 
-                              {expandedSubs.has(sub.id) && (
-                                <div style={{ marginLeft: 16, marginTop: 2 }}>
-                                  {sub.items.map((item) => (
-                                    <button
-                                      key={item.id}
-                                      onClick={() =>
-                                        selectItem(item.id, item.label)
-                                      }
-                                      style={{
-                                        background: "transparent",
-                                        border: "none",
-                                        color: "#aeaeb2",
-                                        cursor: "pointer",
-                                        textAlign: "left",
-                                        width: "100%",
-                                        padding: "4px 0",
-                                        fontSize: "0.85rem",
-                                        display: "block",
-                                        marginBottom: 2,
-                                        transition: "color 0.2s",
-                                      }}
-                                      onMouseEnter={(e) =>
-                                        (e.target.style.color = "#f7b84b")
-                                      }
-                                      onMouseLeave={(e) =>
-                                        (e.target.style.color = "#aeaeb2")
-                                      }
-                                    >
-                                      • {item.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  <div
+                    style={{
+                      background: "rgba(20, 20, 30, 0.98)",
+                      border: "1px solid rgba(247, 184, 75, 0.4)",
+                      borderRadius: 8,
+                      padding: 8,
+                      maxHeight: 360,
+                      overflowY: "auto",
+                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                    }}
+                  >
+                    {activeItemOptions.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => chooseItem(item.id)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "8px 10px",
+                          border: "none",
+                          background:
+                            selectedSub2 === item.id
+                              ? "rgba(247, 184, 75, 0.14)"
+                              : "transparent",
+                          color:
+                            selectedSub2 === item.id ? "#ffe7a8" : "#aeaeb2",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          borderRadius: 6,
+                          boxShadow: "none",
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
@@ -513,63 +620,190 @@ export default function CraftPlanner({ language, region }) {
                 {priceError}
               </p>
             )}
-            <div style={{ overflowX: "auto" }}>
-              <table className="fantasy-table">
-                <thead>
-                  <tr>
-                    <th>{getUiText("item", language)}</th>
-                    <th>{getUiText("craftPlannerRecipe", language)}</th>
-                    {CRAFT_CITIES.map((city) => (
-                      <th key={city} style={{ whiteSpace: "nowrap" }}>
-                        {city}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {variants.map((v) => {
-                    const name = getItemLabel(v.id);
-                    const enchStr = v.enchant > 0 ? `.${v.enchant}` : "";
-                    const label = `T${v.tier}${enchStr} ${name}`;
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: 12,
+              }}
+            >
+              {variants.map((v) => {
+                const name = getItemLabel(v.id);
+                const enchStr = v.enchant > 0 ? `.${v.enchant}` : "";
+                const label = `T${v.tier}${enchStr} ${name}`;
 
-                    return (
-                      <tr key={v.displayId}>
-                        <td
-                          className="fantasy-item-name"
-                          style={{ whiteSpace: "nowrap" }}
+                return (
+                  <div
+                    key={v.displayId}
+                    style={{
+                      border: "1px solid rgba(247, 184, 75, 0.2)",
+                      borderRadius: 14,
+                      background: "rgba(255, 255, 255, 0.03)",
+                      padding: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        marginBottom: 10,
+                        fontWeight: 700,
+                        color: "#ffe7a8",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {label}
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          border: "1px solid rgba(247, 184, 75, 0.16)",
+                          borderRadius: 10,
+                          padding: 8,
+                          background: "rgba(0, 0, 0, 0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "0.72rem",
+                            color: "#d4b162",
+                            textTransform: "uppercase",
+                            marginBottom: 6,
+                            letterSpacing: "0.04em",
+                          }}
                         >
-                          {label}
-                        </td>
-                        <td style={{ minWidth: 180 }}>
-                          {v.recipe.map((r) => (
-                            <div
-                              key={r.itemId}
-                              style={{ fontSize: "0.85em", lineHeight: "1.5" }}
-                            >
-                              <span style={{ color: "#f7b84b" }}>
-                                {r.count}×
-                              </span>{" "}
-                              {getItemLabel(r.itemId)}
-                            </div>
-                          ))}
-                        </td>
-                        {CRAFT_CITIES.map((city) => {
-                          const cost = calcCost(v.recipe, city);
-                          return (
-                            <td
-                              key={city}
-                              className="fantasy-price"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              {loadingPrices ? "..." : formatPrice(cost)}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          Miasto | Koszt wytworzenia
+                        </div>
+
+                        <div style={{ display: "grid", gap: 4 }}>
+                          {CRAFT_CITIES.map((city) => {
+                            const costDetails = getRecipeCostWithBreakdown(
+                              v.recipe,
+                              city,
+                            );
+
+                            return (
+                              <details
+                                key={`${v.displayId}-${city}-cost`}
+                                style={{
+                                  borderBottom:
+                                    "1px solid rgba(247, 184, 75, 0.12)",
+                                  paddingBottom: 4,
+                                }}
+                              >
+                                <summary
+                                  style={{
+                                    cursor: "pointer",
+                                    listStylePosition: "inside",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: 8,
+                                    color: "#e7cf8d",
+                                    fontSize: "0.86rem",
+                                  }}
+                                >
+                                  <span>{city}</span>
+                                  <strong>
+                                    {loadingPrices
+                                      ? "..."
+                                      : formatPrice(costDetails?.total)}
+                                  </strong>
+                                </summary>
+
+                                {!loadingPrices && costDetails && (
+                                  <div
+                                    style={{
+                                      marginTop: 4,
+                                      marginLeft: 14,
+                                      display: "grid",
+                                      gap: 2,
+                                    }}
+                                  >
+                                    {costDetails.breakdown.map((b) => (
+                                      <div
+                                        key={`${city}-${v.displayId}-${b.itemId}`}
+                                        style={{
+                                          fontSize: "0.74rem",
+                                          color: "#d8c08a",
+                                          lineHeight: 1.35,
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          gap: 8,
+                                        }}
+                                      >
+                                        <span>
+                                          {b.count}x {getItemLabel(b.itemId)}
+                                        </span>
+                                        <span>{formatPrice(b.itemTotal)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </details>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          border: "1px solid rgba(247, 184, 75, 0.16)",
+                          borderRadius: 10,
+                          padding: 8,
+                          background: "rgba(0, 0, 0, 0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "0.72rem",
+                            color: "#d4b162",
+                            textTransform: "uppercase",
+                            marginBottom: 6,
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          Miasto | {getUiText("sellPrice", language)}
+                        </div>
+
+                        <div style={{ display: "grid", gap: 4 }}>
+                          {CRAFT_CITIES.map((city) => {
+                            const sellPrice = getVariantSellPrice(v, city);
+                            return (
+                              <div
+                                key={`${v.displayId}-${city}-sell`}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  gap: 8,
+                                  color: "#e7cf8d",
+                                  fontSize: "0.86rem",
+                                  borderBottom:
+                                    "1px solid rgba(247, 184, 75, 0.12)",
+                                  paddingBottom: 4,
+                                }}
+                              >
+                                <span>{city}</span>
+                                <strong>
+                                  {loadingPrices
+                                    ? "..."
+                                    : formatPrice(sellPrice)}
+                                </strong>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

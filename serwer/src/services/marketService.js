@@ -92,11 +92,25 @@ function sleep(ms) {
   });
 }
 
-function toAtAlias(itemId) {
+function toBaseAtAlias(itemId) {
+  // T5_WOOD_LEVEL1 -> T5_WOOD@1
+  const match = String(itemId || "").match(/^(.*)_LEVEL([1-4])$/i);
+  if (!match) return null;
+  return `${match[1]}@${match[2]}`;
+}
+
+function toLevelAtAlias(itemId) {
   // T5_WOOD_LEVEL1 -> T5_WOOD_LEVEL1@1
   const match = String(itemId || "").match(/^(.*_LEVEL([1-4]))$/i);
   if (!match) return null;
-  return `${itemId}@${match[2]}`;
+  return `${match[1]}@${match[2]}`;
+}
+
+function toLevelAlias(itemId) {
+  // T5_WOOD@1 -> T5_WOOD_LEVEL1
+  const match = String(itemId || "").match(/^(.*)@([1-4])$/i);
+  if (!match) return null;
+  return `${match[1]}_LEVEL${match[2]}`;
 }
 
 function buildItemIdAliasPlan(itemIds) {
@@ -113,7 +127,12 @@ function buildItemIdAliasPlan(itemIds) {
   }
 
   for (const id of requested) {
-    const aliases = [id, toAtAlias(id)].filter(Boolean);
+    const aliases = [
+      id,
+      toBaseAtAlias(id),
+      toLevelAtAlias(id),
+      toLevelAlias(id),
+    ].filter(Boolean);
 
     for (const alias of aliases) {
       const key = alias.toLowerCase();
@@ -144,9 +163,8 @@ function normalizeMarketRows(rows, responseIdByUpstream) {
 
     if (!upstreamId) return entry;
 
-    let normalizedId =
+    const normalizedId =
       responseIdByUpstream.get(upstreamId.toLowerCase()) || upstreamId;
-    normalizedId = normalizedId.split("@")[0]; // Remove enchant level suffix if present
     if (normalizedId === upstreamId) return entry;
 
     const nextEntry = { ...entry };

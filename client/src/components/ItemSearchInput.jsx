@@ -1,6 +1,25 @@
-import { useRef, useState } from "react";
-import { getItemDisplayLabel, getItemDisplayName } from "../features/recipeSimulator/recipeSimulatorLogic";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  getItemDisplayLabel,
+  getItemDisplayName,
+} from "../features/recipeSimulator/recipeSimulatorLogic";
+import { getUiText } from "../features/recipeSimulator/translations";
 import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
+
+function getTierFromId(itemId) {
+  const match = String(itemId || "").match(/(^|[_-])T(\d+)(?=_|$)/i);
+  return match ? `T${match[2]}` : "";
+}
+
+function getEnchantmentFromId(itemId) {
+  const levelMatch = String(itemId || "").match(/_LEVEL([1-4])$/i);
+  if (levelMatch) return Number(levelMatch[1]);
+
+  const atMatch = String(itemId || "").match(/@(\d+)$/);
+  if (atMatch) return Number(atMatch[1]);
+
+  return 0;
+}
 
 export default function ItemSearchInput({
   value,
@@ -10,9 +29,48 @@ export default function ItemSearchInput({
   itemNameLookup,
   label,
   openUp = false,
+  language = "EN-US",
 }) {
   const [suggestions, setSuggestions] = useState([]);
+  const [selectedTier, setSelectedTier] = useState("all");
+  const [selectedEnchantment, setSelectedEnchantment] = useState("all");
   const timerRef = useRef(null);
+
+  const tierOptions = useMemo(() => {
+    const tiers = new Set();
+    for (const item of itemsIndex || []) {
+      const tier = getTierFromId(item.id);
+      if (tier) tiers.add(tier);
+    }
+    return [...tiers].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+  }, [itemsIndex]);
+
+  const enchantmentOptions = useMemo(() => {
+    const enchantments = new Set([0]);
+    for (const item of itemsIndex || []) {
+      enchantments.add(getEnchantmentFromId(item.id));
+    }
+    return [...enchantments].sort((a, b) => a - b);
+  }, [itemsIndex]);
+
+  function applyFilters(items) {
+    return (items || []).filter((item) => {
+      const tier = getTierFromId(item.id);
+      const enchantment = getEnchantmentFromId(item.id);
+
+      const tierOk = selectedTier === "all" || tier === selectedTier;
+      const enchantmentOk =
+        selectedEnchantment === "all" ||
+        enchantment === Number(selectedEnchantment);
+
+      return tierOk && enchantmentOk;
+    });
+  }
+
+  function updateSuggestions(inputValue) {
+    const matches = findMatches(inputValue, itemsIndex);
+    setSuggestions(applyFilters(matches));
+  }
 
   function handleChange(nextValue) {
     onChange(nextValue);
@@ -24,7 +82,7 @@ export default function ItemSearchInput({
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      setSuggestions(findMatches(nextValue, itemsIndex));
+      updateSuggestions(nextValue);
     }, 180);
   }
 
@@ -35,12 +93,50 @@ export default function ItemSearchInput({
     setSuggestions([]);
   }
 
+  useEffect(() => {
+    updateSuggestions(value);
+  }, [selectedTier, selectedEnchantment, itemsIndex]);
+
   return (
     <div className="fantasy-control-group wide">
       {label && <label>{label}</label>}
       <div
-        className={`fantasy-output-search${openUp ? " open-up" : ""}`}
+        style={{
+          display: "flex",
+          gap: "8px",
+          marginBottom: "6px",
+          flexWrap: "wrap",
+        }}
       >
+        <select
+          value={selectedTier}
+          onChange={(e) => setSelectedTier(e.target.value)}
+          aria-label={getUiText("filterTier", language)}
+        >
+          <option value="all">{getUiText("filterTierAll", language)}</option>
+          {tierOptions.map((tier) => (
+            <option key={tier} value={tier}>
+              {tier}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedEnchantment}
+          onChange={(e) => setSelectedEnchantment(e.target.value)}
+          aria-label={getUiText("filterEnchantment", language)}
+        >
+          <option value="all">
+            {getUiText("filterEnchantmentAll", language)}
+          </option>
+          {enchantmentOptions.map((enchantment) => (
+            <option key={enchantment} value={String(enchantment)}>
+              {enchantment}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className={`fantasy-output-search${openUp ? " open-up" : ""}`}>
         <div className="fantasy-input-wrap">
           <input
             value={value}

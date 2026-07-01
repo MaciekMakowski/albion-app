@@ -249,6 +249,7 @@ export default function PriceChecker({ language, region }) {
           itemsIndex={itemsIndex}
           itemNameLookup={itemNameLookup}
           label={getUiText("searchItem", language)}
+          language={language}
         />
 
         <div className="fantasy-actions">

@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
 import namesData from "../data/items_names.json";
 import { getUiText } from "../features/recipeSimulator/translations";
-import { findMatches, resolveOutputItemId } from "../shared/itemSearch";
 import {
   fetchItemPriceHistory,
   fetchItemsPricesBatch,
   fetchItemMarketPrice as fetchMarketPrice,
 } from "../shared/marketApi";
+import ItemSearchInput from "./ItemSearchInput";
 
 const buyCities = [
   "Bridgewatch",
@@ -249,8 +249,6 @@ export default function RecipeSimulator({ language, region }) {
   const [ingredients, setIngredients] = useState([]);
   const [outputItem, setOutputItem] = useState("");
   const [selectedOutputId, setSelectedOutputId] = useState("T4_BAG");
-  const [outputSuggestions, setOutputSuggestions] = useState([]);
-  const timersRef = useRef({});
   const [itemsIndex, setItemsIndex] = useState([]);
   const [itemsMap, setItemsMap] = useState({});
   const [itemDefs, setItemDefs] = useState({});
@@ -537,28 +535,6 @@ export default function RecipeSimulator({ language, region }) {
     refreshPricesForRegion();
   }, [region]);
 
-  function onOutputSearchChange(q) {
-    const nextValue = q || "";
-    setOutputItem(nextValue);
-
-    const resolvedId = resolveOutputItemId(nextValue, itemsIndex);
-    if (resolvedId) {
-      setSelectedOutputId(resolvedId);
-    }
-
-    if (timersRef.current["out"]) clearTimeout(timersRef.current["out"]);
-    timersRef.current["out"] = setTimeout(() => {
-      setOutputSuggestions(findMatches(nextValue, itemsIndex));
-    }, 180);
-  }
-
-  function selectOutputSuggestion(item) {
-    const nextId = item?.id || "";
-    setOutputItem(getItemDisplayName(nextId, itemNameLookup));
-    setSelectedOutputId(nextId);
-    setOutputSuggestions([]);
-  }
-
   async function fetchItemMarketPrice(itemId, city) {
     return fetchMarketPrice(itemId, city, region);
   }
@@ -680,38 +656,16 @@ export default function RecipeSimulator({ language, region }) {
 
       <div className="fantasy-controls-grid">
         <div className="fantasy-control-group wide">
-          <label>{getUiText("outputItem", language)}</label>
-          <div className="fantasy-output-search">
-            <div className="fantasy-input-wrap">
-              <input
-                value={outputItem}
-                onChange={(e) => onOutputSearchChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const nextId = resolveOutputItemId(outputItem, itemsIndex);
-                    if (nextId) {
-                      setSelectedOutputId(nextId);
-                      setOutputSuggestions([]);
-                    }
-                  }
-                }}
-                style={{ flex: 1 }}
-              />
-            </div>
-            {outputSuggestions && outputSuggestions.length > 0 && (
-              <div className="fantasy-suggestions">
-                {outputSuggestions.map((s, si) => (
-                  <div
-                    key={si}
-                    className="fantasy-suggestion"
-                    onMouseDown={() => selectOutputSuggestion(s)}
-                  >
-                    {getItemDisplayLabel(s.id, itemNameLookup) || s.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ItemSearchInput
+            value={outputItem}
+            onChange={setOutputItem}
+            onSelectId={setSelectedOutputId}
+            itemsIndex={itemsIndex}
+            itemNameLookup={itemNameLookup}
+            label={getUiText("outputItem", language)}
+            openUp
+            language={language}
+          />
         </div>
 
         <div className="fantasy-control-group">

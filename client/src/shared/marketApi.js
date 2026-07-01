@@ -19,6 +19,20 @@ function toQuery(params) {
   return query ? `?${query}` : "";
 }
 
+function getRefreshParamsFromUrl() {
+  if (typeof window === "undefined") return {};
+
+  const urlParams = new URLSearchParams(window.location.search || "");
+  const refresh = urlParams.get("refresh");
+  const rule = urlParams.get("rule");
+
+  if (refresh === "true" && rule) {
+    return { refresh, rule };
+  }
+
+  return {};
+}
+
 export function getCityName(entry) {
   return entry.city || entry.location || entry.name || "";
 }
@@ -84,10 +98,12 @@ export async function fetchItemPriceHistory(
   locations = [],
   timeScale = 24,
 ) {
+  const refreshParams = getRefreshParamsFromUrl();
   const query = toQuery({
     region,
     timeScale,
     locations: locations && locations.length > 0 ? locations.join(",") : null,
+    ...refreshParams,
   });
   const url = `/api/market/history/${encodeURIComponent(itemId)}${query}`;
   const response = await fetch(url);
@@ -106,10 +122,12 @@ export async function fetchItemsPriceHistoryBatch(
   const validIds = (itemIds || []).filter(Boolean);
   if (validIds.length === 0) return [];
 
+  const refreshParams = getRefreshParamsFromUrl();
   const query = toQuery({
     region,
     timeScale,
     locations: locations && locations.length > 0 ? locations.join(",") : null,
+    ...refreshParams,
   });
   const url = `/api/market/history/${toIdsPath(validIds)}${query}`;
 
@@ -124,9 +142,11 @@ export async function fetchItemsPricesBatch(itemIds, region, locations = []) {
   const validIds = (itemIds || []).filter(Boolean);
   if (validIds.length === 0) return [];
 
+  const refreshParams = getRefreshParamsFromUrl();
   const query = toQuery({
     region,
     locations: locations && locations.length > 0 ? locations.join(",") : null,
+    ...refreshParams,
   });
   const url = `/api/market/prices/${toIdsPath(validIds)}${query}`;
 

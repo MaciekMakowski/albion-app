@@ -1,0 +1,8 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^Set-Location \"D:\\\\albion app\"; node -e \"const d=require\\('\\./client/src/data/items\\.json'\\); const arr=\\(x\\)=>Array\\.isArray\\(x\\)\\?x:\\(x\\?\\[x\\]:\\[\\]\\); const items=arr\\(d\\?\\.items\\?\\.item\\); let found=0; for\\(const it of items\\)\\{ const ench=arr\\(it\\?\\.enchantments\\?\\.enchantment\\); if\\(!ench\\.length\\|\\|!it\\?\\.craftingrequirements\\) continue; const baseReq=arr\\(arr\\(it\\.craftingrequirements\\)\\[0\\]\\?\\.craftresource\\)\\.map\\(r=>r\\?\\.\\['@uniquename'\\]\\)\\.filter\\(Boolean\\); const e=ench\\.find\\(x=>x\\?\\.craftingrequirements\\); if\\(!e\\) continue; const eReq=arr\\(arr\\(e\\.craftingrequirements\\)\\[0\\]\\?\\.craftresource\\)\\.map\\(r=>r\\?\\.\\['@uniquename'\\]\\)\\.filter\\(Boolean\\); console\\.log\\(it\\['@uniquename'\\], 'lvl', e\\['@enchantmentlevel'\\], 'base:', baseReq\\.slice\\(0,6\\)\\.join\\('\\|'\\), 'ench:', eReq\\.slice\\(0,6\\)\\.join\\('\\|'\\)\\); found\\+\\+; if\\(found>=30\\) break; \\} console\\.log\\('found',found\\);\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}
