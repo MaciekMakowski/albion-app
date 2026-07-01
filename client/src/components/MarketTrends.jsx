@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getItemDisplayLabel } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
+import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPriceHistoryBatch } from "../shared/marketApi";
 import MiniSparkline from "./MiniSparkline";
 
@@ -10,16 +11,25 @@ const TRENDS_CACHE_STORAGE_KEY = "albion.marketTrends.v1";
 const TOP_ITEMS_LIMIT = 100;
 const BATCH_SIZE = 80;
 
-const cityOptions = [
-  "Bridgewatch",
-  "Martlock",
-  "Lymhurst",
-  "Fort Sterling",
-  "Thetford",
-  "Caerleon",
-  "Black Market",
-  "Brecilien",
-];
+const cityOptions = MARKET_CITIES;
+
+function CityDotLabel({ city }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: getCityColor(city),
+          border: "1px solid rgba(255, 255, 255, 0.35)",
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.25)",
+        }}
+      />
+      {city}
+    </span>
+  );
+}
 
 function chunkArray(values, size) {
   const chunks = [];
@@ -366,7 +376,9 @@ export default function MarketTrends({ language, region }) {
                     )}
                   </td>
                   <td className="fantasy-price">
-                    <div>{trend.bestCity}</div>
+                    <div>
+                      <CityDotLabel city={trend.bestCity} />
+                    </div>
                     <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
                       {trend.bestPrice.toLocaleString()}
                     </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getItemDisplayLabel } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
+import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import { fetchItemsPricesBatch } from "../shared/marketApi";
 
 const ARBITRAGE_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
@@ -10,16 +11,25 @@ const TOP_ITEMS_LIMIT = 200;
 const BATCH_SIZE = 80;
 const MAX_SUSPICIOUS_MARGIN_PERCENT = 500; // Filter out margins > 500%
 
-const cityOptions = [
-  "Bridgewatch",
-  "Martlock",
-  "Lymhurst",
-  "Fort Sterling",
-  "Thetford",
-  "Caerleon",
-  "Black Market",
-  "Brecilien",
-];
+const cityOptions = MARKET_CITIES;
+
+function CityDotLabel({ city }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: getCityColor(city),
+          border: "1px solid rgba(255, 255, 255, 0.35)",
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.25)",
+        }}
+      />
+      {city}
+    </span>
+  );
+}
 
 function getCityName(entry) {
   return entry.location || entry.city || entry.name || "";
@@ -310,11 +320,15 @@ export default function ArbitrageFinder({ language, region }) {
                   <td className="fantasy-item-name">
                     {getItemDisplayLabel(opp.itemId, itemNameLookup)}
                   </td>
-                  <td>{opp.bestBuyCity}</td>
+                  <td>
+                    <CityDotLabel city={opp.bestBuyCity} />
+                  </td>
                   <td className="fantasy-price">
                     {opp.bestBuyPrice.toLocaleString()}
                   </td>
-                  <td>{opp.bestSellCity}</td>
+                  <td>
+                    <CityDotLabel city={opp.bestSellCity} />
+                  </td>
                   <td className="fantasy-price">
                     {opp.bestSellPrice.toLocaleString()}
                   </td>

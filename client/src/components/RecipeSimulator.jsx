@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import itemsData from "../data/items.json";
 import namesData from "../data/items_names.json";
 import { getUiText } from "../features/recipeSimulator/translations";
+import { getCityColor, MARKET_CITIES } from "../shared/cities";
 import {
   fetchItemPriceHistory,
   fetchItemsPricesBatch,
@@ -9,15 +10,7 @@ import {
 } from "../shared/marketApi";
 import ItemSearchInput from "./ItemSearchInput";
 
-const buyCities = [
-  "Bridgewatch",
-  "Martlock",
-  "Lymhurst",
-  "Fort Sterling",
-  "Thetford",
-  "Caerleon",
-  "Black Market",
-];
+const buyCities = MARKET_CITIES;
 
 function collectItemEntries(source) {
   const entries = [];
@@ -102,6 +95,24 @@ function formatProfitPercent(profit, totalCost) {
   if (!totalCost) return null;
   const pct = Math.round((profit / totalCost) * 100);
   return `${pct >= 0 ? "+" : ""}${pct}%`;
+}
+
+function CityDotLabel({ city }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: getCityColor(city),
+          border: "1px solid rgba(255, 255, 255, 0.35)",
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.25)",
+        }}
+      />
+      {city}
+    </span>
+  );
 }
 
 function Sparkline({ data, city, language }) {
@@ -764,7 +775,9 @@ export default function RecipeSimulator({ language, region }) {
 
                       return (
                         <tr key={idx}>
-                          <td>{r.city}</td>
+                          <td>
+                            <CityDotLabel city={r.city} />
+                          </td>
                           <td>
                             <Sparkline
                               data={results.history}
@@ -844,7 +857,7 @@ export default function RecipeSimulator({ language, region }) {
                       return (
                         <tr key={idx}>
                           <td>
-                            {r.city}
+                            <CityDotLabel city={r.city} />
                             {isBest && (
                               <span
                                 style={{

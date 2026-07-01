@@ -5,6 +5,7 @@ import {
 } from "../features/recipeSimulator/recipeSimulatorLogic";
 import { getUiText } from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
+import { getCityColor } from "../shared/cities";
 import {
   fetchItemPriceHistory,
   fetchItemPricesByCity,
@@ -19,14 +20,23 @@ function formatPrice(value) {
   return value > 0 ? Math.round(value).toLocaleString() : "—";
 }
 
-const historyCityColors = [
-  "#f7b84b",
-  "#7dd3fc",
-  "#34d399",
-  "#f472b6",
-  "#f59e0b",
-  "#a78bfa",
-];
+function CityDotLabel({ city }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: getCityColor(city),
+          border: "1px solid rgba(255, 255, 255, 0.35)",
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.25)",
+        }}
+      />
+      {city}
+    </span>
+  );
+}
 
 export default function PriceChecker({ language, region }) {
   const { itemNameLookup, itemsIndex } = useItemsData(language);
@@ -211,9 +221,6 @@ export default function PriceChecker({ language, region }) {
     return points.reduce((sum, p) => sum + (p.item_count || 0), 0);
   };
 
-  const getCityColor = (city) =>
-    historyCityColors[buyCities.indexOf(city) % historyCityColors.length];
-
   const selectedHistorySeries = selectedHistoryCities
     .map((city) => ({
       label: city,
@@ -337,8 +344,15 @@ export default function PriceChecker({ language, region }) {
                   </thead>
                   <tbody>
                     {rows.map((row) => (
-                      <tr key={row.city}>
-                        <td>{row.city}</td>
+                      <tr
+                        key={row.city}
+                        style={{
+                          borderLeft: `3px solid ${getCityColor(row.city)}`,
+                        }}
+                      >
+                        <td>
+                          <CityDotLabel city={row.city} />
+                        </td>
                         <td>{formatPrice(row.sell)}</td>
                         <td>{formatPrice(row.buy)}</td>
                       </tr>
@@ -424,7 +438,7 @@ export default function PriceChecker({ language, region }) {
                                 });
                               }}
                             />
-                            {city}
+                            <CityDotLabel city={city} />
                           </label>
                         ))}
                       </div>
@@ -465,7 +479,7 @@ export default function PriceChecker({ language, region }) {
                                 display: "inline-block",
                               }}
                             />
-                            <span>{city}</span>
+                            <CityDotLabel city={city} />
                           </div>
                         ))}
                       </div>
@@ -499,7 +513,7 @@ export default function PriceChecker({ language, region }) {
                                 }}
                               >
                                 <strong style={{ color: "#f7e4b1" }}>
-                                  {city}
+                                  <CityDotLabel city={city} />
                                 </strong>
                                 <span
                                   style={{ fontSize: "11px", color: "#e7cf8d" }}
@@ -516,7 +530,14 @@ export default function PriceChecker({ language, region }) {
                                 </span>
                               </div>
                               <PriceHistoryChart
-                                data={points}
+                                series={[
+                                  {
+                                    city,
+                                    label: city,
+                                    color: getCityColor(city),
+                                    data: points,
+                                  },
+                                ]}
                                 days={historyDays}
                                 language={language}
                                 timeScale={getHistoryTimeScale(historyDays)}

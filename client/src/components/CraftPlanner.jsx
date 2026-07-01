@@ -1,21 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import itemsData from "../data/items.json";
-import { getUiText } from "../features/recipeSimulator/translations";
+import {
+  getCraftPlannerTaxonomyLabel,
+  getUiText,
+} from "../features/recipeSimulator/translations";
 import { useItemsData } from "../hooks/useItemsData";
+import { getCityColor, ROYAL_CITIES } from "../shared/cities";
 import {
   fetchItemsPricesBatch,
   getCityName,
   getSellPrice,
 } from "../shared/marketApi";
 
-const CRAFT_CITIES = [
-  "Bridgewatch",
-  "Martlock",
-  "Lymhurst",
-  "Fort Sterling",
-  "Thetford",
-  "Caerleon",
-];
+const CRAFT_CITIES = ROYAL_CITIES;
 
 function toArr(val) {
   if (!val) return [];
@@ -210,14 +207,60 @@ export default function CraftPlanner({ language, region }) {
   const [loadingPrices, setLoadingPrices] = useState(false);
   const [priceError, setPriceError] = useState(null);
 
+  const sub2LabelById = useMemo(() => {
+    const map = {};
+    const rankBySub2 = {};
+
+    for (const [id, def] of Object.entries(itemDefs || {})) {
+      const sub2Id = def?.["@shopsubcategory2"];
+      if (!sub2Id) continue;
+      if (!def?.craftingrequirements) continue;
+      if (id.includes("_SKIN") || id.includes("_NONTRADABLE")) continue;
+
+      const tier = parseInt(def?.["@tier"] || "99", 10) || 99;
+      const currentRank = rankBySub2[sub2Id];
+      if (currentRank !== undefined && tier >= currentRank) continue;
+
+      const translatedName =
+        itemNameLookup[id] ||
+        itemNameLookup[`${id}@0`] ||
+        itemNameLookup[`${id}@1`] ||
+        formatId(sub2Id);
+
+      rankBySub2[sub2Id] = tier;
+      map[sub2Id] = translatedName;
+    }
+
+    return map;
+  }, [itemDefs, itemNameLookup]);
+
+  const localizedCategoryTree = useMemo(
+    () =>
+      CATEGORY_TREE.map((cat) => ({
+        ...cat,
+        label: getCraftPlannerTaxonomyLabel("category", cat.id, language),
+        subcats: (cat.subcats || []).map((sub) => ({
+          ...sub,
+          label: getCraftPlannerTaxonomyLabel("subcategory", sub.id, language),
+          items: (sub.items || []).map((item) => ({
+            ...item,
+            label: sub2LabelById[item.id] || item.label,
+          })),
+        })),
+      })),
+    [language, sub2LabelById],
+  );
+
   function selectItem(sub2Id) {
     setSelectedSub2(sub2Id);
     setCityPrices({});
   }
 
   const selectedCategory = useMemo(
-    () => CATEGORY_TREE.find((cat) => cat.id === selectedCategoryId) || null,
-    [selectedCategoryId],
+    () =>
+      localizedCategoryTree.find((cat) => cat.id === selectedCategoryId) ||
+      null,
+    [localizedCategoryTree, selectedCategoryId],
   );
 
   const subcategoryOptions = selectedCategory?.subcats || [];
@@ -232,8 +275,9 @@ export default function CraftPlanner({ language, region }) {
   const itemOptions = selectedSubcategory?.items || [];
 
   const activeCategory = useMemo(
-    () => CATEGORY_TREE.find((cat) => cat.id === activeCategoryId) || null,
-    [activeCategoryId],
+    () =>
+      localizedCategoryTree.find((cat) => cat.id === activeCategoryId) || null,
+    [localizedCategoryTree, activeCategoryId],
   );
   const activeSubcategoryOptions = activeCategory?.subcats || [];
   const activeSubcategory = useMemo(
@@ -246,7 +290,7 @@ export default function CraftPlanner({ language, region }) {
 
   const selectedItemLabel = useMemo(() => {
     if (!selectedSub2) return "";
-    for (const cat of CATEGORY_TREE) {
+    for (const cat of localizedCategoryTree) {
       for (const sub of cat.subcats || []) {
         const item = (sub.items || []).find((i) => i.id === selectedSub2);
         if (item) {
@@ -255,14 +299,17 @@ export default function CraftPlanner({ language, region }) {
       }
     }
     return "";
-  }, [selectedSub2]);
+  }, [localizedCategoryTree, selectedSub2]);
 
   function openCascadeDropdown() {
     setShowCascadeDropdown(true);
-    const initialCategoryId = selectedCategoryId || CATEGORY_TREE[0]?.id || "";
+    const initialCategoryId =
+      selectedCategoryId || localizedCategoryTree[0]?.id || "";
     setActiveCategoryId(initialCategoryId);
 
-    const category = CATEGORY_TREE.find((cat) => cat.id === initialCategoryId);
+    const category = localizedCategoryTree.find(
+      (cat) => cat.id === initialCategoryId,
+    );
     const initialSubcategoryId =
       selectedSubcategoryId || category?.subcats?.[0]?.id || "";
     setActiveSubcategoryId(initialSubcategoryId);
@@ -270,7 +317,7 @@ export default function CraftPlanner({ language, region }) {
 
   function chooseCategory(categoryId) {
     setActiveCategoryId(categoryId);
-    const category = CATEGORY_TREE.find((cat) => cat.id === categoryId);
+    const category = localizedCategoryTree.find((cat) => cat.id === categoryId);
     setActiveSubcategoryId(category?.subcats?.[0]?.id || "");
   }
 
@@ -495,7 +542,7 @@ export default function CraftPlanner({ language, region }) {
                       boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
                     }}
                   >
-                    {CATEGORY_TREE.map((cat) => (
+                    {localizedCategoryTree.map((cat) => (
                       <button
                         key={cat.id}
                         onClick={() => chooseCategory(cat.id)}
@@ -657,15 +704,13 @@ export default function CraftPlanner({ language, region }) {
                       style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: 10,
+                        gap: 2,
                       }}
                     >
                       <div
                         style={{
-                          border: "1px solid rgba(247, 184, 75, 0.16)",
                           borderRadius: 10,
                           padding: 8,
-                          background: "rgba(0, 0, 0, 0.12)",
                         }}
                       >
                         <div
@@ -677,7 +722,8 @@ export default function CraftPlanner({ language, region }) {
                             letterSpacing: "0.04em",
                           }}
                         >
-                          Miasto | Koszt wytworzenia
+                          {getUiText("city", language)} |{" "}
+                          {getUiText("craftPlannerCraftCost", language)}
                         </div>
 
                         <div style={{ display: "grid", gap: 4 }}>
@@ -708,7 +754,27 @@ export default function CraftPlanner({ language, region }) {
                                     fontSize: "0.86rem",
                                   }}
                                 >
-                                  <span>{city}</span>
+                                  <span
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: "50%",
+                                        background: getCityColor(city),
+                                        border:
+                                          "1px solid rgba(255, 255, 255, 0.35)",
+                                        boxShadow:
+                                          "0 0 0 1px rgba(0, 0, 0, 0.25)",
+                                      }}
+                                    />
+                                    {city}
+                                  </span>
                                   <strong>
                                     {loadingPrices
                                       ? "..."
@@ -753,10 +819,8 @@ export default function CraftPlanner({ language, region }) {
 
                       <div
                         style={{
-                          border: "1px solid rgba(247, 184, 75, 0.16)",
                           borderRadius: 10,
                           padding: 8,
-                          background: "rgba(0, 0, 0, 0.12)",
                         }}
                       >
                         <div
@@ -768,7 +832,8 @@ export default function CraftPlanner({ language, region }) {
                             letterSpacing: "0.04em",
                           }}
                         >
-                          Miasto | {getUiText("sellPrice", language)}
+                          {getUiText("city", language)} |{" "}
+                          {getUiText("sellPrice", language)}
                         </div>
 
                         <div style={{ display: "grid", gap: 4 }}>
@@ -789,7 +854,27 @@ export default function CraftPlanner({ language, region }) {
                                   paddingBottom: 4,
                                 }}
                               >
-                                <span>{city}</span>
+                                <span
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      width: 8,
+                                      height: 8,
+                                      borderRadius: "50%",
+                                      background: getCityColor(city),
+                                      border:
+                                        "1px solid rgba(255, 255, 255, 0.35)",
+                                      boxShadow:
+                                        "0 0 0 1px rgba(0, 0, 0, 0.25)",
+                                    }}
+                                  />
+                                  {city}
+                                </span>
                                 <strong>
                                   {loadingPrices
                                     ? "..."

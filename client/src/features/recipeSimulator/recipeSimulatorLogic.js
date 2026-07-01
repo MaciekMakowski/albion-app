@@ -1,15 +1,8 @@
 import itemsData from "../../data/items.json";
 import namesData from "../../data/items_names.json";
+import { MARKET_CITIES } from "../../shared/cities";
 
-export const buyCities = [
-  "Bridgewatch",
-  "Martlock",
-  "Lymhurst",
-  "Fort Sterling",
-  "Thetford",
-  "Caerleon",
-  "Black Market",
-];
+export const buyCities = MARKET_CITIES;
 
 export function collectItemEntries(source) {
   const entries = [];
