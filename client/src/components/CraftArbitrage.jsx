@@ -108,6 +108,10 @@ function CityDotLabel({ city }) {
 
 export default function CraftArbitrage({ language, region }) {
   const { itemDefs, itemNameLookup } = useItemsData(language);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [showMobileCategoryPicker, setShowMobileCategoryPicker] =
+    useState(false);
+  const [mobilePickerStep, setMobilePickerStep] = useState("category");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [sortBy, setSortBy] = useState("gold");
@@ -139,6 +143,21 @@ export default function CraftArbitrage({ language, region }) {
     }
   }, [categoryOptions, selectedCategory]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 860px)");
+    const apply = () => setIsMobileViewport(media.matches);
+    apply();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    }
+
+    media.addListener(apply);
+    return () => media.removeListener(apply);
+  }, []);
+
   const subcategoryOptions = useMemo(() => {
     if (!selectedCategory) return [];
     const subcategories = new Set();
@@ -162,6 +181,29 @@ export default function CraftArbitrage({ language, region }) {
   useEffect(() => {
     setSelectedSubcategory("all");
   }, [selectedCategory]);
+
+  function openMobileCategoryPicker() {
+    setMobilePickerStep("category");
+    setShowMobileCategoryPicker(true);
+  }
+
+  function chooseMobileCategory(categoryId) {
+    setSelectedCategory(categoryId);
+    setMobilePickerStep("subcategory");
+  }
+
+  function chooseMobileSubcategory(subcategoryId) {
+    setSelectedSubcategory(subcategoryId);
+    setShowMobileCategoryPicker(false);
+  }
+
+  function goBackInMobilePicker() {
+    if (mobilePickerStep === "subcategory") {
+      setMobilePickerStep("category");
+      return;
+    }
+    setShowMobileCategoryPicker(false);
+  }
 
   useEffect(() => {
     setOpportunities([]);
@@ -364,33 +406,64 @@ export default function CraftArbitrage({ language, region }) {
           <div className="fantasy-control-group fantasy-row">
             <div className="fantasy-control-group-item">
               <label>{getUiText("craftArbitrageCategory", language)}</label>
-              <select
-                value={selectedCategory}
-                onChange={(event) => setSelectedCategory(event.target.value)}
-              >
-                {categoryOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {isMobileViewport ? (
+                <button
+                  type="button"
+                  onClick={openMobileCategoryPicker}
+                  className="fantasy-btn secondary"
+                  style={{ width: "100%", borderRadius: 8 }}
+                >
+                  {categoryOptions.find(
+                    (option) => option.id === selectedCategory,
+                  )?.label || getUiText("craftArbitrageCategory", language)}
+                </button>
+              ) : (
+                <select
+                  value={selectedCategory}
+                  onChange={(event) => setSelectedCategory(event.target.value)}
+                >
+                  {categoryOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="fantasy-control-group-item">
               <label>{getUiText("craftArbitrageSubcategory", language)}</label>
-              <select
-                value={selectedSubcategory}
-                onChange={(event) => setSelectedSubcategory(event.target.value)}
-              >
-                <option value="all">
-                  {getUiText("craftArbitrageSubcategoryAll", language)}
-                </option>
-                {subcategoryOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
+              {isMobileViewport ? (
+                <button
+                  type="button"
+                  onClick={openMobileCategoryPicker}
+                  className="fantasy-btn secondary"
+                  style={{ width: "100%", borderRadius: 8 }}
+                >
+                  {selectedSubcategory === "all"
+                    ? getUiText("craftArbitrageSubcategoryAll", language)
+                    : subcategoryOptions.find(
+                        (option) => option.id === selectedSubcategory,
+                      )?.label ||
+                      getUiText("craftArbitrageSubcategory", language)}
+                </button>
+              ) : (
+                <select
+                  value={selectedSubcategory}
+                  onChange={(event) =>
+                    setSelectedSubcategory(event.target.value)
+                  }
+                >
+                  <option value="all">
+                    {getUiText("craftArbitrageSubcategoryAll", language)}
                   </option>
-                ))}
-              </select>
+                  {subcategoryOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="fantasy-control-group-item">
@@ -425,6 +498,155 @@ export default function CraftArbitrage({ language, region }) {
         <div className="fantasy-section">
           <p>{getUiText("craftArbitrageLoading", language)}</p>
         </div>
+      )}
+
+      {isMobileViewport && showMobileCategoryPicker && (
+        <>
+          <div
+            onClick={() => setShowMobileCategoryPicker(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.55)",
+              zIndex: 1200,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              left: "4vw",
+              right: "4vw",
+              top: "10vh",
+              bottom: "8vh",
+              zIndex: 1201,
+              background: "rgba(20, 20, 30, 0.98)",
+              border: "1px solid rgba(247, 184, 75, 0.4)",
+              borderRadius: 10,
+              padding: 8,
+            }}
+          >
+            {mobilePickerStep === "category" && (
+              <div
+                style={{
+                  maxHeight: "calc(100% - 58px)",
+                  overflowY: "auto",
+                  display: "grid",
+                  gap: 4,
+                }}
+              >
+                {categoryOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => chooseMobileCategory(option.id)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "8px 10px",
+                      border: "none",
+                      background:
+                        selectedCategory === option.id
+                          ? "rgba(247, 184, 75, 0.14)"
+                          : "transparent",
+                      color:
+                        selectedCategory === option.id ? "#ffe7a8" : "#c9b391",
+                      borderRadius: 6,
+                      boxShadow: "none",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {mobilePickerStep === "subcategory" && (
+              <div
+                style={{
+                  maxHeight: "calc(100% - 58px)",
+                  overflowY: "auto",
+                  display: "grid",
+                  gap: 4,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => chooseMobileSubcategory("all")}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "8px 10px",
+                    border: "none",
+                    background:
+                      selectedSubcategory === "all"
+                        ? "rgba(247, 184, 75, 0.14)"
+                        : "transparent",
+                    color:
+                      selectedSubcategory === "all" ? "#ffe7a8" : "#d4b162",
+                    borderRadius: 6,
+                    boxShadow: "none",
+                  }}
+                >
+                  {getUiText("craftArbitrageSubcategoryAll", language)}
+                </button>
+
+                {subcategoryOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => chooseMobileSubcategory(option.id)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "8px 10px",
+                      border: "none",
+                      background:
+                        selectedSubcategory === option.id
+                          ? "rgba(247, 184, 75, 0.14)"
+                          : "transparent",
+                      color:
+                        selectedSubcategory === option.id
+                          ? "#ffe7a8"
+                          : "#d4b162",
+                      borderRadius: 6,
+                      boxShadow: "none",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div
+              style={{
+                position: "absolute",
+                left: 8,
+                right: 8,
+                bottom: 8,
+                display: "flex",
+                gap: 8,
+              }}
+            >
+              <button
+                type="button"
+                onClick={goBackInMobilePicker}
+                className="fantasy-btn secondary"
+                style={{ flex: 1, borderRadius: 8, padding: "8px 10px" }}
+              >
+                {String(language || "").startsWith("PL") ? "Cofnij" : "Back"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMobileCategoryPicker(false)}
+                className="fantasy-btn"
+                style={{ flex: 1, borderRadius: 8, padding: "8px 10px" }}
+              >
+                {String(language || "").startsWith("PL") ? "Zamknij" : "Close"}
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {error && (

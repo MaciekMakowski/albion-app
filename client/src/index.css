@@ -104,9 +104,8 @@ tr:nth-child(even) td {
 
 .fantasy-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
   background: linear-gradient(
     135deg,
@@ -120,10 +119,41 @@ tr:nth-child(even) td {
   order: -1;
   box-sizing: border-box;
 }
+
+.fantasy-nav-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fantasy-nav-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.fantasy-nav-burger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(247, 184, 75, 0.45);
+  background: rgba(247, 184, 75, 0.1);
+  color: #ffe7a8;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  box-shadow: none;
+}
 .fantasy-nav-logo {
   font-size: 1.8rem;
   font-weight: bold;
   background: linear-gradient(135deg, #c2682c 0%, #d59d2a 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: "New Rocker", system-ui;
@@ -506,6 +536,11 @@ tr:nth-child(even) td {
 
 .fantasy-table-wrap {
   margin-top: 12px;
+  overflow-x: auto;
+}
+
+.fantasy-table-wrap table {
+  min-width: 640px;
 }
 
 .profit-positive {
@@ -670,5 +705,135 @@ tr:nth-child(even) td {
   }
   .fantasy-control-group {
     flex-direction: column;
+  }
+
+  .fantasy-shell {
+    margin: 14px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .fantasy-nav {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .fantasy-nav-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fantasy-nav-content {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    border-top: 1px solid rgba(247, 184, 75, 0.22);
+    padding-top: 10px;
+  }
+
+  .fantasy-nav-content.open {
+    display: flex;
+  }
+
+  .fantasy-nav-links {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .fantasy-nav-link {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+  }
+
+  .fantasy-nav-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .fantasy-nav-select {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .fantasy-nav-select select {
+    width: 100%;
+  }
+
+  .fantasy-control-group-item {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fantasy-control-group-item > label {
+    width: 100%;
+  }
+
+  .fantasy-control-group-item > input,
+  .fantasy-control-group-item > select,
+  .fantasy-control-group-item > button {
+    width: 100%;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .fantasy-history-wrap {
+    padding: 12px;
+  }
+
+  .fantasy-summary-card {
+    padding: 12px;
+  }
+
+  .fantasy-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .fantasy-shell {
+    margin: 8px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .fantasy-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .fantasy-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .fantasy-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .fantasy-timeframe-btns {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .fantasy-timeframe-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+  }
+
+  .fantasy-ingredient-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fantasy-table-wrap table {
+    min-width: 560px;
   }
 }

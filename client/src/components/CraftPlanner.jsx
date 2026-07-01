@@ -197,10 +197,12 @@ function formatPrice(v) {
 
 export default function CraftPlanner({ language, region }) {
   const { itemNameLookup, itemDefs } = useItemsData(language);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [selectedSub2, setSelectedSub2] = useState("");
   const [showCascadeDropdown, setShowCascadeDropdown] = useState(false);
+  const [mobileCascadeStep, setMobileCascadeStep] = useState("category");
   const [activeCategoryId, setActiveCategoryId] = useState("");
   const [activeSubcategoryId, setActiveSubcategoryId] = useState("");
   const [cityPrices, setCityPrices] = useState({});
@@ -288,6 +290,21 @@ export default function CraftPlanner({ language, region }) {
   );
   const activeItemOptions = activeSubcategory?.items || [];
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 860px)");
+    const apply = () => setIsMobileViewport(media.matches);
+    apply();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    }
+
+    media.addListener(apply);
+    return () => media.removeListener(apply);
+  }, []);
+
   const selectedItemLabel = useMemo(() => {
     if (!selectedSub2) return "";
     for (const cat of localizedCategoryTree) {
@@ -303,6 +320,9 @@ export default function CraftPlanner({ language, region }) {
 
   function openCascadeDropdown() {
     setShowCascadeDropdown(true);
+    if (isMobileViewport) {
+      setMobileCascadeStep("category");
+    }
     const initialCategoryId =
       selectedCategoryId || localizedCategoryTree[0]?.id || "";
     setActiveCategoryId(initialCategoryId);
@@ -319,10 +339,16 @@ export default function CraftPlanner({ language, region }) {
     setActiveCategoryId(categoryId);
     const category = localizedCategoryTree.find((cat) => cat.id === categoryId);
     setActiveSubcategoryId(category?.subcats?.[0]?.id || "");
+    if (isMobileViewport) {
+      setMobileCascadeStep("subcategory");
+    }
   }
 
   function chooseSubcategory(subcategoryId) {
     setActiveSubcategoryId(subcategoryId);
+    if (isMobileViewport) {
+      setMobileCascadeStep("item");
+    }
   }
 
   function chooseItem(itemId) {
@@ -330,6 +356,18 @@ export default function CraftPlanner({ language, region }) {
     setSelectedCategoryId(activeCategoryId);
     setSelectedSubcategoryId(activeSubcategoryId);
     selectItem(itemId);
+    setShowCascadeDropdown(false);
+  }
+
+  function goBackInMobileCascade() {
+    if (mobileCascadeStep === "item") {
+      setMobileCascadeStep("subcategory");
+      return;
+    }
+    if (mobileCascadeStep === "subcategory") {
+      setMobileCascadeStep("category");
+      return;
+    }
     setShowCascadeDropdown(false);
   }
 
@@ -521,128 +559,190 @@ export default function CraftPlanner({ language, region }) {
                 />
                 <div
                   style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    marginTop: 8,
-                    display: "grid",
+                    position: isMobileViewport ? "fixed" : "absolute",
+                    top: isMobileViewport ? "10vh" : "100%",
+                    left: isMobileViewport ? "4vw" : 0,
+                    right: isMobileViewport ? "4vw" : "auto",
+                    bottom: isMobileViewport ? "8vh" : "auto",
+                    marginTop: isMobileViewport ? 0 : 8,
+                    display: isMobileViewport ? "block" : "grid",
                     gridTemplateColumns: "repeat(3, minmax(220px, 1fr))",
                     gap: 8,
                     zIndex: 1000,
+                    background: isMobileViewport
+                      ? "rgba(20, 20, 30, 0.98)"
+                      : "transparent",
+                    border: isMobileViewport
+                      ? "1px solid rgba(247, 184, 75, 0.4)"
+                      : "none",
+                    borderRadius: isMobileViewport ? 10 : 0,
+                    padding: isMobileViewport ? 8 : 0,
                   }}
                 >
-                  <div
-                    style={{
-                      background: "rgba(20, 20, 30, 0.98)",
-                      border: "1px solid rgba(247, 184, 75, 0.4)",
-                      borderRadius: 8,
-                      padding: 8,
-                      maxHeight: 360,
-                      overflowY: "auto",
-                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
-                    }}
-                  >
-                    {localizedCategoryTree.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => chooseCategory(cat.id)}
-                        style={{
-                          width: "100%",
-                          textAlign: "left",
-                          padding: "8px 10px",
-                          border: "none",
-                          background:
-                            activeCategoryId === cat.id
-                              ? "rgba(247, 184, 75, 0.14)"
-                              : "transparent",
-                          color:
-                            activeCategoryId === cat.id ? "#ffe7a8" : "#c9b391",
-                          cursor: "pointer",
-                          fontSize: "0.9rem",
-                          borderRadius: 6,
-                          boxShadow: "none",
-                        }}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
+                  {(!isMobileViewport || mobileCascadeStep === "category") && (
+                    <div
+                      style={{
+                        background: "rgba(20, 20, 30, 0.98)",
+                        border: "1px solid rgba(247, 184, 75, 0.4)",
+                        borderRadius: 8,
+                        padding: 8,
+                        maxHeight: isMobileViewport ? "calc(100% - 58px)" : 360,
+                        overflowY: "auto",
+                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      {localizedCategoryTree.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => chooseCategory(cat.id)}
+                          style={{
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "8px 10px",
+                            border: "none",
+                            background:
+                              activeCategoryId === cat.id
+                                ? "rgba(247, 184, 75, 0.14)"
+                                : "transparent",
+                            color:
+                              activeCategoryId === cat.id
+                                ? "#ffe7a8"
+                                : "#c9b391",
+                            cursor: "pointer",
+                            fontSize: "0.9rem",
+                            borderRadius: 6,
+                            boxShadow: "none",
+                          }}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                  <div
-                    style={{
-                      background: "rgba(20, 20, 30, 0.98)",
-                      border: "1px solid rgba(247, 184, 75, 0.4)",
-                      borderRadius: 8,
-                      padding: 8,
-                      maxHeight: 360,
-                      overflowY: "auto",
-                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
-                    }}
-                  >
-                    {activeSubcategoryOptions.map((sub) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => chooseSubcategory(sub.id)}
-                        style={{
-                          width: "100%",
-                          textAlign: "left",
-                          padding: "8px 10px",
-                          border: "none",
-                          background:
-                            activeSubcategoryId === sub.id
-                              ? "rgba(247, 184, 75, 0.14)"
-                              : "transparent",
-                          color:
-                            activeSubcategoryId === sub.id
-                              ? "#ffe7a8"
-                              : "#d4b162",
-                          cursor: "pointer",
-                          fontSize: "0.88rem",
-                          borderRadius: 6,
-                          boxShadow: "none",
-                        }}
-                      >
-                        {sub.label}
-                      </button>
-                    ))}
-                  </div>
+                  {(!isMobileViewport ||
+                    mobileCascadeStep === "subcategory") && (
+                    <div
+                      style={{
+                        background: "rgba(20, 20, 30, 0.98)",
+                        border: "1px solid rgba(247, 184, 75, 0.4)",
+                        borderRadius: 8,
+                        padding: 8,
+                        maxHeight: isMobileViewport ? "calc(100% - 58px)" : 360,
+                        overflowY: "auto",
+                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      {activeSubcategoryOptions.map((sub) => (
+                        <button
+                          key={sub.id}
+                          onClick={() => chooseSubcategory(sub.id)}
+                          style={{
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "8px 10px",
+                            border: "none",
+                            background:
+                              activeSubcategoryId === sub.id
+                                ? "rgba(247, 184, 75, 0.14)"
+                                : "transparent",
+                            color:
+                              activeSubcategoryId === sub.id
+                                ? "#ffe7a8"
+                                : "#d4b162",
+                            cursor: "pointer",
+                            fontSize: "0.88rem",
+                            borderRadius: 6,
+                            boxShadow: "none",
+                          }}
+                        >
+                          {sub.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                  <div
-                    style={{
-                      background: "rgba(20, 20, 30, 0.98)",
-                      border: "1px solid rgba(247, 184, 75, 0.4)",
-                      borderRadius: 8,
-                      padding: 8,
-                      maxHeight: 360,
-                      overflowY: "auto",
-                      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
-                    }}
-                  >
-                    {activeItemOptions.map((item) => (
+                  {(!isMobileViewport || mobileCascadeStep === "item") && (
+                    <div
+                      style={{
+                        background: "rgba(20, 20, 30, 0.98)",
+                        border: "1px solid rgba(247, 184, 75, 0.4)",
+                        borderRadius: 8,
+                        padding: 8,
+                        maxHeight: isMobileViewport ? "calc(100% - 58px)" : 360,
+                        overflowY: "auto",
+                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      {activeItemOptions.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => chooseItem(item.id)}
+                          style={{
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "8px 10px",
+                            border: "none",
+                            background:
+                              selectedSub2 === item.id
+                                ? "rgba(247, 184, 75, 0.14)"
+                                : "transparent",
+                            color:
+                              selectedSub2 === item.id ? "#ffe7a8" : "#aeaeb2",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                            borderRadius: 6,
+                            boxShadow: "none",
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {isMobileViewport && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 8,
+                        right: 8,
+                        bottom: 8,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 8,
+                      }}
+                    >
                       <button
-                        key={item.id}
-                        onClick={() => chooseItem(item.id)}
+                        type="button"
+                        onClick={goBackInMobileCascade}
+                        className="fantasy-btn secondary"
                         style={{
-                          width: "100%",
-                          textAlign: "left",
+                          flex: 1,
+                          borderRadius: 8,
                           padding: "8px 10px",
-                          border: "none",
-                          background:
-                            selectedSub2 === item.id
-                              ? "rgba(247, 184, 75, 0.14)"
-                              : "transparent",
-                          color:
-                            selectedSub2 === item.id ? "#ffe7a8" : "#aeaeb2",
-                          cursor: "pointer",
-                          fontSize: "0.85rem",
-                          borderRadius: 6,
-                          boxShadow: "none",
                         }}
                       >
-                        {item.label}
+                        {String(language || "").startsWith("PL")
+                          ? "Cofnij"
+                          : "Back"}
                       </button>
-                    ))}
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowCascadeDropdown(false)}
+                        className="fantasy-btn"
+                        style={{
+                          flex: 1,
+                          borderRadius: 8,
+                          padding: "8px 10px",
+                        }}
+                      >
+                        {String(language || "").startsWith("PL")
+                          ? "Zamknij"
+                          : "Close"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
