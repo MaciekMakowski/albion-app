@@ -5,7 +5,11 @@ const {
   parseTimeScale,
 } = require("../utils/marketParams");
 const { fetchPrices, fetchHistory } = require("../services/marketService");
-const { getItemIcon } = require("../services/itemIconService");
+const {
+  getItemIcon,
+  clearItemIconMemoryCache,
+  clearItemIconInflightCache,
+} = require("../services/itemIconService");
 
 async function getPricesController(req, res, next) {
   try {
@@ -69,8 +73,39 @@ async function getItemIconController(req, res, next) {
   }
 }
 
+function toBoolean(value) {
+  return String(value || "").toLowerCase() === "true";
+}
+
+async function clearItemIconMemoryCacheController(req, res, next) {
+  try {
+    const canClear =
+      toBoolean(req.query.refresh) && String(req.query.rule || "") === "admin";
+
+    if (!canClear) {
+      res.status(403).json({
+        error:
+          "Forbidden. Use refresh=true&rule=admin to clear item icon RAM cache.",
+      });
+      return;
+    }
+
+    const memoryEntriesRemoved = clearItemIconMemoryCache();
+    const inflightEntriesCleared = clearItemIconInflightCache();
+
+    res.json({
+      ok: true,
+      memoryEntriesRemoved,
+      inflightEntriesCleared,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getPricesController,
   getHistoryController,
   getItemIconController,
+  clearItemIconMemoryCacheController,
 };

@@ -1,3 +1,7 @@
+const crypto = require("node:crypto");
+const path = require("node:path");
+const fs = require("node:fs/promises");
+
 const RENDER_SERVICE_BASE =
   process.env.ALBION_RENDER_SERVICE_BASE ||
   "https://render.albiononline.com/v1/item";
@@ -12,9 +16,16 @@ const ICON_CACHE_TTL_MS = Number(
 const ICON_CACHE_MAX_ENTRIES = Number(
   process.env.ITEM_ICON_CACHE_MAX_ENTRIES || 5000,
 );
+const ICON_DISK_CACHE_ENABLED =
+  String(process.env.ITEM_ICON_DISK_CACHE_ENABLED || "true").toLowerCase() !==
+  "false";
+const ICON_DISK_CACHE_DIR =
+  process.env.ITEM_ICON_DISK_CACHE_DIR ||
+  path.join(process.cwd(), "data", "item-icons-cache");
 
 const iconCache = new Map();
 const inflightFetches = new Map();
+let diskCacheDirReadyPromise = null;
 
 function normalizeItemIdentifier(itemId) {
   const value = String(itemId || "").trim();
@@ -50,6 +61,90 @@ function normalizeLocale(locale) {
 
 function toCacheKey({ identifier, size, quality, locale }) {
   return `${identifier}|${size}|${quality ?? "-"}|${locale ?? "-"}`;
+}
+
+function getDiskCachePaths(cacheKey) {
+  const hash = crypto.createHash("sha1").update(cacheKey).digest("hex");
+  return {
+    dataPath: path.join(ICON_DISK_CACHE_DIR, `${hash}.bin`),
+    metaPath: path.join(ICON_DISK_CACHE_DIR, `${hash}.json`),
+  };
+}
+
+async function ensureDiskCacheDir() {
+  if (!ICON_DISK_CACHE_ENABLED) return;
+  if (!diskCacheDirReadyPromise) {
+    diskCacheDirReadyPromise = fs.mkdir(ICON_DISK_CACHE_DIR, {
+      recursive: true,
+    });
+  }
+  await diskCacheDirReadyPromise;
+}
+
+function toDiskEntry(rawMeta, buffer) {
+  return {
+    buffer,
+    contentType: rawMeta?.contentType || "image/png",
+    expiresAt: Number(rawMeta?.expiresAt) || 0,
+    lastAccessed: Date.now(),
+  };
+}
+
+async function readFromDiskCache(cacheKey, { allowStale = false } = {}) {
+  if (!ICON_DISK_CACHE_ENABLED) return null;
+
+  const now = Date.now();
+  try {
+    await ensureDiskCacheDir();
+    const { dataPath, metaPath } = getDiskCachePaths(cacheKey);
+    const [metaRaw, buffer] = await Promise.all([
+      fs.readFile(metaPath, "utf8"),
+      fs.readFile(dataPath),
+    ]);
+
+    const meta = JSON.parse(metaRaw);
+    const entry = toDiskEntry(meta, buffer);
+    const isFresh = entry.expiresAt > now;
+    if (!isFresh && !allowStale) return null;
+
+    iconCache.set(cacheKey, entry);
+    ensureCacheBound();
+
+    return {
+      buffer: entry.buffer,
+      contentType: entry.contentType,
+      cacheStatus: isFresh ? "DISK_HIT" : "DISK_STALE",
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function writeToDiskCache(cacheKey, entry) {
+  if (!ICON_DISK_CACHE_ENABLED) return;
+
+  try {
+    await ensureDiskCacheDir();
+    const { dataPath, metaPath } = getDiskCachePaths(cacheKey);
+    const tempDataPath = `${dataPath}.tmp`;
+    const tempMetaPath = `${metaPath}.tmp`;
+
+    const metaPayload = JSON.stringify(
+      {
+        contentType: entry.contentType || "image/png",
+        expiresAt: Number(entry.expiresAt) || Date.now() + ICON_CACHE_TTL_MS,
+      },
+      null,
+      0,
+    );
+
+    await fs.writeFile(tempDataPath, entry.buffer);
+    await fs.writeFile(tempMetaPath, metaPayload, "utf8");
+    await fs.rename(tempDataPath, dataPath);
+    await fs.rename(tempMetaPath, metaPath);
+  } catch {
+    // Disk cache failures should never break icon serving.
+  }
 }
 
 function ensureCacheBound() {
@@ -153,6 +248,11 @@ async function getItemIcon({ itemId, size, quality, locale }) {
     };
   }
 
+  const diskCached = await readFromDiskCache(cacheKey);
+  if (diskCached) {
+    return diskCached;
+  }
+
   const existingInflight = inflightFetches.get(cacheKey);
   if (existingInflight) {
     const sharedResult = await existingInflight;
@@ -182,6 +282,7 @@ async function getItemIcon({ itemId, size, quality, locale }) {
     };
     iconCache.set(cacheKey, entry);
     ensureCacheBound();
+    await writeToDiskCache(cacheKey, entry);
     return {
       buffer: entry.buffer,
       contentType: entry.contentType,
@@ -203,12 +304,32 @@ async function getItemIcon({ itemId, size, quality, locale }) {
         cacheStatus: "STALE",
       };
     }
+
+    const diskStale = await readFromDiskCache(cacheKey, { allowStale: true });
+    if (diskStale) {
+      return diskStale;
+    }
+
     throw error;
   } finally {
     inflightFetches.delete(cacheKey);
   }
 }
 
+function clearItemIconMemoryCache() {
+  const count = iconCache.size;
+  iconCache.clear();
+  return count;
+}
+
+function clearItemIconInflightCache() {
+  const count = inflightFetches.size;
+  inflightFetches.clear();
+  return count;
+}
+
 module.exports = {
   getItemIcon,
+  clearItemIconMemoryCache,
+  clearItemIconInflightCache,
 };
