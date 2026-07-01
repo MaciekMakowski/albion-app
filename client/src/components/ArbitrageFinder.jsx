@@ -302,44 +302,117 @@ export default function ArbitrageFinder({ language, region }) {
 
       {!loading && opportunities.length > 0 && (
         <div className="fantasy-section">
-          <table className="fantasy-table">
-            <thead>
-              <tr>
-                <th>{getUiText("item", language)}</th>
-                <th>{getUiText("arbitrageBuyCity", language)}</th>
-                <th>{getUiText("arbitrageBuyPrice", language)}</th>
-                <th>{getUiText("arbitrageSellCity", language)}</th>
-                <th>{getUiText("arbitrageSellPrice", language)}</th>
-                <th>{getUiText("arbitrageProfit", language)}</th>
-                <th>{getUiText("arbitrageProfitPercent", language)}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {opportunities.map((opp) => (
-                <tr key={opp.itemId}>
-                  <td className="fantasy-item-name">
-                    {getItemDisplayLabel(opp.itemId, itemNameLookup)}
-                  </td>
-                  <td>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: 12,
+            }}
+          >
+            {opportunities.map((opp) => (
+              <div
+                key={opp.itemId}
+                style={{
+                  border: "1px solid rgba(247, 184, 75, 0.2)",
+                  borderRadius: 12,
+                  padding: 12,
+                  background: "rgba(255, 255, 255, 0.03)",
+                }}
+              >
+                <div
+                  className="fantasy-item-name"
+                  style={{
+                    fontWeight: 700,
+                    color: "#ffe7a8",
+                    marginBottom: 10,
+                  }}
+                >
+                  {getItemDisplayLabel(opp.itemId, itemNameLookup)}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    gap: "6px 10px",
+                    alignItems: "center",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <span style={{ color: "#d4b162" }}>
+                    {getUiText("arbitrageBuyCity", language)}
+                  </span>
+                  <span style={{ color: "#f7e4b1" }}>
                     <CityDotLabel city={opp.bestBuyCity} />
-                  </td>
-                  <td className="fantasy-price">
+                  </span>
+
+                  <span style={{ color: "#d4b162" }}>
+                    {getUiText("arbitrageBuyPrice", language)}
+                  </span>
+                  <span className="fantasy-price" style={{ color: "#f7e4b1" }}>
                     {opp.bestBuyPrice.toLocaleString()}
-                  </td>
-                  <td>
+                  </span>
+
+                  <span style={{ color: "#d4b162" }}>
+                    {getUiText("arbitrageSellCity", language)}
+                  </span>
+                  <span style={{ color: "#f7e4b1" }}>
                     <CityDotLabel city={opp.bestSellCity} />
-                  </td>
-                  <td className="fantasy-price">
+                  </span>
+
+                  <span style={{ color: "#d4b162" }}>
+                    {getUiText("arbitrageSellPrice", language)}
+                  </span>
+                  <span className="fantasy-price" style={{ color: "#f7e4b1" }}>
                     {opp.bestSellPrice.toLocaleString()}
-                  </td>
-                  <td className="fantasy-profit">
-                    {opp.profit.toLocaleString()}
-                  </td>
-                  <td className="fantasy-margin">{opp.margin.toFixed(2)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTop: "1px solid rgba(247, 184, 75, 0.14)",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      background: "rgba(34, 197, 94, 0.12)",
+                      border: "1px solid rgba(34, 197, 94, 0.35)",
+                      borderRadius: 8,
+                      padding: "8px 10px",
+                    }}
+                  >
+                    <div style={{ fontSize: "0.75rem", color: "#b8eec9" }}>
+                      {getUiText("arbitrageProfit", language)}
+                    </div>
+                    <div className="fantasy-profit" style={{ fontWeight: 700 }}>
+                      {opp.profit.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "rgba(59, 130, 246, 0.12)",
+                      border: "1px solid rgba(59, 130, 246, 0.35)",
+                      borderRadius: 8,
+                      padding: "8px 10px",
+                    }}
+                  >
+                    <div style={{ fontSize: "0.75rem", color: "#b9d8ff" }}>
+                      {getUiText("arbitrageProfitPercent", language)}
+                    </div>
+                    <div className="fantasy-margin" style={{ fontWeight: 700 }}>
+                      {opp.margin.toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

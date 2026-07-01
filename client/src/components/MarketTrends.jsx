@@ -58,6 +58,7 @@ function calculateTrend(historyData, daysBack) {
   const cutoffTime = Date.now() - daysBack * 24 * 60 * 60 * 1000;
   const prices = [];
   const priceHistory = []; // Store all prices for sparkline
+  const cityFirstPrices = new Map(); // Track earliest price per city in timeframe
   const cityPrices = new Map(); // Track latest price per city
 
   for (const entry of historyData) {
@@ -72,6 +73,15 @@ function calculateTrend(historyData, daysBack) {
         if (avgPrice > 0) {
           prices.push({ ts, price: avgPrice, location });
           priceHistory.push(avgPrice); // Add to sparkline data
+
+          // Track earliest price per city
+          if (
+            !cityFirstPrices.has(location) ||
+            cityFirstPrices.get(location).ts > ts
+          ) {
+            cityFirstPrices.set(location, { ts, price: avgPrice });
+          }
+
           // Track latest price per city
           if (!cityPrices.has(location) || cityPrices.get(location).ts < ts) {
             cityPrices.set(location, { ts, price: avgPrice });
@@ -101,10 +111,18 @@ function calculateTrend(historyData, daysBack) {
       prices.findIndex((p) => p.price === b),
   );
 
-  const oldestPrice = prices[0].price;
-  const latestPrice = prices[prices.length - 1].price;
-  const change = latestPrice - oldestPrice;
-  const changePercent = oldestPrice > 0 ? (change / oldestPrice) * 100 : 0;
+  const firstCityPrices = Array.from(cityFirstPrices.values()).map(
+    (entry) => entry.price,
+  );
+
+  if (firstCityPrices.length === 0 || cityPrices.size === 0) {
+    return null;
+  }
+
+  // Keep start as city-aggregated baseline.
+  const oldestPrice =
+    firstCityPrices.reduce((sum, value) => sum + value, 0) /
+    firstCityPrices.length;
 
   // Find city with highest price
   let bestCity = "Unknown";
@@ -115,6 +133,11 @@ function calculateTrend(historyData, daysBack) {
       bestCity = city;
     }
   }
+
+  // Business rule: ending price should always be the best current city price.
+  const latestPrice = bestPrice;
+  const change = latestPrice - oldestPrice;
+  const changePercent = oldestPrice > 0 ? (change / oldestPrice) * 100 : 0;
 
   return {
     oldestPrice: Math.floor(oldestPrice),
@@ -323,70 +346,122 @@ export default function MarketTrends({ language, region }) {
 
       {!loading && trends.length > 0 && (
         <div className="fantasy-section">
-          <table className="fantasy-table">
-            <thead>
-              <tr>
-                <th>{getUiText("item", language)}</th>
-                <th>{getUiText("marketTrendsPriceStart", language)}</th>
-                <th>{getUiText("marketTrendsPriceEnd", language)}</th>
-                <th>{getUiText("marketTrendsChange", language)}</th>
-                <th>{getUiText("marketTrendsChangePercent", language)}</th>
-                <th style={{ textAlign: "center" }}>Chart</th>
-                <th>{getUiText("marketTrendsBestCity", language)}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trends.map((trend) => (
-                <tr
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: 12,
+            }}
+          >
+            {trends.map((trend) => {
+              const trendClass = trend.isUp
+                ? "fantasy-positive"
+                : "fantasy-negative";
+              return (
+                <div
                   key={trend.itemId}
                   className={
                     trend.isUp ? "fantasy-trend-up" : "fantasy-trend-down"
                   }
+                  style={{
+                    border: "1px solid rgba(247, 184, 75, 0.2)",
+                    borderRadius: 12,
+                    padding: 12,
+                    background: "rgba(255, 255, 255, 0.03)",
+                  }}
                 >
-                  <td className="fantasy-item-name">
+                  <div
+                    className="fantasy-item-name"
+                    style={{
+                      fontWeight: 700,
+                      color: "#ffe7a8",
+                      marginBottom: 10,
+                    }}
+                  >
                     {getItemDisplayLabel(trend.itemId, itemNameLookup)}
-                  </td>
-                  <td className="fantasy-price">
-                    {trend.oldestPrice.toLocaleString()}
-                  </td>
-                  <td className="fantasy-price">
-                    {trend.latestPrice.toLocaleString()}
-                  </td>
-                  <td
-                    className={
-                      trend.isUp ? "fantasy-positive" : "fantasy-negative"
-                    }
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr auto",
+                      gap: "6px 10px",
+                      alignItems: "center",
+                      fontSize: "0.9rem",
+                    }}
                   >
-                    {trend.change > 0 ? "+" : ""}
-                    {trend.change.toLocaleString()}
-                  </td>
-                  <td
-                    className={
-                      trend.isUp ? "fantasy-positive" : "fantasy-negative"
-                    }
-                  >
-                    {trend.changePercent > 0 ? "↑" : "↓"}{" "}
-                    {Math.abs(trend.changePercent).toFixed(2)}%
-                  </td>
-                  <td style={{ textAlign: "center", padding: "4px 8px" }}>
-                    {trend.priceHistory && trend.priceHistory.length > 1 ? (
-                      <MiniSparkline prices={trend.priceHistory} />
-                    ) : (
-                      <span style={{ fontSize: "0.8em", opacity: 0.5 }}>—</span>
-                    )}
-                  </td>
-                  <td className="fantasy-price">
-                    <div>
+                    <span style={{ color: "#d4b162" }}>
+                      {getUiText("marketTrendsPriceStart", language)}
+                    </span>
+                    <span
+                      className="fantasy-price"
+                      style={{ color: "#f7e4b1" }}
+                    >
+                      {trend.oldestPrice.toLocaleString()}
+                    </span>
+
+                    <span style={{ color: "#d4b162" }}>
+                      {getUiText("marketTrendsPriceEnd", language)}
+                    </span>
+                    <span
+                      className="fantasy-price"
+                      style={{ color: "#f7e4b1" }}
+                    >
+                      {trend.latestPrice.toLocaleString()}
+                    </span>
+
+                    <span style={{ color: "#d4b162" }}>
+                      {getUiText("marketTrendsChange", language)}
+                    </span>
+                    <span className={trendClass}>
+                      {trend.change > 0 ? "+" : ""}
+                      {trend.change.toLocaleString()}
+                    </span>
+
+                    <span style={{ color: "#d4b162" }}>
+                      {getUiText("marketTrendsChangePercent", language)}
+                    </span>
+                    <span className={trendClass}>
+                      {trend.changePercent > 0 ? "↑" : "↓"}{" "}
+                      {Math.abs(trend.changePercent).toFixed(2)}%
+                    </span>
+
+                    <span style={{ color: "#d4b162" }}>
+                      {getUiText("marketTrendsBestCity", language)}
+                    </span>
+                    <span style={{ color: "#f7e4b1" }}>
                       <CityDotLabel city={trend.bestCity} />
-                    </div>
-                    <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 10,
+                      paddingTop: 10,
+                      borderTop: "1px solid rgba(247, 184, 75, 0.14)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ fontSize: "0.82rem", color: "#d4b162" }}>
                       {trend.bestPrice.toLocaleString()}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div>
+                      {trend.priceHistory && trend.priceHistory.length > 1 ? (
+                        <MiniSparkline prices={trend.priceHistory} />
+                      ) : (
+                        <span style={{ fontSize: "0.8em", opacity: 0.5 }}>
+                          —
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
