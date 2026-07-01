@@ -1,10 +1,14 @@
 const { buildQuery } = require("../utils/marketParams");
 
-const ALBION_API_TIMEOUT_MS = Number(process.env.ALBION_API_TIMEOUT_MS || 8000);
+const ALBION_API_TIMEOUT_MS = Number(
+  process.env.ALBION_API_TIMEOUT_MS || 30000,
+);
 const ALBION_API_RETRY_COUNT = Number(process.env.ALBION_API_RETRY_COUNT || 2);
 const ALBION_API_RETRY_BASE_DELAY_MS = Number(
   process.env.ALBION_API_RETRY_BASE_DELAY_MS || 200,
 );
+
+const inflightAlbionRequests = new Map();
 
 function getHostForRegion(region) {
   return region === "europe"
@@ -15,10 +19,27 @@ function getHostForRegion(region) {
 }
 
 async function fetchAlbionJson(url) {
+  const requestKey = String(url || "");
+  const inflight = inflightAlbionRequests.get(requestKey);
+  if (inflight) {
+    return inflight;
+  }
+
+  const requestPromise = fetchAlbionJsonUncached(requestKey);
+  inflightAlbionRequests.set(requestKey, requestPromise);
+
+  try {
+    return await requestPromise;
+  } finally {
+    inflightAlbionRequests.delete(requestKey);
+  }
+}
+
+async function fetchAlbionJsonUncached(url) {
   const timeoutMs =
     Number.isFinite(ALBION_API_TIMEOUT_MS) && ALBION_API_TIMEOUT_MS > 0
       ? ALBION_API_TIMEOUT_MS
-      : 8000;
+      : 30000;
   const maxRetries =
     Number.isFinite(ALBION_API_RETRY_COUNT) && ALBION_API_RETRY_COUNT >= 0
       ? ALBION_API_RETRY_COUNT

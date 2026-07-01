@@ -4,7 +4,7 @@ const RENDER_SERVICE_BASE =
 const ICON_FETCH_TIMEOUT_MS = Number(
   process.env.ALBION_RENDER_TIMEOUT_MS ||
     process.env.ALBION_API_TIMEOUT_MS ||
-    8000,
+    30000,
 );
 const ICON_CACHE_TTL_MS = Number(
   process.env.ITEM_ICON_CACHE_TTL_MS || 12 * 60 * 60 * 1000,

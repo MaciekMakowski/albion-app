@@ -2,6 +2,61 @@ function toApiError(response) {
   return new Error(`HTTP ${response.status}`);
 }
 
+const inflightRequests = new Map();
+const responseCache = new Map();
+
+function nowMs() {
+  return Date.now();
+}
+
+function isForcedRefreshUrl(url) {
+  return /[?&]refresh=true(?:&|$)/i.test(String(url || ""));
+}
+
+async function fetchJsonWithDedup(url, ttlMs = 0) {
+  const cacheKey = String(url || "");
+  const forceRefresh = isForcedRefreshUrl(cacheKey);
+
+  if (!forceRefresh && ttlMs > 0) {
+    const cached = responseCache.get(cacheKey);
+    if (cached && cached.expiresAt > nowMs()) {
+      return cached.payload;
+    }
+    if (cached) {
+      responseCache.delete(cacheKey);
+    }
+  }
+
+  if (inflightRequests.has(cacheKey)) {
+    return inflightRequests.get(cacheKey);
+  }
+
+  const requestPromise = (async () => {
+    const response = await fetch(cacheKey);
+    if (!response.ok) {
+      throw toApiError(response);
+    }
+    const payload = await response.json();
+
+    if (!forceRefresh && ttlMs > 0) {
+      responseCache.set(cacheKey, {
+        payload,
+        expiresAt: nowMs() + ttlMs,
+      });
+    }
+
+    return payload;
+  })();
+
+  inflightRequests.set(cacheKey, requestPromise);
+
+  try {
+    return await requestPromise;
+  } finally {
+    inflightRequests.delete(cacheKey);
+  }
+}
+
 function toIdsPath(itemIds) {
   return (itemIds || [])
     .filter(Boolean)
@@ -106,11 +161,7 @@ export async function fetchItemPriceHistory(
     ...refreshParams,
   });
   const url = `/api/market/history/${encodeURIComponent(itemId)}${query}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw toApiError(response);
-  }
-  return response.json();
+  return fetchJsonWithDedup(url, 30_000);
 }
 
 export async function fetchItemsPriceHistoryBatch(
@@ -130,12 +181,7 @@ export async function fetchItemsPriceHistoryBatch(
     ...refreshParams,
   });
   const url = `/api/market/history/${toIdsPath(validIds)}${query}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw toApiError(response);
-  }
-  return response.json();
+  return fetchJsonWithDedup(url, 20_000);
 }
 
 export async function fetchItemsPricesBatch(itemIds, region, locations = []) {
@@ -149,10 +195,5 @@ export async function fetchItemsPricesBatch(itemIds, region, locations = []) {
     ...refreshParams,
   });
   const url = `/api/market/prices/${toIdsPath(validIds)}${query}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw toApiError(response);
-  }
-  return response.json();
+  return fetchJsonWithDedup(url, 10_000);
 }
