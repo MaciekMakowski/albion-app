@@ -3,7 +3,6 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import ArbitrageFinder from "./components/ArbitrageFinder";
 import CraftPlanner from "./components/CraftPlanner";
-import LocationArbitrageMap from "./components/LocationArbitrageMap";
 import MarketTrends from "./components/MarketTrends";
 import PriceChecker from "./components/PriceChecker";
 import RecipeSimulator from "./components/RecipeSimulator";
@@ -23,13 +22,11 @@ export default function App() {
         ? "top"
         : location.pathname === "/arbitrage"
           ? "arbitrage"
-          : location.pathname === "/location-map"
-            ? "locationMap"
-            : location.pathname === "/market-trends"
-              ? "trends"
-              : location.pathname === "/craft-planner"
-                ? "craft"
-                : "recipe";
+          : location.pathname === "/market-trends"
+            ? "trends"
+            : location.pathname === "/craft-planner"
+              ? "craft"
+              : "recipe";
 
   useEffect(() => {
     const titleKey =
@@ -39,13 +36,11 @@ export default function App() {
           ? "topProductsTitle"
           : activeModule === "arbitrage"
             ? "arbitrageFinderTitle"
-            : activeModule === "locationMap"
-              ? "locationMapTitle"
-              : activeModule === "trends"
-                ? "marketTrendsTitle"
-                : activeModule === "craft"
-                  ? "craftPlannerTitle"
-                  : "title";
+            : activeModule === "trends"
+              ? "marketTrendsTitle"
+              : activeModule === "craft"
+                ? "craftPlannerTitle"
+                : "title";
     document.title = getUiText(titleKey, language);
   }, [activeModule, language]);
 
@@ -79,9 +74,7 @@ export default function App() {
           />
           <Route
             path="/location-map"
-            element={
-              <LocationArbitrageMap language={language} region={region} />
-            }
+            element={<Navigate to="/arbitrage" replace />}
           />
           <Route
             path="/market-trends"
