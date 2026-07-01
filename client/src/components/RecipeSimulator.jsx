@@ -672,7 +672,7 @@ export default function RecipeSimulator({ language, region }) {
 
       <div className="fantasy-divider" />
 
-      <div className="fantasy-controls-grid">
+      <div className="fantasy-control-group-col">
         <div className="fantasy-control-group wide">
           <ItemSearchInput
             value={outputItem}
@@ -685,31 +685,32 @@ export default function RecipeSimulator({ language, region }) {
             language={language}
           />
         </div>
-
         <div className="fantasy-control-group">
-          <label>{getUiText("percentReturn", language)}</label>
-          <input
-            type="number"
-            value={returnPercent}
-            onChange={(e) => setReturnPercent(Number(e.target.value))}
-            style={{ width: 90 }}
-          />
-        </div>
+          <div className="fantasy-control-group">
+            <label>{getUiText("percentReturn", language)}</label>
+            <input
+              type="number"
+              value={returnPercent}
+              onChange={(e) => setReturnPercent(Number(e.target.value))}
+              style={{ width: 90 }}
+            />
+          </div>
 
-        <div className="fantasy-control-group">
-          <label>{getUiText("saleTaxRate", language)}</label>
-          <select
-            value={saleTaxPercent}
-            onChange={(e) => setSaleTaxPercent(Number(e.target.value))}
-            style={{ width: 170 }}
-          >
-            <option value={4}>
-              4% - {getUiText("saleTaxPremium", language)}
-            </option>
-            <option value={6}>
-              6% - {getUiText("saleTaxStandard", language)}
-            </option>
-          </select>
+          <div className="fantasy-control-group">
+            <label>{getUiText("saleTaxRate", language)}</label>
+            <select
+              value={saleTaxPercent}
+              onChange={(e) => setSaleTaxPercent(Number(e.target.value))}
+              style={{ width: 170 }}
+            >
+              <option value={4}>
+                4% - {getUiText("saleTaxPremium", language)}
+              </option>
+              <option value={6}>
+                6% - {getUiText("saleTaxStandard", language)}
+              </option>
+            </select>
+          </div>
         </div>
 
         <div className="fantasy-actions">

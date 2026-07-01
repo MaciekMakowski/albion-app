@@ -30,12 +30,14 @@ export default function ItemIcon({
   style,
 }) {
   const [failed, setFailed] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const identifier = useMemo(() => normalizeItemIdentifier(itemId), [itemId]);
   const finalSize = clampSize(size);
 
   useEffect(() => {
     setFailed(false);
+    setIsLoaded(false);
   }, [identifier, finalSize, quality]);
 
   if (!identifier || failed) {
@@ -61,26 +63,67 @@ export default function ItemIcon({
   }`;
 
   return (
-    <img
-      src={proxyUrl}
-      alt={alt || identifier}
-      title={title || identifier}
+    <span
       className={className}
-      width={finalSize}
-      height={finalSize}
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
       style={{
+        position: "relative",
+        display: "inline-block",
         width: finalSize,
         height: finalSize,
         minWidth: finalSize,
-        borderRadius: 6,
-        objectFit: "contain",
-        background: "rgba(255, 255, 255, 0.04)",
-        border: "1px solid rgba(236, 85, 44, 0.28)",
         ...style,
       }}
-    />
+    >
+      {!isLoaded && (
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 6,
+            background:
+              "linear-gradient(110deg, rgba(236, 85, 44, 0.12), rgba(236, 85, 44, 0.28), rgba(236, 85, 44, 0.12))",
+            backgroundSize: "220% 100%",
+            animation: "itemIconShimmer 1.1s ease-in-out infinite",
+            border: "1px solid rgba(236, 85, 44, 0.28)",
+          }}
+        />
+      )}
+
+      <img
+        src={proxyUrl}
+        alt={alt || identifier}
+        title={title || identifier}
+        width={finalSize}
+        height={finalSize}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setFailed(true)}
+        style={{
+          width: finalSize,
+          height: finalSize,
+          minWidth: finalSize,
+          borderRadius: 6,
+          objectFit: "contain",
+          background: "rgba(255, 255, 255, 0.04)",
+          border: "1px solid rgba(236, 85, 44, 0.28)",
+          opacity: isLoaded ? 1 : 0,
+          transition: "opacity 140ms ease",
+          display: "block",
+        }}
+      />
+
+      <style>{`
+        @keyframes itemIconShimmer {
+          0% {
+            background-position: 100% 0;
+          }
+          100% {
+            background-position: -100% 0;
+          }
+        }
+      `}</style>
+    </span>
   );
 }

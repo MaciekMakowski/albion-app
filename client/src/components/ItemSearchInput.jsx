@@ -36,6 +36,7 @@ export default function ItemSearchInput({
   const [selectedTier, setSelectedTier] = useState("all");
   const [selectedEnchantment, setSelectedEnchantment] = useState("all");
   const timerRef = useRef(null);
+  const containerRef = useRef(null);
 
   const tierOptions = useMemo(() => {
     const tiers = new Set();
@@ -98,15 +99,26 @@ export default function ItemSearchInput({
     updateSuggestions(value);
   }, [selectedTier, selectedEnchantment, itemsIndex]);
 
+  useEffect(() => {
+    function handleDocumentMouseDown(event) {
+      if (!containerRef.current) return;
+      if (containerRef.current.contains(event.target)) return;
+      setSuggestions([]);
+    }
+
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
+    };
+  }, []);
+
   return (
-    <div className="fantasy-control-group wide">
+    <div className="fantasy-control-group wide" ref={containerRef}>
       {label && <label>{label}</label>}
       <div
         style={{
           display: "flex",
           gap: "8px",
-          marginBottom: "6px",
-          flexWrap: "wrap",
         }}
       >
         <select

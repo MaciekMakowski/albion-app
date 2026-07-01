@@ -617,6 +617,12 @@ tr:nth-child(even) td {
   min-width: 140px;
   align-items: center;
 }
+.fantasy-control-group-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .fantasy-control-group.reverse {
   flex-direction: row-reverse;
 }
@@ -869,6 +875,7 @@ tr:nth-child(even) td {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .fantasy-suggestions {
