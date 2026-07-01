@@ -58,7 +58,10 @@ async function getItemIconController(req, res, next) {
     });
 
     res.set("Content-Type", result.contentType || "image/png");
-    res.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+    res.set(
+      "Cache-Control",
+      "public, max-age=3600, stale-while-revalidate=86400",
+    );
     res.set("X-Cache", result.cacheStatus || "MISS");
     res.status(200).send(result.buffer);
   } catch (error) {

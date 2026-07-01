@@ -2,10 +2,16 @@ const RENDER_SERVICE_BASE =
   process.env.ALBION_RENDER_SERVICE_BASE ||
   "https://render.albiononline.com/v1/item";
 const ICON_FETCH_TIMEOUT_MS = Number(
-  process.env.ALBION_RENDER_TIMEOUT_MS || process.env.ALBION_API_TIMEOUT_MS || 8000,
+  process.env.ALBION_RENDER_TIMEOUT_MS ||
+    process.env.ALBION_API_TIMEOUT_MS ||
+    8000,
 );
-const ICON_CACHE_TTL_MS = Number(process.env.ITEM_ICON_CACHE_TTL_MS || 12 * 60 * 60 * 1000);
-const ICON_CACHE_MAX_ENTRIES = Number(process.env.ITEM_ICON_CACHE_MAX_ENTRIES || 5000);
+const ICON_CACHE_TTL_MS = Number(
+  process.env.ITEM_ICON_CACHE_TTL_MS || 12 * 60 * 60 * 1000,
+);
+const ICON_CACHE_MAX_ENTRIES = Number(
+  process.env.ITEM_ICON_CACHE_MAX_ENTRIES || 5000,
+);
 
 const iconCache = new Map();
 const inflightFetches = new Map();
